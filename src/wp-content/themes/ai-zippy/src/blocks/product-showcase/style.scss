@@ -1,0 +1,421 @@
+// Product Showcase Block — Frontend + Editor styles
+
+$ps-primary: var(--wp--preset--color--primary, #1a1a1a);
+$ps-accent: var(--wp--preset--color--accent, #c8a97e);
+$ps-navy: #1b2a4a;
+$ps-orange: #ff6b00;
+$ps-radius: 12px;
+$ps-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+.wp-block-ai-zippy-product-showcase {
+	margin: 0 auto;
+
+	// ---- LOADING STATE ----
+	// Hide real content, show skeleton placeholders until JS adds .is-loaded
+	&:not(.is-loaded) {
+		.ps__header {
+			visibility: hidden;
+			height: 0;
+			overflow: hidden;
+		}
+
+		.ps__grid,
+		.ps__swiper {
+			visibility: hidden;
+			height: 0;
+			overflow: hidden;
+		}
+
+		// Show skeleton instead
+		&::after {
+			content: "";
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 1.25rem;
+			min-height: 380px;
+			background:
+				// Card 1
+				linear-gradient(#f0f0f0, #f0f0f0) 0 0 / 100% 100% no-repeat;
+			border-radius: $ps-radius;
+			animation: psShimmer 1.5s ease infinite;
+			background-size: 200% 100%;
+			background-image: linear-gradient(90deg, #f2f2f2 25%, #e8e8e8 50%, #f2f2f2 75%);
+		}
+	}
+
+	// Loaded — fade in content
+	&.is-loaded {
+		.ps__header,
+		.ps__grid,
+		.ps__swiper {
+			animation: psFadeIn 0.4s ease;
+		}
+	}
+}
+
+@keyframes psShimmer {
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}
+
+@keyframes psFadeIn {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+// ---- HEADER (title + nav arrows) ----
+.ps__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
+}
+
+.ps__heading {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0;
+	color: $ps-primary;
+}
+
+.ps__nav {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.ps__nav-btn {
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #ddd;
+	border-radius: 50%;
+	background: #fff;
+	color: #666;
+	cursor: pointer;
+	transition: all $ps-transition;
+
+	&:hover {
+		border-color: $ps-navy;
+		color: $ps-navy;
+		background: #f8f8f8;
+	}
+}
+
+// ---- GRID LAYOUT ----
+.ps__grid {
+	display: grid;
+	gap: 1.25rem;
+}
+
+// ---- SLIDER ----
+.ps__swiper {
+	overflow: hidden;
+	padding-bottom: 3.5rem !important;  // Space for pagination
+
+	.swiper-slide {
+		height: auto; // Equal height slides
+	}
+}
+
+.ps__pagination {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+
+	.swiper-pagination-bullet {
+		width: 8px;
+		height: 8px;
+		background: #ccc;
+		opacity: 1;
+		transition: all $ps-transition;
+
+		&-active {
+			background: $ps-navy;
+			width: 24px;
+			border-radius: 4px;
+		}
+	}
+}
+
+// ---- PRODUCT CARD ----
+.ps__card {
+	border: 1px solid #eee;
+	border-radius: $ps-radius;
+	overflow: hidden;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	transition: transform $ps-transition, box-shadow $ps-transition;
+
+	&:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+	}
+}
+
+// Image area
+.ps__card-image {
+	position: relative;
+	background: #f8f8f8;
+	border-radius: $ps-radius $ps-radius 0 0;
+	overflow: hidden;
+
+	> a {
+		display: block;
+		overflow: hidden;
+	}
+}
+
+.ps__card-img {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	object-fit: contain;
+	display: block;
+	padding: 1.25rem;
+	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+	.ps__card:hover & {
+		transform: scale(1.06);
+	}
+}
+
+// Badges
+.ps__badge {
+	position: absolute;
+	top: 0.75rem;
+	left: 0.75rem;
+	padding: 0.3rem 0.75rem;
+	border-radius: 6px;
+	font-size: 0.65rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	z-index: 2;
+
+	&--sale {
+		background: $ps-orange;
+		color: #fff;
+	}
+
+	&--oos {
+		background: #666;
+		color: #fff;
+	}
+}
+
+// Wishlist (top-right of image)
+.ps__wish {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	width: 34px;
+	height: 34px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.9);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	color: #ccc;
+	transition: all $ps-transition;
+	z-index: 2;
+
+	&:hover,
+	&.is-active {
+		color: $ps-orange;
+		background: #fff;
+	}
+}
+
+// Gallery thumbnails
+.ps__thumbs {
+	display: flex;
+	gap: 0.35rem;
+	padding: 0.5rem 0.85rem 0.85rem;
+}
+
+.ps__thumb {
+	width: 36px;
+	height: 36px;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	overflow: hidden;
+	cursor: pointer;
+	background: #fff;
+	padding: 2px;
+	transition: border-color $ps-transition;
+
+	&.is-active,
+	&:hover {
+		border-color: $ps-navy;
+	}
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	&--more {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: #999;
+		text-decoration: none;
+		background: #f0f0f0;
+
+		&:hover {
+			color: $ps-navy;
+			border-color: $ps-navy;
+		}
+	}
+}
+
+// Card body
+.ps__card-body {
+	padding: 1rem 1rem 1.15rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	flex: 1;
+}
+
+.ps__card-cat {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: $ps-orange;
+	font-weight: 600;
+}
+
+.ps__card-title {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: $ps-primary;
+	text-decoration: none;
+	line-height: 1.3;
+	transition: color $ps-transition;
+
+	&:hover {
+		color: $ps-accent;
+	}
+}
+
+.ps__card-rating {
+	margin-top: 0.15rem;
+
+	.star-rating {
+		font-size: 0.8rem;
+		color: #f5a623;
+	}
+}
+
+.ps__card-price {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: $ps-primary;
+	margin-top: 0.35rem;
+
+	del {
+		color: #bbb;
+		font-size: 0.85em;
+		font-weight: 400;
+		margin-left: 0.35rem;
+	}
+
+	ins {
+		text-decoration: none;
+	}
+
+	.woocommerce-Price-amount {
+		font-size: inherit;
+		font-weight: inherit;
+	}
+}
+
+// Actions
+.ps__card-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: auto;
+	padding-top: 0.85rem;
+}
+
+.ps__card-btn {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.7rem 1rem;
+	background: $ps-navy;
+	color: #fff !important;
+	border: none;
+	border-radius: 8px;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background $ps-transition, transform $ps-transition;
+
+	&:hover {
+		background: lighten(#1b2a4a, 10%);
+		transform: translateY(-1px);
+	}
+}
+
+.ps__card-wish-sm {
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: 1px solid #eee;
+	border-radius: 8px;
+	cursor: pointer;
+	color: #ccc;
+	transition: all $ps-transition;
+	flex-shrink: 0;
+
+	&:hover,
+	&.is-active {
+		color: $ps-orange;
+		border-color: $ps-orange;
+	}
+}
+
+// ---- RESPONSIVE ----
+@media (max-width: 768px) {
+	.ps__grid {
+		grid-template-columns: repeat(2, 1fr) !important;
+	}
+
+	.ps__card-img {
+		padding: 0.75rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.ps__grid {
+		grid-template-columns: 1fr !important;
+	}
+
+	.ps__header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.75rem;
+	}
+}

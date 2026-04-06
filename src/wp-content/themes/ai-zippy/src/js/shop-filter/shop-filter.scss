@@ -1,0 +1,1003 @@
+// Shop Filter React App Styles
+
+$sf-primary: var(--wp--preset--color--primary, #1a1a1a);
+$sf-accent: var(--wp--preset--color--accent, #c8a97e);
+$sf-bg: var(--wp--preset--color--secondary, #f5f5f5);
+$sf-border: #e5e5e5;
+$sf-radius: 8px;
+$sf-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ---- LAYOUT ----
+.sf {
+	max-width: 1200px;
+	margin: 0 auto;
+	min-height: 80vh;
+}
+
+// ---- INITIAL LOADING STATE ----
+.sf--loading {
+	min-height: 80vh;
+
+	.sf__toolbar-skeleton {
+		height: 50px;
+		border-radius: $sf-radius;
+		margin-bottom: 1rem;
+		background: linear-gradient(90deg, #f5f5f5 25%, #eee 50%, #f5f5f5 75%);
+		background-size: 200% 100%;
+		animation: sfShimmer 1.5s ease infinite;
+	}
+
+	.sf__filters-skeleton {
+		width: 260px;
+		min-width: 260px;
+		min-height: 400px;
+		border-radius: $sf-radius;
+		background: linear-gradient(90deg, #f5f5f5 25%, #eee 50%, #f5f5f5 75%);
+		background-size: 200% 100%;
+		animation: sfShimmer 1.5s ease infinite;
+	}
+
+	.sf__body {
+		display: flex;
+		gap: 2rem;
+	}
+
+	.sf__products {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.sf__body {
+	display: flex;
+	gap: 2rem;
+}
+
+// Loading state
+.sf-loading {
+	text-align: center;
+	padding: 3rem;
+	color: #999; 
+}
+
+// Sidebar mode — desktop
+.sf--sidebar .sf__filters--sidebar {
+	width: 260px;
+	min-width: 260px;
+	position: sticky;
+	top: 5rem;
+	align-self: flex-start;
+	max-height: calc(100vh - 6rem);
+	overflow-y: auto;
+	padding-right: 0.5rem;
+
+	&::-webkit-scrollbar {
+		width: 4px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: #ddd;
+		border-radius: 2px;
+	}
+
+	.sf__filters-header {
+		display: none;
+	}
+}
+
+.sf--sidebar .sf__products {
+	flex: 1;
+	min-width: 0;
+}
+
+// Top mode
+.sf--top .sf__body {
+	flex-direction: column;
+}
+
+.sf--top .sf__filters--top {
+	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 1rem;
+	padding: 1.25rem;
+	background: $sf-bg;
+	border-radius: $sf-radius;
+	margin-bottom: 1.5rem;
+
+	.sf__section {
+		border-bottom: none;
+		padding-bottom: 0;
+		margin-bottom: 0;
+	}
+
+	.sf__filters-header {
+		display: none;
+	}
+}
+
+// ---- TOOLBAR ----
+.sf__toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	margin-bottom: 1rem;
+	border-bottom: 1px solid $sf-border;
+}
+
+.sf__toolbar-left,
+.sf__toolbar-right {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.sf__count {
+	font-size: 0.85rem;
+	color: #666;
+}
+
+.sf__sort {
+	padding: 0.45rem 2rem 0.45rem 0.75rem;
+	border: 1px solid $sf-border;
+	border-radius: $sf-radius;
+	font-size: 0.8rem;
+	background: #fff;
+	cursor: pointer;
+	transition: border-color $sf-transition;
+
+	&:focus {
+		border-color: $sf-primary;
+		outline: none;
+	}
+}
+
+.sf__layout-toggle,
+.sf__view-toggle {
+	display: flex;
+	gap: 2px;
+}
+
+.sf__layout-btn,
+.sf__view-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border: 1px solid $sf-border;
+	background: #fff;
+	color: #aaa;
+	cursor: pointer;
+	transition: all $sf-transition;
+
+	&:first-child {
+		border-radius: $sf-radius 0 0 $sf-radius;
+	}
+	&:last-child {
+		border-radius: 0 $sf-radius $sf-radius 0;
+	}
+
+	&:hover,
+	&.is-active {
+		border-color: $sf-primary;
+		color: $sf-primary;
+		background: $sf-bg;
+	}
+}
+
+// Mobile filter button — hidden on desktop
+.sf__filter-toggle {
+	display: none;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid $sf-border;
+	border-radius: $sf-radius;
+	background: #fff;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color $sf-transition;
+
+	&:hover {
+		border-color: $sf-primary;
+	}
+}
+
+// ---- FILTER PANEL ----
+.sf__filters {
+	background: #fff;
+}
+
+.sf__filters-header {
+	display: none;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 0;
+	border-bottom: 1px solid $sf-border;
+	margin-bottom: 1rem;
+}
+
+.sf__filters-title {
+	font-size: 1.1rem;
+	font-weight: 700;
+}
+
+.sf__filters-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background: $sf-bg;
+	border: none;
+	border-radius: 50%;
+	font-size: 1.25rem;
+	cursor: pointer;
+	color: #666;
+	transition: all $sf-transition;
+
+	&:hover {
+		background: #e0e0e0;
+		color: #333;
+	}
+}
+
+// Filter sections with accordion
+.sf__section {
+	border-bottom: 1px solid #f0f0f0;
+	padding-bottom: 1rem;
+	margin-bottom: 1rem;
+
+	&:last-child {
+		border-bottom: none;
+		margin-bottom: 0;
+	}
+}
+
+.sf__section-toggle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 0;
+	background: none;
+	border: none;
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: $sf-primary;
+	cursor: pointer;
+	margin-bottom: 0.75rem;
+	transition: color $sf-transition;
+
+	&:hover {
+		color: #555;
+	}
+
+	svg {
+		transition: transform $sf-transition;
+	}
+}
+
+.sf__section-content {
+	animation: sfFadeIn 0.25s ease;
+}
+
+@keyframes sfFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-6px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+// Search input
+.sf__search {
+	position: relative;
+}
+
+.sf__search-icon {
+	position: absolute;
+	left: 0.75rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #aaa;
+	pointer-events: none;
+}
+
+.sf__search-input {
+	width: 100%;
+	padding: 0.55rem 2rem 0.55rem 2.25rem;
+	border: 1px solid $sf-border;
+	border-radius: $sf-radius;
+	font-size: 0.85rem;
+	transition: border-color $sf-transition, box-shadow $sf-transition;
+
+	&:focus {
+		border-color: $sf-primary;
+		box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+		outline: none;
+	}
+
+	&::placeholder {
+		color: #bbb;
+	}
+}
+
+.sf__search-clear {
+	position: absolute;
+	right: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	color: #999;
+	cursor: pointer;
+	line-height: 1;
+	transition: color $sf-transition;
+
+	&:hover {
+		color: #e53935;
+	}
+}
+
+// Checkbox / Radio
+.sf__checkbox,
+.sf__radio {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.3rem 0;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: color $sf-transition;
+
+	&:hover {
+		color: #555;
+	}
+
+	input {
+		accent-color: #333;
+		cursor: pointer;
+	}
+}
+
+.sf__checkbox-label {
+	flex: 1;
+}
+
+.sf__checkbox-count {
+	font-size: 0.7rem;
+	color: #999;
+	background: #f5f5f5;
+	padding: 0.1rem 0.45rem;
+	border-radius: 100px;
+	min-width: 20px;
+	text-align: center;
+}
+
+.sf__cat-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.sf__cat-children {
+	list-style: none;
+	padding-left: 1.25rem;
+	margin: 0;
+}
+
+// Price range
+.sf__price-inputs {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.sf__price-input {
+	width: 100%;
+	padding: 0.4rem 0.5rem;
+	border: 1px solid $sf-border;
+	border-radius: $sf-radius;
+	font-size: 0.85rem;
+	text-align: center;
+	transition: border-color $sf-transition;
+
+	&:focus {
+		border-color: $sf-primary;
+		outline: none;
+	}
+
+	&::-webkit-inner-spin-button,
+	&::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+	}
+	-moz-appearance: textfield;
+}
+
+.sf__price-sep {
+	color: #ccc;
+}
+
+.sf__price-slider {
+	width: 100%;
+	accent-color: #333;
+}
+
+// ---- ACTIVE FILTERS ----
+.sf__active {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0 0.75rem;
+}
+
+.sf__tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.3rem 0.75rem;
+	background: $sf-bg;
+	border-radius: 100px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	animation: sfFadeIn 0.2s ease;
+}
+
+.sf__tag-remove {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 1rem;
+	line-height: 1;
+	color: #999;
+	padding: 0;
+	transition: color $sf-transition;
+
+	&:hover {
+		color: #e53935;
+	}
+}
+
+.sf__clear-all {
+	background: none;
+	border: none;
+	color: #e53935;
+	font-size: 0.75rem;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+// ---- PRODUCT GRID ----
+.sf__grid {
+	display: grid;
+	gap: 1.25rem;
+}
+
+.sf__grid--grid {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.sf__grid--list {
+	grid-template-columns: 1fr;
+}
+
+// ---- PRODUCT CARD (mockup style) ----
+.sf__card {
+	border: 1px solid #eee;
+	border-radius: 12px;
+	overflow: hidden;
+	background: #fff;
+	transition: transform $sf-transition, box-shadow $sf-transition;
+	display: flex;
+	flex-direction: column;
+
+	.sf__grid--list & {
+		flex-direction: row;
+	}
+
+	&:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+	}
+}
+
+// Image area
+.sf__card-image {
+	position: relative;
+	overflow: hidden;
+	background: #f8f8f8;
+
+	> a {
+		display: block;
+		overflow: hidden;
+	}
+
+	> a > img {
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		object-fit: contain;
+		display: block;
+		padding: 1rem;
+		transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.sf__grid--list & {
+		width: 220px;
+		min-width: 220px;
+
+		> a > img {
+			height: 100%;
+			aspect-ratio: auto;
+		}
+	}
+
+	.sf__card:hover & > a > img {
+		transform: scale(1.06);
+	}
+}
+
+// Badges
+.sf__badge {
+	position: absolute;
+	top: 0.6rem;
+	left: 0.6rem;
+	padding: 0.3rem 0.75rem;
+	border-radius: 6px;
+	font-size: 0.65rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	z-index: 2;
+
+	&--sale {
+		background: #ff6b00;
+		color: #fff;
+	}
+	&--oos {
+		background: #666;
+		color: #fff;
+	}
+}
+
+// Wishlist button (top-right of image)
+.sf__card-wish {
+	position: absolute;
+	top: 0.6rem;
+	right: 0.6rem;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff;
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	color: #ccc;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+	transition: all $sf-transition;
+	z-index: 2;
+
+	&:hover,
+	&.is-active {
+		color: #ff6b00;
+	}
+
+	&.is-active {
+		svg {
+			filter: drop-shadow(0 0 2px rgba(255, 107, 0, 0.3));
+		}
+	}
+}
+
+// Gallery thumbnails (bottom of image area)
+.sf__card-thumbs {
+	display: flex;
+	gap: 0.35rem;
+	padding: 0.5rem 0.75rem 0.75rem;
+	position: relative;
+	z-index: 2;
+}
+
+.sf__card-thumb {
+	width: 36px;
+	height: 36px;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	overflow: hidden;
+	cursor: pointer;
+	background: #fff;
+	padding: 2px;
+	transition: border-color $sf-transition;
+
+	&.is-active,
+	&:hover {
+		border-color: $sf-primary;
+	}
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	&--more {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: #999;
+		text-decoration: none;
+		background: #f0f0f0;
+
+		&:hover {
+			color: $sf-primary;
+			border-color: $sf-primary;
+		}
+	}
+}
+
+// Card info
+.sf__card-info {
+	padding: 0.85rem 1rem 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	flex: 1;
+}
+
+.sf__card-cat {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #ff6b00;
+	font-weight: 600;
+}
+
+.sf__card-title {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: $sf-primary;
+	text-decoration: none;
+	line-height: 1.3;
+	transition: color $sf-transition;
+
+	&:hover {
+		color: $sf-accent;
+	}
+}
+
+.sf__card-rating {
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+}
+
+.sf__stars {
+	color: #f5a623;
+	font-size: 0.8rem;
+	letter-spacing: 1px;
+}
+
+.sf__card-rating-count {
+	font-size: 0.7rem;
+	color: #999;
+}
+
+.sf__card-sku {
+	font-size: 0.7rem;
+	color: #bbb;
+}
+
+.sf__card-desc {
+	font-size: 0.8rem;
+	color: #666;
+	line-height: 1.5;
+	margin: 0.25rem 0;
+}
+
+// Price
+.sf__card-pricing {
+	margin-top: 0.25rem;
+}
+
+.sf__card-price {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: $sf-primary;
+
+	del {
+		color: #bbb;
+		font-size: 0.85em;
+		font-weight: 400;
+		margin-left: 0.35rem;
+	}
+	ins {
+		text-decoration: none;
+	}
+}
+
+// Actions row (add to cart + wishlist)
+.sf__card-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: auto;
+	padding-top: 0.75rem;
+}
+
+.sf__card-btn {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.65rem 1rem;
+	background: #1b2a4a;
+	color: #fff !important;
+	border: none;
+	border-radius: $sf-radius;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background $sf-transition, transform $sf-transition;
+
+	&:hover {
+		background: #2a3d66;
+		transform: translateY(-1px);
+	}
+}
+
+// Small wishlist button (in actions row)
+.sf__card-wish-sm {
+	width: 38px;
+	height: 38px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: 1px solid #eee;
+	border-radius: $sf-radius;
+	cursor: pointer;
+	color: #ccc;
+	transition: all $sf-transition;
+	flex-shrink: 0;
+
+	&:hover,
+	&.is-active {
+		color: #ff6b00;
+		border-color: #ff6b00;
+	}
+}
+
+// ---- GRID WRAPPER (prevents height jump) ----
+.sf__grid-wrap {
+	transition: min-height 0.3s ease;
+}
+
+// ---- LOADING SKELETON ----
+.sf__grid-loading {
+	display: grid;
+	gap: 1.25rem;
+	animation: sfFadeIn 0.25s ease;
+
+	&--grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	&--list {
+		grid-template-columns: 1fr;
+	}
+}
+
+.sf__skeleton {
+	border-radius: 12px;
+	background: linear-gradient(90deg, #f5f5f5 25%, #eeeeee 50%, #f5f5f5 75%);
+	background-size: 200% 100%;
+	animation: sfShimmer 1.5s ease infinite;
+
+	.sf__grid-loading--grid & {
+		aspect-ratio: 3 / 4;
+	}
+
+	.sf__grid-loading--list & {
+		height: 160px;
+	}
+}
+
+@keyframes sfShimmer {
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}
+
+// Fade in products after loading
+.sf__grid {
+	animation: sfFadeIn 0.3s ease;
+}
+
+.sf__empty {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: #999;
+	font-size: 0.95rem;
+	animation: sfFadeIn 0.3s ease;
+}
+
+// ---- PAGINATION ----
+.sf__pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 2.5rem;
+}
+
+.sf__page-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 36px;
+	height: 36px;
+	padding: 0 0.6rem;
+	border: 1px solid $sf-border;
+	border-radius: $sf-radius;
+	background: #fff;
+	color: $sf-primary;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: all $sf-transition;
+
+	&:hover:not(:disabled),
+	&.is-active {
+		background: $sf-primary;
+		color: #fff;
+		border-color: $sf-primary;
+	}
+
+	&:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+}
+
+.sf__page-dots {
+	color: #ccc;
+	padding: 0 0.25rem;
+}
+
+// ---- MOBILE DRAWER (overlay + slide) ----
+.sf__overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0);
+	z-index: 999;
+	animation: sfOverlayIn 0.3s ease forwards;
+}
+
+@keyframes sfOverlayIn {
+	to { background: rgba(0, 0, 0, 0.45); }
+}
+
+// ===========================
+// RESPONSIVE
+// ===========================
+@media (max-width: 768px) {
+	// Show mobile filter button
+	.sf__filter-toggle {
+		display: inline-flex;
+	}
+
+	// Hide layout toggle on mobile
+	.sf__layout-toggle {
+		display: none;
+	}
+
+	// Sidebar becomes a mobile drawer
+	.sf--sidebar .sf__filters--sidebar,
+	.sf--top .sf__filters--top {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 300px;
+		height: 100vh;
+		z-index: 1000;
+		background: #fff;
+		padding: 1.25rem;
+		overflow-y: auto;
+		box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+		transform: translateX(-100%);
+		transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+		// Reset desktop sticky
+		position: fixed !important;
+		max-height: 100vh;
+		min-width: 0;
+
+		// Show mobile header
+		.sf__filters-header {
+			display: flex;
+		}
+
+		// Open state — slide in
+		&.is-open {
+			transform: translateX(0);
+		}
+	}
+
+	// Top mode on mobile also becomes drawer (reset grid)
+	.sf--top .sf__filters--top {
+		display: block;
+
+		.sf__section {
+			border-bottom: 1px solid #f0f0f0;
+			padding-bottom: 1rem;
+			margin-bottom: 1rem;
+		}
+	}
+
+	// Body layout stacks
+	.sf__body {
+		flex-direction: column;
+	}
+
+	// Grid adjustments
+	.sf__grid--grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.sf__grid--list .sf__card {
+		grid-template-columns: 140px 1fr;
+	}
+
+	.sf__grid-loading--grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.sf__toolbar {
+		gap: 0.5rem;
+	}
+
+	.sf__toolbar-right {
+		flex-wrap: wrap;
+	}
+}
+
+@media (max-width: 480px) {
+	.sf__grid--grid {
+		grid-template-columns: 1fr;
+	}
+
+	.sf__grid--list .sf__card {
+		grid-template-columns: 1fr;
+	}
+
+	.sf__grid-loading--grid,
+	.sf__grid-loading--list {
+		grid-template-columns: 1fr;
+	}
+
+	.sf__toolbar-left,
+	.sf__toolbar-right {
+		width: 100%;
+		justify-content: space-between;
+	}
+}

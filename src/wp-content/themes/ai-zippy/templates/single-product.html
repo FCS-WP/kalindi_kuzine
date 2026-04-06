@@ -1,0 +1,54 @@
+<!-- wp:template-part {"slug":"header","area":"header"} /-->
+
+<!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"top":"2rem","bottom":"4rem","left":"2rem","right":"2rem"}}},"layout":{"type":"constrained","contentSize":"1200px"}} -->
+<main class="wp-block-group" style="padding-top:2rem;padding-right:2rem;padding-bottom:4rem;padding-left:2rem">
+
+	<!-- wp:woocommerce/breadcrumbs {"fontSize":"small","style":{"spacing":{"margin":{"bottom":"2rem"}}}} /-->
+
+	<!-- wp:woocommerce/store-notices /-->
+
+	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"3rem"}}}} -->
+	<div class="wp-block-columns">
+
+		<!-- wp:column {"width":"50%"} -->
+		<div class="wp-block-column" style="flex-basis:50%">
+			<!-- wp:woocommerce/product-image-gallery /-->
+		</div>
+		<!-- /wp:column -->
+
+		<!-- wp:column {"width":"50%"} -->
+		<div class="wp-block-column" style="flex-basis:50%">
+			<!-- wp:post-title {"level":1,"fontSize":"x-large","style":{"spacing":{"margin":{"bottom":"1rem"}}}} /-->
+			<!-- wp:woocommerce/product-price {"fontSize":"large","style":{"spacing":{"margin":{"bottom":"1.5rem"}}}} /-->
+			<!-- wp:post-excerpt {"style":{"spacing":{"margin":{"bottom":"1.5rem"}}}} /-->
+			<!-- wp:woocommerce/add-to-cart-form /-->
+			<!-- wp:woocommerce/product-meta -->
+				<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap"},"style":{"spacing":{"blockGap":"0.5rem","margin":{"top":"1.5rem"}}}} -->
+				<div class="wp-block-group" style="margin-top:1.5rem">
+					<!-- wp:woocommerce/product-sku {"isDescendentOfSingleProductBlock":true,"fontSize":"small"} /-->
+					<!-- wp:post-terms {"term":"product_cat","fontSize":"small"} /-->
+					<!-- wp:post-terms {"term":"product_tag","fontSize":"small"} /-->
+				</div>
+				<!-- /wp:group -->
+			<!-- /wp:woocommerce/product-meta -->
+		</div>
+		<!-- /wp:column -->
+
+	</div>
+	<!-- /wp:columns -->
+
+	<!-- wp:woocommerce/product-details {"style":{"spacing":{"margin":{"top":"3rem"}}}} /-->
+
+	<!-- wp:group {"style":{"spacing":{"margin":{"top":"3rem"}}},"layout":{"type":"constrained"}} -->
+	<div class="wp-block-group" style="margin-top:3rem">
+		<!-- wp:heading {"fontSize":"large","style":{"spacing":{"margin":{"bottom":"1.5rem"}}}} -->
+		<h2 class="wp-block-heading has-large-font-size" style="margin-bottom:1.5rem">Related Products</h2>
+		<!-- /wp:heading -->
+		<!-- wp:woocommerce/related-products {"columns":4} /-->
+	</div>
+	<!-- /wp:group -->
+
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","area":"footer"} /-->

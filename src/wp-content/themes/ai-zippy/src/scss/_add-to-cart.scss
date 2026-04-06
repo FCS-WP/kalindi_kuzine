@@ -1,0 +1,98 @@
+@use "variables" as *;
+
+// ---- ADD TO CART BUTTON STATES ----
+[data-product-id],
+a[href*="add-to-cart"] {
+	&.is-loading {
+		opacity: 0.8;
+		pointer-events: none;
+	}
+
+	&.is-added {
+		background: $c-success !important;
+		pointer-events: none;
+	}
+}
+
+// Spinner animation
+.az-spinner {
+	animation: azSpin 0.6s linear infinite;
+}
+
+@keyframes azSpin {
+	to { transform: rotate(360deg); }
+}
+
+// ---- TOAST NOTIFICATIONS ----
+.az-toast {
+	position: fixed;
+	top: 1.25rem;
+	right: 1.25rem;
+	z-index: 99999;
+	max-width: 380px;
+	width: calc(100% - 2.5rem);
+	padding: 0.85rem 1.25rem;
+	border-radius: $border-radius;
+	background: $c-white;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	font-size: 0.85rem;
+	font-weight: 500;
+	animation: azToastIn 0.35s $transition-ease;
+
+	&--success {
+		border-left: 4px solid $c-success;
+	}
+
+	&--error {
+		border-left: 4px solid $c-danger;
+	}
+
+	&.is-closing {
+		animation: azToastOut 0.3s ease forwards;
+	}
+}
+
+.az-toast__close {
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	color: #aaa;
+	cursor: pointer;
+	padding: 0;
+	line-height: 1;
+	flex-shrink: 0;
+
+	&:hover {
+		color: #666;
+	}
+}
+
+@keyframes azToastIn {
+	from {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes azToastOut {
+	to {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+}
+
+@include until(sm) {
+	.az-toast {
+		top: 0.75rem;
+		right: 0.75rem;
+		max-width: calc(100% - 1.5rem);
+	}
+}

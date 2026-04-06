@@ -1,0 +1,33 @@
+@use "variables" as *;
+
+// Sticky header
+header.wp-block-group {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	transition: box-shadow $transition-speed ease;
+
+	// Add shadow on scroll (via JS or native)
+	&.is-scrolled {
+		box-shadow: $box-shadow;
+	}
+}
+
+// Navigation links
+.wp-block-navigation a {
+	transition: color $transition-speed ease;
+
+	&:hover {
+		color: $c-accent !important;
+	}
+}
+
+// CTA button in header
+header .wp-block-button__link {
+	transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+}

@@ -1,0 +1,2 @@
+- [Skip A3/A4 steps](feedback_no_a3_a4.md) — Don't run QA agent or verbose reports, save tokens
+- [Don't run build](feedback_no_build.md) — User has `npm run dev` running, skip build commands
