@@ -1,6 +1,22 @@
 // Editor-only styles for Product Showcase block
 
+// Disable frontend loading skeleton inside the editor
+// Double class selector for higher specificity than style-index.css
+.wp-block-ai-zippy-product-showcase.wp-block-ai-zippy-product-showcase:not(.is-loaded)::after {
+	content: none !important;
+	display: none !important;
+}
+
+.wp-block-ai-zippy-product-showcase.wp-block-ai-zippy-product-showcase:not(.is-loaded) .ps__header,
+.wp-block-ai-zippy-product-showcase.wp-block-ai-zippy-product-showcase:not(.is-loaded) .ps__grid,
+.wp-block-ai-zippy-product-showcase.wp-block-ai-zippy-product-showcase:not(.is-loaded) .ps__swiper {
+	visibility: visible !important;
+	height: auto !important;
+	overflow: visible !important;
+}
+
 .wp-block-ai-zippy-product-showcase {
+
 	.ps-editor {
 		padding: 1.5rem;
 		border: 1px dashed #ddd;

@@ -38,6 +38,19 @@ class CheckoutShortcode
             $output = do_shortcode('[woocommerce_checkout]');
         }
 
-        return $output;
+        return self::cleanOutput($output);
+    }
+
+    /**
+     * Remove empty <p></p> and stray <br> injected by wpautop.
+     */
+    private static function cleanOutput(string $html): string
+    {
+        $html = preg_replace('/<p>\s*<\/p>/', '', $html);
+        $html = preg_replace('/(<\/(?:span|div|svg|button|address|strong|select|input|table|form)>)\s*<br\s*\/?>/', '$1', $html);
+        $html = preg_replace('/<br\s*\/?>\s*(<(?:span|div|svg|button|address|strong|a|select|input|table|form)\b)/', '$1', $html);
+        $html = preg_replace('/<p>\s*<!--/', '<!--', $html);
+        $html = preg_replace('/-->\s*<\/p>/', '-->', $html);
+        return $html;
     }
 }

@@ -10,8 +10,9 @@ $ps-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .wp-block-ai-zippy-product-showcase {
 	margin: 0 auto;
 
-	// ---- LOADING STATE ----
-	// Hide real content, show skeleton placeholders until JS adds .is-loaded
+	// ---- LOADING STATE (frontend only) ----
+	// Skeleton is hidden inside the block editor (body.block-editor-page or .editor-styles-wrapper).
+	// On the frontend, view.js adds .is-loaded to reveal content.
 	&:not(.is-loaded) {
 		.ps__header {
 			visibility: hidden;

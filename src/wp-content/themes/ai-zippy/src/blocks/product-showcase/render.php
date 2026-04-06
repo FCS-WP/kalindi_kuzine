@@ -113,6 +113,7 @@ if ($display_style === 'slider') {
 /**
  * Render a single product card (shared between grid and slider).
  */
+if (!function_exists('ai_zippy_render_product_card')) :
 function ai_zippy_render_product_card(WC_Product $product, bool $show_sale, bool $show_rating, bool $show_cart): void
 {
     $image_id    = $product->get_image_id();
@@ -208,3 +209,4 @@ function ai_zippy_render_product_card(WC_Product $product, bool $show_sale, bool
 
     <?php
 }
+endif;

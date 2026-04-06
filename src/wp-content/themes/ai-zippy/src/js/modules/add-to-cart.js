@@ -44,8 +44,8 @@ async function handleClick(e) {
 		btn.classList.add("is-added");
 		btn.innerHTML = checkSvg() + " Added!";
 
-		// Update mini cart count
-		updateMiniCartBadge(cart.items_count);
+		// Update mini cart
+		updateMiniCart(cart);
 
 		// Show toast
 		showToast("Product added to cart", "success");
@@ -68,24 +68,48 @@ async function handleClick(e) {
  * Dispatches a custom event that WC's mini cart block listens to,
  * and manually updates the badge count as a fast visual fallback.
  */
-function updateMiniCartBadge(count) {
-	// 1. Update badge text immediately for instant feedback
+function updateMiniCart(cart) {
+	const count = cart.items_count;
+	const totalPrice = cart.totals?.total_price;
+	const currencySymbol = cart.totals?.currency_symbol || "$";
+
+	// 1. Update badge count immediately
 	document.querySelectorAll(".wc-block-mini-cart__badge").forEach((badge) => {
 		badge.textContent = count;
 		badge.hidden = false;
+		badge.setAttribute("aria-hidden", "false");
 	});
 
-	// 2. Trigger WC Store API cart data invalidation so the mini cart
-	//    React app re-fetches and updates amount, items, etc.
-	if (typeof wp !== "undefined" && wp.data) {
-		const store = wp.data.dispatch("wc/store/cart");
-		if (store?.invalidateResolutionForStoreCart) {
-			store.invalidateResolutionForStoreCart();
-		}
+	// 2. Update amount display
+	if (totalPrice) {
+		const amount = (parseInt(totalPrice, 10) / 100).toFixed(2);
+		document.querySelectorAll(".wc-block-mini-cart__amount").forEach((el) => {
+			el.textContent = `${currencySymbol}${amount}`;
+		});
 	}
 
-	// 3. Fallback: dispatch the event WC blocks listen for
+	// 3. Update the button's aria-label
+	document.querySelectorAll(".wc-block-mini-cart__button").forEach((btn) => {
+		btn.setAttribute("aria-label", `${count} items in cart`);
+	});
+
+	// 4. Trigger WC Store API invalidation (if wp.data available)
+	if (typeof wp !== "undefined" && wp.data) {
+		try {
+			const store = wp.data.dispatch("wc/store/cart");
+			if (store?.invalidateResolutionForStoreCart) {
+				store.invalidateResolutionForStoreCart();
+			}
+		} catch { /* wp.data not ready */ }
+	}
+
+	// 5. Dispatch WC blocks event for full refresh
 	document.body.dispatchEvent(new Event("wc-blocks_added_to_cart"));
+
+	// 6. Dispatch jQuery event (some WC themes/plugins listen for this)
+	if (typeof jQuery !== "undefined") {
+		jQuery(document.body).trigger("added_to_cart");
+	}
 }
 
 /**

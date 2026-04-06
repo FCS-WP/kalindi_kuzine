@@ -60,5 +60,6 @@ AiZippy\Cart\CartAssets::register();
 // Checkout
 AiZippy\Checkout\CheckoutSettings::register();
 AiZippy\Checkout\CheckoutShortcode::register();
+AiZippy\Checkout\OrderConfirmationShortcode::register();
 AiZippy\Checkout\CheckoutValidation::register();
 AiZippy\Checkout\CheckoutAssets::register();

@@ -574,62 +574,102 @@
 }
 
 // =============================================================================
-// Order Confirmation Page
+// Order Confirmation Page (WC Block template)
 // =============================================================================
 
+// ---- Header ----
+.az-oc__header {
+  text-align: center;
+  padding-bottom: 1.5rem;
+}
+
+.az-oc__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.az-oc__desc {
+  font-size: 0.9rem !important;
+  color: $c-muted !important;
+  margin-bottom: 1.25rem !important;
+}
+
+// WC Status block — style as subtle inline text
 .wc-block-order-confirmation-status {
   text-align: center;
-  padding: 1.5rem;
-  background: rgba(76, 175, 80, 0.06);
-  border: 1px solid rgba(76, 175, 80, 0.2);
-  border-radius: $border-radius-lg;
-  margin-bottom: 2rem;
+  padding: 0;
+  background: none;
+  border: none;
+  margin: 0;
 
   p {
-    font-size: 0.95rem;
-    color: $c-primary;
+    font-size: 0.8rem;
+    color: $c-muted;
     margin: 0;
   }
 }
 
+// ---- Summary (order number, date, email, total) ----
 .wc-block-order-confirmation-summary {
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
   background: #f8f8fa;
   border-radius: $border-radius-lg;
-  margin-bottom: 2rem;
+  margin-bottom: 0.85rem;
 
   .wc-block-order-confirmation-summary-list {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
   }
 
   .wc-block-order-confirmation-summary-list-item {
     &__key {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: $c-muted;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       font-weight: 600;
     }
 
     &__value {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 700;
       color: $c-primary;
-      margin-top: 0.15rem;
+      margin-top: 0.1rem;
     }
   }
 }
 
+// ---- Cards ----
+.az-oc__card {
+  background: #f8f8fa !important;
+  border-radius: $border-radius-lg !important;
+  padding: 1.5rem !important;
+  margin-bottom: 0.85rem !important;
+
+  // Headings inside cards
+  h3 {
+    font-weight: 700 !important;
+    color: $c-primary;
+  }
+}
+
+// ---- Order Totals Table ----
 .wc-block-order-confirmation-totals {
-  background: #f8f8fa;
+  background: transparent;
   border: none;
-  border-radius: $border-radius-lg;
-  overflow: hidden;
+  border-radius: 0;
+  overflow: visible;
 
   .wc-block-order-confirmation-totals__table {
     width: 100%;
@@ -637,7 +677,7 @@
 
     th,
     td {
-      padding: 0.75rem 1rem;
+      padding: 0.65rem 0;
       font-size: 0.85rem;
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
@@ -655,24 +695,465 @@
     tfoot th,
     tfoot td {
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       border-bottom: none;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
     }
   }
 }
 
+// ---- Addresses ----
+.az-oc__addresses {
+  gap: 1rem !important;
+}
+
+.az-oc__address-label {
+  font-weight: 700 !important;
+  color: $c-primary;
+}
+
 .wc-block-order-confirmation-shipping-address,
 .wc-block-order-confirmation-billing-address {
-  padding: 1rem 1.25rem;
-  background: #f8f8fa;
+  padding: 0;
+  background: transparent;
   border: none;
-  border-radius: $border-radius;
-  font-size: 0.85rem;
+  border-radius: 0;
+  font-size: 0.8rem;
   line-height: 1.6;
-  color: $c-primary;
+  color: $c-muted;
 
   address {
     font-style: normal;
+  }
+}
+
+// ---- Additional Information ----
+.wc-block-order-confirmation-additional-information {
+  background: #f8f8fa;
+  border-radius: $border-radius-lg;
+  padding: 1.5rem;
+  margin-top: 0.85rem;
+  font-size: 0.85rem;
+  color: $c-primary;
+
+  h3, h2 {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.75rem !important;
+  }
+}
+
+// ---- Downloads ----
+.wc-block-order-confirmation-downloads {
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 0.6rem 0;
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      color: $c-muted;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    a {
+      color: $c-accent;
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// ---- Responsive ----
+@include until(sm) {
+  .az-oc__header h1 {
+    font-size: 1.25rem !important;
+  }
+
+  .az-oc__card {
+    padding: 1.25rem !important;
+  }
+
+  .az-oc__addresses {
+    flex-direction: column !important;
+  }
+}
+
+// =============================================================================
+// Thank You Page (Classic WC: woocommerce/checkout/thankyou.php)
+// =============================================================================
+
+.az-thankyou {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+// ---- Header ----
+.az-thankyou__header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &--failed {
+    .az-thankyou__icon {
+      background: rgba(229, 57, 53, 0.08);
+      color: $c-danger;
+    }
+  }
+}
+
+.az-thankyou__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+
+  &--failed {
+    background: rgba(229, 57, 53, 0.08);
+    color: $c-danger;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+}
+
+.az-thankyou__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $c-primary;
+  margin: 0 0 0.4rem;
+}
+
+.az-thankyou__desc {
+  font-size: 0.9rem;
+  color: $c-muted;
+  margin: 0 0 1.5rem;
+}
+
+// Order number pill
+.az-thankyou__order-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid $c-border;
+  border-radius: $border-radius;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.az-thankyou__order-num-inner {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.az-thankyou__order-num-label {
+  font-size: 0.65rem;
+  color: $c-muted;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.az-thankyou__order-num-val {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $c-primary;
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+
+.az-thankyou__copy {
+  background: none;
+  border: none;
+  color: $c-muted;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  @include transition(color);
+  flex-shrink: 0;
+
+  &:hover {
+    color: $c-primary;
+  }
+}
+
+// Email note
+.az-thankyou__email-note {
+  font-size: 0.8rem;
+  color: $c-muted;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  strong {
+    color: $c-primary;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// ---- Cards ----
+.az-thankyou__card {
+  background: #f8f8fa;
+  border-radius: $border-radius-lg;
+  padding: 1.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.az-thankyou__card-header {
+  margin-bottom: 1rem;
+}
+
+.az-thankyou__card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $c-primary;
+  margin: 0;
+}
+
+// ---- Order Items ----
+.az-thankyou__items {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.az-thankyou__item {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.65rem 0;
+  align-items: center;
+
+  + .az-thankyou__item {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}
+
+.az-thankyou__item-img {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  img {
+    width: 56px !important;
+    height: 56px !important;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.az-thankyou__item-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+.az-thankyou__item-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $c-primary;
+  line-height: 1.35;
+}
+
+.az-thankyou__item-meta {
+  display: block;
+  font-size: 0.7rem;
+  color: $c-muted;
+  margin-top: 0.1rem;
+}
+
+.az-thankyou__item-qty {
+  display: block;
+  font-size: 0.7rem;
+  color: $c-muted;
+}
+
+.az-thankyou__item-total {
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// ---- Totals ----
+.az-thankyou__totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.az-thankyou__totals-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: $c-primary;
+
+  &--discount {
+    color: #4caf50;
+  }
+
+  &--total {
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding-top: 0.65rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    margin-top: 0.35rem;
+  }
+}
+
+.az-thankyou__free {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+// ---- Delivery Details ----
+.az-thankyou__details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.az-thankyou__detail-block {
+  display: flex;
+  gap: 0.75rem;
+
+  strong {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: $c-primary;
+    margin-bottom: 0.2rem;
+  }
+
+  address,
+  span {
+    font-size: 0.8rem;
+    color: $c-muted;
+    font-style: normal;
+    line-height: 1.55;
+  }
+}
+
+.az-thankyou__detail-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: $c-primary;
+}
+
+// ---- Actions (failed state) ----
+.az-thankyou__actions {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.az-thankyou__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.25rem;
+  border-radius: $border-radius;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  @include transition((background, border-color));
+
+  &--primary {
+    background: $c-primary;
+    color: $c-white;
+    border: 1px solid $c-primary;
+
+    &:hover {
+      background: #333;
+      border-color: #333;
+    }
+  }
+
+  &--outline {
+    background: $c-white;
+    color: $c-primary;
+    border: 1px solid $c-border;
+
+    &:hover {
+      border-color: $c-primary;
+    }
+  }
+}
+
+// ---- Footer (appreciation + continue shopping) ----
+.az-thankyou__footer {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  margin-top: 0.85rem;
+  background: #f8f8fa;
+  border-radius: $border-radius-lg;
+}
+
+.az-thankyou__footer-msg {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $c-primary;
+  margin: 0 0 0.35rem;
+}
+
+.az-thankyou__footer-sub {
+  font-size: 0.8rem;
+  color: $c-muted;
+  margin: 0 0 1.5rem;
+}
+
+.az-thankyou__footer-actions {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
+// ---- Responsive ----
+@include until(sm) {
+  .az-thankyou__title {
+    font-size: 1.25rem;
+  }
+
+  .az-thankyou__card {
+    padding: 1.25rem;
+  }
+
+  .az-thankyou__footer-actions {
+    flex-direction: column;
+    align-items: center;
   }
 }
 
