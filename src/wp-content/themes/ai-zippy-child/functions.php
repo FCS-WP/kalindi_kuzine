@@ -9,18 +9,25 @@
 
 defined('ABSPATH') || exit;
 
+// Include child theme classes
+require_once get_stylesheet_directory() . '/inc/BlockRegistration.php';
+
+// Register child theme blocks
+\AiZippyChild\BlockRegistration::register();
+
 /**
  * Enqueue child theme styles after parent.
+ * Child theme SCSS is built by Vite into parent theme dist/css/child-style.css
  */
 function ai_zippy_child_enqueue_assets(): void
 {
-    // Child theme custom styles (only if file exists)
-    $child_css = get_stylesheet_directory() . '/assets/dist/css/style.css';
+    // Child theme custom styles (outputs to parent theme dist as child-style.css)
+    $child_css = get_template_directory() . '/assets/dist/css/child-style.css';
 
     if (file_exists($child_css)) {
         wp_enqueue_style(
             'ai-zippy-child-style',
-            get_stylesheet_directory_uri() . '/assets/dist/css/style.css',
+            get_template_directory_uri() . '/assets/dist/css/child-style.css',
             ['ai-zippy-theme-css-0'],
             filemtime($child_css)
         );

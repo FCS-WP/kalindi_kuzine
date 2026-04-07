@@ -1,0 +1,34 @@
+/*!************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/wp-content/themes/ai-zippy-child/blocks/promotions-grid/editor.scss ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************/
+.wp-block-ai-zippy-child-promotions-grid .block-editor-rich-text__editable:focus {
+  outline: 2px solid rgba(212, 165, 116, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__title:empty::before {
+  opacity: 0.5;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-title:empty::before {
+  opacity: 0.6;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-subtitle:empty::before {
+  opacity: 0.6;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image:not([style*=background-image]) {
+  background: linear-gradient(135deg, #e8d5c4 0%, #d4c4b0 100%);
+  position: relative;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image:not([style*=background-image])::after {
+  content: "Select an image";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #8b7355;
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/*# sourceMappingURL=index.css.map*/

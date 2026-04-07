@@ -1,0 +1,75 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "ai-zippy-child/banner",
+	"version": "2.0.0",
+	"title": "Hero Banner",
+	"category": "ai-zippy",
+	"icon": "cover-image",
+	"description": "A full-width hero banner with split-layer design, semi-circle overlay, and prominent brand display.",
+	"keywords": ["banner", "hero", "brand", "cta", "food"],
+	"supports": {
+		"html": false,
+		"align": ["wide", "full"],
+		"color": {
+			"background": true,
+			"text": true,
+			"gradients": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"attributes": {
+		"headline": {
+			"type": "string",
+			"default": "Pure Vegetarian.\nAuthentic.\nMade with Care."
+		},
+		"headlineDescription": {
+			"type": "string",
+			"default": "Flavorful, Plant Based, Viandasan curated with vibrant herbs, organic vegetables, and thoughtfully prepared ingredients."
+		},
+		"brandName": {
+			"type": "string",
+			"default": "KALUNDI'S KUZINES"
+		},
+		"brandDescription": {
+			"type": "string",
+			"default": "Capturing kalindi inspiration, serve up comfort and tradition with every bite. Made with love, flavor and freshness."
+		},
+		"buttonText": {
+			"type": "string",
+			"default": "Order Now"
+		},
+		"buttonUrl": {
+			"type": "string",
+			"default": "/shop"
+		},
+		"backgroundImageId": {
+			"type": "number",
+			"default": 0
+		},
+		"backgroundImageUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"accentColor": {
+			"type": "string",
+			"default": "#D4A574"
+		},
+		"headlineColor": {
+			"type": "string",
+			"default": "#8B7355"
+		},
+		"brandColor": {
+			"type": "string",
+			"default": "#D4A574"
+		}
+	},
+	"textdomain": "ai-zippy",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

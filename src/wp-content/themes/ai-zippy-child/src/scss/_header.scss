@@ -1,0 +1,117 @@
+// Header styles for Kalindi Kuzine
+
+header.wp-block-group {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	transition: box-shadow 0.3s ease;
+	background: white;
+
+	&.is-scrolled {
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+}
+
+.header-layout {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 100%;
+}
+
+.header-logo {
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	order: -1 !important;  // Always on top
+
+	img {
+		height: auto;
+		display: block;
+		width: 120px;
+		height: 120px;
+		border-radius: 50%;
+		object-fit: contain;
+	}
+}
+
+.header-nav {
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	flex-wrap: wrap !important;
+	margin-top: 2rem !important;
+	gap: 2.5rem !important;
+
+	// Navigation menu
+	.wp-block-navigation {
+		display: flex !important;
+		justify-content: center !important;
+		flex-wrap: wrap !important;
+		width: 100%;
+
+		ul {
+			display: flex !important;
+			justify-content: center;
+			gap: 2.5rem;
+			flex-wrap: wrap;
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		a {
+			font-size: 1rem;
+			font-weight: 600;
+			letter-spacing: 1px;
+			color: #333;
+			text-decoration: none;
+			transition: color 0.3s ease;
+			padding: 0.5rem 0;
+
+			&:hover {
+				color: #d4a574;
+			}
+		}
+	}
+}
+
+// Remove ORDER NOW button (if rendered)
+.header-cta,
+.wp-block-buttons {
+	display: none !important;
+}
+
+// Responsive
+@media (max-width: 768px) {
+	header.wp-block-group {
+		padding-top: 1.5rem !important;
+		padding-bottom: 1.5rem !important;
+		padding-left: 1rem !important;
+		padding-right: 1rem !important;
+	}
+
+	.header-logo {
+		img {
+			width: 80px !important;
+			height: 80px !important;
+		}
+	}
+
+	.header-nav {
+		margin-top: 1.5rem !important;
+		gap: 1.5rem !important;
+
+		.wp-block-navigation {
+			ul {
+				gap: 1.5rem;
+			}
+
+			a {
+				font-size: 0.9rem;
+			}
+		}
+	}
+}
+

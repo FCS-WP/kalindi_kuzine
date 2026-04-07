@@ -15,6 +15,7 @@ const childSrc = resolve(childDir, "src");
 const input = {
 	theme: resolve(parentSrc, "js/theme.js"),
 	style: resolve(parentSrc, "scss/style.scss"),
+	"most-ordered": resolve(parentSrc, "js/most-ordered/index.jsx"),
 	"shop-filter": resolve(parentSrc, "js/shop-filter/index.jsx"),
 	cart: resolve(parentSrc, "js/cart/index.jsx"),
 	checkout: resolve(parentSrc, "js/checkout/index.jsx"),

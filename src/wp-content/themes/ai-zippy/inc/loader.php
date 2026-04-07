@@ -45,11 +45,11 @@ foreach (glob(AI_ZIPPY_THEME_DIR . '/inc/setup/*.php') as $file) {
 AiZippy\Core\ViteAssets::register();
 AiZippy\Core\ThemeSetup::register();
 
+// API
+AiZippy\Api\MostOrderedApi::register();
+
 // Hooks
 AiZippy\Hooks\CacheInvalidation::register();
-
-// API
-add_action('rest_api_init', [AiZippy\Api\ProductFilterApi::class, 'register']);
 
 // Shop
 AiZippy\Shop\ShopAssets::register();

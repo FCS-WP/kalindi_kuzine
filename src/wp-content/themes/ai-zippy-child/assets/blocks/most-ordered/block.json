@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "ai-zippy-child/most-ordered",
+  "version": "1.0.0",
+  "title": "Most Ordered",
+  "category": "ai-zippy",
+  "icon": "shopping-cart",
+  "description": "Display most ordered products from store",
+  "keywords": [
+    "most ordered",
+    "products",
+    "popular"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "limit": {
+      "type": "number",
+      "default": 4
+    }
+  },
+  "textdomain": "ai-zippy",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}
