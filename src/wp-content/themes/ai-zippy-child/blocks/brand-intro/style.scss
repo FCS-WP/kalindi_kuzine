@@ -48,26 +48,26 @@
     transform: translateX(-50%);
     width: 560px;
     height: 560px;
-    background: #f2efee;
+    background: #f5f4f3;
     border-radius: 50%;
     z-index: 0;
 }
 
 .bi__tagline {
-	font-size: 1.75rem;
-	font-weight: 700;
+	font-size: 34px;
+	font-weight: 500;
 	line-height: 1.35;
-	color: var(--wp--preset--color--accent, #c8a97e);
+	color: #e9a80a;
 	letter-spacing: -0.01em;
 	position: relative;
     z-index: 1;
-    margin: 0;
+    margin-top: 60px;
 }
 
 // ---- Subtitle ----
 .bi__subtitle-bg {
 	width: 100%;
-	background: #f2efee;
+	background: #f5f4f3;
 }
 
 .bi__subtitle-wrap {
@@ -78,7 +78,7 @@
 }
 
 .bi__subtitle {
-	font-size: 0.9rem;
+	font-size: 16px;
 	line-height: 1.65;
 	color: var(--wp--preset--color--primary, #1a1a1a);
 	margin: 0;
@@ -93,16 +93,16 @@
 }
 
 .bi__brand-name {
-	font-size: 2rem;
-	font-weight: 700;
-	color: var(--wp--preset--color--accent, #c8a97e);
+	font-size: 60px;
+	font-weight: 400;
+	color: #ce6d23;
 	margin: 0 0 1.25rem;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
 }
 
 .bi__story-text {
-	font-size: 0.9rem;
+	font-size: 16px;
 	line-height: 1.7;
 	color: var(--wp--preset--color--primary, #1a1a1a);
 	max-width: 640px;
@@ -111,7 +111,7 @@
 
 .bi__link {
 	display: inline-block;
-	font-size: 0.85rem;
+	font-size: 16px;
 	font-weight: 600;
 	color: var(--wp--preset--color--accent, #c8a97e);
 	text-decoration: none;

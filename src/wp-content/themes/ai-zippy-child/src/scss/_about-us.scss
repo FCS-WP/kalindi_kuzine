@@ -1,0 +1,275 @@
+// =============================================================================
+// About Us Page Styles
+//
+// Hero section, two-column story cards, timeline section
+// =============================================================================
+
+// ---- COLORS (mapped from theme.json) ----
+$c-primary:   var(--wp--preset--color--primary);    // #1a1a1a
+$c-secondary: var(--wp--preset--color--secondary);   // #f5f5f5
+$c-accent:    var(--wp--preset--color--accent);      // #c8a97e
+$c-white:     var(--wp--preset--color--white);       // #ffffff
+$c-black:     var(--wp--preset--color--black);       // #000000
+$c-border:    var(--wp--preset--color--border);      // #e5e5e5
+$c-muted:     var(--wp--preset--color--muted);       // #999999
+
+// ---- BREAKPOINTS ----
+$bp-sm:  480px;
+$bp-md:  768px;
+$bp-lg:  1024px;
+$bp-xl:  1200px;
+$bp-xxl: 1400px;
+
+// ---- DESIGN TOKENS ----
+$transition-speed: 0.3s;
+$transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+$border-radius: 8px;
+$border-radius-lg: 12px;
+$box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+$box-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+// ---- RESPONSIVE MIXINS ----
+@mixin from($bp) {
+  @if $bp == sm  { @media (min-width: $bp-sm)  { @content; } }
+  @else if $bp == md  { @media (min-width: $bp-md)  { @content; } }
+  @else if $bp == lg  { @media (min-width: $bp-lg)  { @content; } }
+  @else if $bp == xl  { @media (min-width: $bp-xl)  { @content; } }
+  @else if $bp == xxl { @media (min-width: $bp-xxl) { @content; } }
+  @else { @media (min-width: $bp) { @content; } }
+}
+
+@mixin until($bp) {
+  @if $bp == sm  { @media (max-width: ($bp-sm - 1px))  { @content; } }
+  @else if $bp == md  { @media (max-width: ($bp-md - 1px))  { @content; } }
+  @else if $bp == lg  { @media (max-width: ($bp-lg - 1px))  { @content; } }
+  @else if $bp == xl  { @media (max-width: ($bp-xl - 1px))  { @content; } }
+  @else if $bp == xxl { @media (max-width: ($bp-xxl - 1px)) { @content; } }
+  @else { @media (max-width: $bp) { @content; } }
+}
+
+@mixin transition($props: all) {
+  transition: $props $transition-speed $transition-ease;
+}
+
+// ---- RESET WP DEFAULT MARGINS ----
+// Remove WordPress auto-margins on main & footer
+main.wp-block-group {
+  margin-block-start: 0 !important;
+}
+
+footer.wp-block-template-part {
+  margin-block-start: 0 !important;
+}
+
+// ---- HERO SECTION ----
+.az-about__hero {
+  position: relative;
+  background-color: $c-secondary;
+
+  .wp-block-heading {
+    color: $c-primary;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 2rem;
+  }
+
+  .az-about__hero-image {
+    margin: 2rem 0;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    box-shadow: $box-shadow-lg;
+
+    img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      display: block;
+
+      @include from(md) {
+        height: 500px;
+      }
+    }
+  }
+
+  .az-about__intro {
+    p {
+      color: $c-primary;
+      line-height: 1.8;
+      font-size: 1.1rem;
+      margin-top: 2rem;
+
+      @include from(md) {
+        font-size: 1.15rem;
+      }
+    }
+  }
+}
+
+// ---- TWO COLUMN STORY SECTION ----
+.az-about__stories {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  background-color: $c-white;
+
+  .az-about__stories-columns {
+    gap: 2rem;
+
+    @include from(md) {
+      gap: 3rem;
+    }
+  }
+
+  .wp-block-column {
+    flex: 1;
+  }
+
+  .az-about__story-card {
+    background-color: $c-white;
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow;
+    transition: all $transition-speed $transition-ease;
+    padding: 0;
+
+    &:hover {
+      box-shadow: $box-shadow-lg;
+      transform: translateY(-4px);
+    }
+
+    .az-about__story-image {
+      margin: 0;
+      border-radius: $border-radius-lg $border-radius-lg 0 0;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        display: block;
+
+        @include from(md) {
+          height: 350px;
+        }
+      }
+    }
+
+    h3 {
+      color: $c-primary;
+      font-weight: 700;
+      padding: 0 2rem;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+
+      @include from(md) {
+        font-size: 1.5rem;
+      }
+    }
+
+    p {
+      color: #666666;
+      line-height: 1.7;
+      font-size: 0.95rem;
+      padding: 0 2rem;
+
+      &:last-child {
+        padding-bottom: 2rem;
+
+        a {
+          color: $c-accent;
+          text-decoration: none;
+          font-weight: 600;
+          transition: color $transition-speed $transition-ease;
+
+          &:hover {
+            color: $c-primary;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ---- TIMELINE / OUR STORY SECTION ----
+.az-about__timeline-section {
+  background-color: $c-secondary;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+
+  h2 {
+    color: $c-primary;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    letter-spacing: -0.5px;
+  }
+
+  .wp-block-ai-zippy-child-story-timeline {
+    width: 100%;
+  }
+}
+
+// ---- RESPONSIVE ADJUSTMENTS ----
+@include until(md) {
+  .az-about__hero {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+
+    .wp-block-heading {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .az-about__hero-image img {
+      height: 300px;
+    }
+
+    .az-about__intro p {
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+  }
+
+  .az-about__stories {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+
+    .wp-block-column {
+      padding: 0;
+
+      &:not(:last-child) {
+        margin-bottom: 2rem;
+      }
+    }
+  }
+
+  .az-about__timeline-section {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+// ---- LINK STYLING ----
+.az-about__stories a,
+.az-about__intro a {
+  color: $c-accent;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: border-color $transition-speed $transition-ease;
+
+  &:hover {
+    border-bottom-color: $c-accent;
+  }
+}
+
+// ---- ACCESSIBILITY ----
+@media (prefers-reduced-motion: reduce) {
+  .az-about__story-card,
+  a {
+    transition: none;
+  }
+}

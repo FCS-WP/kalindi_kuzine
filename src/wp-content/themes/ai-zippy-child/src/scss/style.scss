@@ -3,5 +3,11 @@
  * Imports and extends parent theme styles
  */
 
+// Import parent theme design variables
+@use "@scss/variables" as *;
+
 // Import header styles
 @import "_header.scss";
+
+// Import blog page styles so they load on the child theme build
+@import "_blog.scss";

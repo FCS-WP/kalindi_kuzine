@@ -25,12 +25,16 @@ const input = {
 // Child theme assets (only if source files exist)
 const childJs = resolve(childSrc, "js/child.js");
 const childScss = resolve(childSrc, "scss/style.scss");
+const childAboutScss = resolve(childSrc, "scss/about-us-entry.scss");
 
 if (existsSync(childJs)) {
 	input["child-theme"] = childJs;
 }
 if (existsSync(childScss)) {
 	input["child-style"] = childScss;
+}
+if (existsSync(childAboutScss)) {
+	input["child-about-us"] = childAboutScss;
 }
 
 export default defineConfig({

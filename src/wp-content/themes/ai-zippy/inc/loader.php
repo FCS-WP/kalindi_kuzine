@@ -46,6 +46,7 @@ AiZippy\Core\ViteAssets::register();
 AiZippy\Core\ThemeSetup::register();
 
 // API
+AiZippy\Api\ProductFilterApi::register();
 AiZippy\Api\MostOrderedApi::register();
 
 // Hooks

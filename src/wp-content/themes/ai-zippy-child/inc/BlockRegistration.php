@@ -19,6 +19,7 @@ class BlockRegistration
 
 	/**
 	 * Register custom blocks from child theme assets/blocks directory.
+	 * Blocks are built by wp-scripts into assets/blocks/
 	 */
 	public static function registerBlocks(): void
 	{

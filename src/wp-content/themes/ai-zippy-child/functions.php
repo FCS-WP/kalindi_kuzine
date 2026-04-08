@@ -32,5 +32,31 @@ function ai_zippy_child_enqueue_assets(): void
             filemtime($child_css)
         );
     }
+
+    // About Us page specific styles
+    if (is_page('about-us')) {
+        $about_css = get_template_directory() . '/assets/dist/css/child-about-us.css';
+        if (file_exists($about_css)) {
+            wp_enqueue_style(
+                'ai-zippy-about-us-style',
+                get_template_directory_uri() . '/assets/dist/css/child-about-us.css',
+                ['ai-zippy-child-style'],
+                filemtime($about_css)
+            );
+        }
+    }
+
+    // Blog page specific styles
+    if (is_page('blog') || is_home()) {
+        $blog_css = get_template_directory() . '/assets/dist/css/child-blog.css';
+        if (file_exists($blog_css)) {
+            wp_enqueue_style(
+                'ai-zippy-blog-style',
+                get_template_directory_uri() . '/assets/dist/css/child-blog.css',
+                ['ai-zippy-child-style'],
+                filemtime($blog_css)
+            );
+        }
+    }
 }
 add_action('wp_enqueue_scripts', 'ai_zippy_child_enqueue_assets', 20);
