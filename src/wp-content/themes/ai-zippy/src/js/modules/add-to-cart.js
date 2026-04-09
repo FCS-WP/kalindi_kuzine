@@ -19,6 +19,11 @@ async function handleClick(e) {
 	);
 	if (!btn) return;
 
+	// Skip if this is a lightbox button (handled by lightbox.js)
+	if (btn.classList.contains("lightbox-zippy-btn")) {
+		return;
+	}
+
 	e.preventDefault();
 
 	// Get product ID

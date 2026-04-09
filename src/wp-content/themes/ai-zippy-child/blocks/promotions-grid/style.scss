@@ -10,12 +10,12 @@ $promo-subtitle-font-size: clamp(0.85rem, 1.5vw, 1rem);
 $promo-transition: 0.3s ease;
 
 .wp-block-ai-zippy-child-promotions-grid {
-	padding: 60px 0;
-	max-width: 1200px;
-	margin: 0 auto;
+	padding: 60px max(16px, calc((100% - 1200px) / 2));
+	background-color: #f5f4f3;
+	margin-block-start: 0 !important;
 
 	@media (max-width: 480px) {
-		padding: 60px 2rem;
+		padding: 60px 1rem;
 	}
 
 	// ============================================

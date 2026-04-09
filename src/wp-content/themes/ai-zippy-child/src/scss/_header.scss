@@ -38,12 +38,12 @@ header.wp-block-group {
 }
 
 .header-nav {
+	width: 100%;
 	display: flex !important;
 	justify-content: center !important;
 	align-items: center !important;
-	flex-wrap: wrap !important;
+	flex-wrap: nowrap !important;
 	margin-top: 2rem !important;
-	gap: 2.5rem !important;
 
 	// Navigation menu
 	.wp-block-navigation {

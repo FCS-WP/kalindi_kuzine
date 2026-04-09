@@ -2,13 +2,13 @@
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/wp-content/themes/ai-zippy-child/blocks/promotions-grid/style.scss ***!
   \***********************************************************************************************************************************************************************************************************************************************************************************************/
 .wp-block-ai-zippy-child-promotions-grid {
-  padding: 60px 0;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 60px max(16px, (100% - 1200px) / 2);
+  background-color: #f5f4f3;
+  margin-block-start: 0 !important;
 }
 @media (max-width: 480px) {
   .wp-block-ai-zippy-child-promotions-grid {
-    padding: 60px 2rem;
+    padding: 60px 1rem;
   }
 }
 .wp-block-ai-zippy-child-promotions-grid .promotions-grid__title {

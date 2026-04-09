@@ -11,3 +11,7 @@
 
 // Import blog page styles so they load on the child theme build
 @import "_blog.scss";
+
+// Child theme block styles (wp-scripts doesn't output style-index.css)
+@import "../../blocks/most-ordered/style.scss";
+@import "../../blocks/promotions-grid/style.scss";

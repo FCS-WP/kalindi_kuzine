@@ -9,9 +9,8 @@ export default function MostOrdered() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 
-	// Load categories on mount
+	// Load categories and products on mount
 	useEffect(() => {
-		console.log("🚀 MostOrdered component mounted");
 		loadCategories();
 		loadMostOrdered();
 	}, []);
@@ -27,25 +26,21 @@ export default function MostOrdered() {
 
 	const loadCategories = async () => {
 		try {
-			console.log("📡 Fetching categories...");
 			const data = await fetchCategories();
-			console.log("✅ Got categories:", data);
 			setCategories(data || []);
 		} catch (err) {
-			console.error("❌ Error loading categories:", err);
+			console.error("Error loading categories:", err);
 		}
 	};
 
 	const loadMostOrdered = async () => {
 		try {
 			setLoading(true);
-			console.log("📡 Fetching most ordered products...");
 			const data = await fetchMostOrdered({ limit: 4 });
-			console.log("✅ Got most ordered products:", data);
 			setProducts(data || []);
 			setError(null);
 		} catch (err) {
-			console.error("❌ Error loading products:", err);
+			console.error("Error loading products:", err);
 			setError("Failed to load products");
 		} finally {
 			setLoading(false);
@@ -55,13 +50,11 @@ export default function MostOrdered() {
 	const loadProductsByCategory = async (categoryId) => {
 		try {
 			setLoading(true);
-			console.log(`📡 Fetching products for category ${categoryId}...`);
 			const data = await fetchProductsByCategory(categoryId, { limit: 4 });
-			console.log("✅ Got category products:", data);
 			setProducts(data || []);
 			setError(null);
 		} catch (err) {
-			console.error("❌ Error loading products:", err);
+			console.error("Error loading products:", err);
 			setError("Failed to load products");
 		} finally {
 			setLoading(false);
@@ -126,38 +119,6 @@ export default function MostOrdered() {
 }
 
 function ProductCard({ product }) {
-	const [qty, setQty] = useState(1);
-
-	const handleAddToCart = async () => {
-		try {
-			const nonce = window.wcBlocksMiddlewareConfig?.storeApiNonce;
-			if (!nonce) {
-				console.warn("⚠️ No WC nonce available");
-				return;
-			}
-
-			const response = await fetch("/wp-json/wc/store/v1/cart/add-item", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Nonce: nonce,
-				},
-				body: JSON.stringify({
-					id: product.id,
-					quantity: qty,
-				}),
-			});
-
-			if (response.ok) {
-				console.log("✅ Added to cart");
-			} else {
-				console.error("❌ Failed to add to cart:", response.status);
-			}
-		} catch (err) {
-			console.error("❌ Error adding to cart:", err);
-		}
-	};
-
 	return (
 		<div className="most-ordered-browser__product">
 			<div className="most-ordered-browser__product-image">
@@ -175,13 +136,19 @@ function ProductCard({ product }) {
 						${product.price.toFixed(2)}
 					</div>
 
-					<button
-						className="most-ordered-browser__add-btn"
-						onClick={handleAddToCart}
-						title="Add to cart"
+					<a
+						className="most-ordered-browser__add-btn zippy-button lightbox-zippy-btn"
+						href="#lightbox-zippy-form"
+						data-product-id={product.id}
+						data-product_id={product.id}
+						data-product-sku={product.sku || ""}
+						data-product-url={`?add-to-cart=${product.id}`}
+						data-quantity="1"
+						rel="nofollow"
+						aria-label={`Add to cart: "${product.name}"`}
 					>
 						<span>+</span>
-					</button>
+					</a>
 				</div>
 			</div>
 		</div>

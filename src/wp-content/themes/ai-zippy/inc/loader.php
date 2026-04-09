@@ -48,6 +48,7 @@ AiZippy\Core\ThemeSetup::register();
 // API
 AiZippy\Api\ProductFilterApi::register();
 AiZippy\Api\MostOrderedApi::register();
+AiZippy\Api\OrderSessionApi::register();
 
 // Hooks
 AiZippy\Hooks\CacheInvalidation::register();
@@ -64,3 +65,6 @@ AiZippy\Checkout\CheckoutShortcode::register();
 AiZippy\Checkout\OrderConfirmationShortcode::register();
 AiZippy\Checkout\CheckoutValidation::register();
 AiZippy\Checkout\CheckoutAssets::register();
+
+// Order
+AiZippy\Order\OrderModeInfoAssets::register();
