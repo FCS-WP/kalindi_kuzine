@@ -26,6 +26,7 @@ const input = {
 const childJs = resolve(childSrc, "js/child.js");
 const childScss = resolve(childSrc, "scss/style.scss");
 const childAboutScss = resolve(childSrc, "scss/about-us-entry.scss");
+const childContactScss = resolve(childSrc, "scss/contact-entry.scss");
 
 if (existsSync(childJs)) {
 	input["child-theme"] = childJs;
@@ -35,6 +36,9 @@ if (existsSync(childScss)) {
 }
 if (existsSync(childAboutScss)) {
 	input["child-about-us"] = childAboutScss;
+}
+if (existsSync(childContactScss)) {
+	input["child-contact"] = childContactScss;
 }
 
 export default defineConfig({
@@ -69,6 +73,7 @@ export default defineConfig({
 		preprocessorOptions: {
 			scss: {
 				api: "modern-compiler",
+				silenceDeprecations: ["import", "global-builtin"],
 			},
 		},
 	},

@@ -372,7 +372,7 @@ $ps-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	transition: background $ps-transition, transform $ps-transition;
 
 	&:hover {
-		background: lighten(#1b2a4a, 10%);
+		background: color.adjust(#1b2a4a, $lightness: 10%);
 		transform: translateY(-1px);
 	}
 }

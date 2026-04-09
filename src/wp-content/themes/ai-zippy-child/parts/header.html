@@ -4,26 +4,33 @@
 	<!-- wp:group {"className":"header-layout","layout":{"type":"flex","orientation":"vertical","justifyContent":"center","flexWrap":"nowrap","verticalAlignment":"center"}} -->
 	<div class="wp-block-group header-layout">
 
-		<!-- Center: Logo (FIRST - appears on top) -->
-		<!-- wp:group {"className":"header-logo","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center","justifyContent":"center"}} -->
-		<div class="wp-block-group header-logo">
-			<!-- wp:site-logo {"width":120,"shouldSyncIcon":false} /-->
+		<!-- Top: Centered Logo -->
+		<!-- wp:group {"className":"header-logo-row","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center","justifyContent":"center"},"style":{"spacing":{"margin":{"bottom":"1.5rem"}}}} -->
+		<div class="wp-block-group header-logo-row">
+			<!-- wp:site-logo {"width":180,"shouldSyncIcon":false} /-->
 		</div>
 		<!-- /wp:group -->
 
-		<!-- Navigation Menu + Icons (SECOND - appears below logo) -->
-		<!-- wp:group {"className":"header-nav","layout":{"type":"flex","flexWrap":"wrap","verticalAlignment":"center","justifyContent":"center"},"style":{"spacing":{"blockGap":"2rem","margin":{"top":"2rem"}}}} -->
-		<div class="wp-block-group header-nav">
-			<!-- wp:navigation {"overlayMenu":"mobile","layout":{"type":"flex","justifyContent":"center"},"fontSize":"small","style":{"typography":{"fontStyle":"normal","fontWeight":"500","letterSpacing":"1px"}}} /-->
+		<!-- Bottom Row: Centered Menu + Right Icons -->
+		<!-- wp:group {"className":"header-nav-row","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center","justifyContent":"space-between"}} -->
+		<div class="wp-block-group header-nav-row">
+			
+			<!-- Left Spacer (to keep menu centered) -->
+			<!-- wp:group {"className":"header-nav-spacer","layout":{"type":"flex"}} -->
+			<div class="wp-block-group header-nav-spacer"></div>
+			<!-- /wp:group -->
 
-			<!-- Cart & User Icons -->
-			<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"1rem","margin":{"left":"1rem"}}}} -->
+			<!-- Center: Navigation -->
+			<!-- wp:navigation {"overlayMenu":"mobile","layout":{"type":"flex","justifyContent":"center"},"fontSize":"medium","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"capitalize"}},"className":"header-main-menu"} /-->
+
+			<!-- Right: User & Cart Icons -->
+			<!-- wp:group {"className":"az-header-icons","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"1.25rem"}}} -->
 			<div class="wp-block-group az-header-icons">
 				<!-- wp:woocommerce/mini-cart {"hasHiddenPrice":true,"transparentButton":true} /-->
 
 				<!-- wp:html -->
 				<a href="/my-account/" class="az-header-user" aria-label="My Account">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
 						<circle cx="12" cy="7" r="4"></circle>
 					</svg>
@@ -31,8 +38,10 @@
 				<!-- /wp:html -->
 			</div>
 			<!-- /wp:group -->
+
 		</div>
 		<!-- /wp:group -->
+
 	</div>
 	<!-- /wp:group -->
 

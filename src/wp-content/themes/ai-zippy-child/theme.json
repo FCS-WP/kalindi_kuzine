@@ -4,5 +4,9 @@
 	"settings": {
 		"appearanceTools": true
 	},
-	"styles": {}
+	"styles": {
+		"spacing": {
+			"blockGap": "0"
+		}
+	}
 }

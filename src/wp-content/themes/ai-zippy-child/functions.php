@@ -33,15 +33,28 @@ function ai_zippy_child_enqueue_assets(): void
         );
     }
 
-    // About Us page specific styles
-    if (is_page('about-us')) {
-        $about_css = get_template_directory() . '/assets/dist/css/child-about-us.css';
-        if (file_exists($about_css)) {
+    // About Us page styles (Load for About Us and About slugs)
+    if (is_page('about-us') || is_page('about')) {
+        $about_css_path = get_template_directory() . '/assets/dist/css/child-about-us.css';
+        if (file_exists($about_css_path)) {
             wp_enqueue_style(
                 'ai-zippy-about-us-style',
                 get_template_directory_uri() . '/assets/dist/css/child-about-us.css',
                 ['ai-zippy-child-style'],
-                filemtime($about_css)
+                filemtime($about_css_path)
+            );
+        }
+    }
+
+    // Contact page specific styles
+    if (is_page('contact-us') || is_page('contact')) {
+        $contact_css_path = get_template_directory() . '/assets/dist/css/child-contact.css';
+        if (file_exists($contact_css_path)) {
+            wp_enqueue_style(
+                'ai-zippy-contact-style',
+                get_template_directory_uri() . '/assets/dist/css/child-contact.css',
+                ['ai-zippy-child-style'],
+                filemtime($contact_css_path)
             );
         }
     }

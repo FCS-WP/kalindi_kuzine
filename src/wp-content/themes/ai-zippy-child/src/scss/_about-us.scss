@@ -1,275 +1,254 @@
-// =============================================================================
-// About Us Page Styles
-//
-// Hero section, two-column story cards, timeline section
-// =============================================================================
+@import "@scss/_variables.scss";
 
-// ---- COLORS (mapped from theme.json) ----
-$c-primary:   var(--wp--preset--color--primary);    // #1a1a1a
-$c-secondary: var(--wp--preset--color--secondary);   // #f5f5f5
-$c-accent:    var(--wp--preset--color--accent);      // #c8a97e
-$c-white:     var(--wp--preset--color--white);       // #ffffff
-$c-black:     var(--wp--preset--color--black);       // #000000
-$c-border:    var(--wp--preset--color--border);      // #e5e5e5
-$c-muted:     var(--wp--preset--color--muted);       // #999999
+// About Us Page - Clean/Premium Redesign based on Mockup
 
 // ---- BREAKPOINTS ----
-$bp-sm:  480px;
-$bp-md:  768px;
-$bp-lg:  1024px;
-$bp-xl:  1200px;
-$bp-xxl: 1400px;
+$bp-md: 768px;
+$bp-lg: 1024px;
 
-// ---- DESIGN TOKENS ----
-$transition-speed: 0.3s;
-$transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
-$border-radius: 8px;
-$border-radius-lg: 12px;
-$box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-$box-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
-
-// ---- RESPONSIVE MIXINS ----
 @mixin from($bp) {
-  @if $bp == sm  { @media (min-width: $bp-sm)  { @content; } }
-  @else if $bp == md  { @media (min-width: $bp-md)  { @content; } }
-  @else if $bp == lg  { @media (min-width: $bp-lg)  { @content; } }
-  @else if $bp == xl  { @media (min-width: $bp-xl)  { @content; } }
-  @else if $bp == xxl { @media (min-width: $bp-xxl) { @content; } }
-  @else { @media (min-width: $bp) { @content; } }
+	@if $bp ==md {
+		@media (min-width: $bp-md) {
+			@content;
+		}
+	}
+
+	@else if $bp ==lg {
+		@media (min-width: $bp-lg) {
+			@content;
+		}
+	}
+
+	@else {
+		@media (min-width: $bp) {
+			@content;
+		}
+	}
 }
 
 @mixin until($bp) {
-  @if $bp == sm  { @media (max-width: ($bp-sm - 1px))  { @content; } }
-  @else if $bp == md  { @media (max-width: ($bp-md - 1px))  { @content; } }
-  @else if $bp == lg  { @media (max-width: ($bp-lg - 1px))  { @content; } }
-  @else if $bp == xl  { @media (max-width: ($bp-xl - 1px))  { @content; } }
-  @else if $bp == xxl { @media (max-width: ($bp-xxl - 1px)) { @content; } }
-  @else { @media (max-width: $bp) { @content; } }
+	@if $bp ==md {
+		@media (max-width: ($bp-md - 1px)) {
+			@content;
+		}
+	}
+
+	@else {
+		@media (max-width: $bp) {
+			@content;
+		}
+	}
 }
 
-@mixin transition($props: all) {
-  transition: $props $transition-speed $transition-ease;
-}
+.az-about-page {
+	padding: 0;
 
-// ---- RESET WP DEFAULT MARGINS ----
-// Remove WordPress auto-margins on main & footer
-main.wp-block-group {
-  margin-block-start: 0 !important;
-}
+	background: #fff !important;
 
-footer.wp-block-template-part {
-  margin-block-start: 0 !important;
-}
+	/* HERO */
+	.az-about-hero {
+		padding: 6rem 1.5rem 4rem !important;
+		margin: 0 auto !important;
+		text-align: center;
 
-// ---- HERO SECTION ----
-.az-about__hero {
-  position: relative;
-  background-color: $c-secondary;
+		.az-about-hero__title {
+			font-size: clamp(2.5rem, 5vw, 4rem) !important;
+			font-weight: 700 !important;
+			color: #1a1a1a !important;
+			margin-bottom: 3rem !important;
+		}
 
-  .wp-block-heading {
-    color: $c-primary;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 2rem;
-  }
+		.az-about-hero__image {
+			margin: 0 auto 3rem !important;
+			border-radius: 8px;
+			overflow: hidden;
 
-  .az-about__hero-image {
-    margin: 2rem 0;
-    border-radius: $border-radius-lg;
-    overflow: hidden;
-    box-shadow: $box-shadow-lg;
+			img {
+				width: 100%;
+				height: auto;
+				aspect-ratio: 21/9;
+				object-fit: cover;
+			}
+		}
 
-    img {
-      width: 100%;
-      height: 400px;
-      object-fit: cover;
-      display: block;
+		.az-about-hero__intro {
+			max-width: 850px;
+			margin: 0 auto !important;
+			font-size: 1.2rem !important;
+			line-height: 1.8;
+			color: #333 !important;
+		}
+	}
 
-      @include from(md) {
-        height: 500px;
-      }
-    }
-  }
+	/* STORIES SECTION */
+	.az-about-stories-section {
+		padding: 10rem 2rem !important;
+		background-color: #f5f4f3 !important; // Forced Gray Background
+		margin-top: 4rem !important;
 
-  .az-about__intro {
-    p {
-      color: $c-primary;
-      line-height: 1.8;
-      font-size: 1.1rem;
-      margin-top: 2rem;
+		.az-about-stories-grid {
+			gap: 4rem !important;
+			align-items: stretch !important;
 
-      @include from(md) {
-        font-size: 1.15rem;
-      }
-    }
-  }
-}
+			@include from(md) {
+				gap: 6rem !important;
+			}
+		}
 
-// ---- TWO COLUMN STORY SECTION ----
-.az-about__stories {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
-  background-color: $c-white;
+		.az-about-story-col {
+			margin-top: 5rem;
 
-  .az-about__stories-columns {
-    gap: 2rem;
+			@media (max-width: 768px) {
+				margin-top: 0;
+			}
+		}
 
-    @include from(md) {
-      gap: 3rem;
-    }
-  }
+		.az-about-story-col--offset {
+			margin-top: -3rem !important;
 
-  .wp-block-column {
-    flex: 1;
-  }
+			@media (max-width: 768px) {
+				margin-top: 0 !important;
+			}
+		}
 
-  .az-about__story-card {
-    background-color: $c-white;
-    border-radius: $border-radius-lg;
-    box-shadow: $box-shadow;
-    transition: all $transition-speed $transition-ease;
-    padding: 0;
+		.az-about-story-card {
+			background: #ffffff !important;
+			border-radius: 24px !important;
+			overflow: hidden;
+			box-shadow: 0 15px 50px rgba(0, 0, 0, 0.06) !important;
+			height: 100% !important;
+			display: flex !important;
+			flex-direction: column !important;
+			border: 1px solid rgba(0, 0, 0, 0.03);
+			transition: all 0.4s ease;
 
-    &:hover {
-      box-shadow: $box-shadow-lg;
-      transform: translateY(-4px);
-    }
+			&:hover {
+				transform: translateY(-10px);
+				box-shadow: 0 25px 70px rgba(0, 0, 0, 0.1) !important;
+			}
+		}
 
-    .az-about__story-image {
-      margin: 0;
-      border-radius: $border-radius-lg $border-radius-lg 0 0;
-      overflow: hidden;
+		.az-about-story-img {
+			margin: 0 !important;
 
-      img {
-        width: 100%;
-        height: 300px;
-        object-fit: cover;
-        display: block;
+			img {
+				width: 100% !important;
+				aspect-ratio: 4/3 !important;
+				object-fit: cover !important;
+			}
+		}
 
-        @include from(md) {
-          height: 350px;
-        }
-      }
-    }
+		.az-about-story-content {
+			padding: 3rem 2.5rem !important;
+			flex-grow: 1;
+		}
 
-    h3 {
-      color: $c-primary;
-      font-weight: 700;
-      padding: 0 2rem;
-      margin-top: 1.5rem;
-      margin-bottom: 1rem;
+		.az-about-story-title {
+			font-size: 1.75rem !important;
+			font-weight: 700 !important;
+			color: #1a1a1a !important;
+			margin-bottom: 1.5rem !important;
+		}
 
-      @include from(md) {
-        font-size: 1.5rem;
-      }
-    }
+		.az-about-story-text {
+			font-size: 1.05rem !important;
+			line-height: 1.8 !important;
+			color: #555 !important;
+		}
 
-    p {
-      color: #666666;
-      line-height: 1.7;
-      font-size: 0.95rem;
-      padding: 0 2rem;
+		/* BUTTON STYLE */
+		.az-about-story-link {
+			margin-top: 2.5rem !important;
 
-      &:last-child {
-        padding-bottom: 2rem;
+			a {
+				display: inline-block;
+				background-color: #cc5d33 !important; // Primary gold/orange theme color
+				color: #fff !important;
+				padding: 1rem 2.5rem !important;
+				border-radius: 50px !important;
+				text-decoration: none !important;
+				font-weight: 700 !important;
+				font-size: 0.95rem !important;
+				text-transform: uppercase;
+				letter-spacing: 1.5px;
+				transition: all 0.3s ease !important;
+				box-shadow: 0 8px 20px rgba(204, 93, 51, 0.2);
 
-        a {
-          color: $c-accent;
-          text-decoration: none;
-          font-weight: 600;
-          transition: color $transition-speed $transition-ease;
+				&:hover {
+					background-color: #a04928 !important;
+					transform: translateY(-3px);
+					box-shadow: 0 12px 30px rgba(204, 93, 51, 0.3);
+					color: #fff !important;
+				}
+			}
+		}
+	}
 
-          &:hover {
-            color: $c-primary;
-            text-decoration: underline;
-          }
-        }
-      }
-    }
-  }
-}
+	/* TIMELINE */
+	.az-about-timeline {
+		padding: 8rem 2rem 15rem !important;
 
-// ---- TIMELINE / OUR STORY SECTION ----
-.az-about__timeline-section {
-  background-color: $c-secondary;
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+		.az-about-timeline__title {
+			font-size: 2.5rem !important;
+			font-weight: 700 !important;
+			margin-bottom: 4rem !important;
+		}
 
-  h2 {
-    color: $c-primary;
-    font-weight: 700;
-    margin-bottom: 3rem;
-    letter-spacing: -0.5px;
-  }
+		.az-about-timeline__graphic {
+			position: relative;
+			height: 80px;
+			margin-bottom: 4rem;
+			display: flex;
+			align-items: center;
+		}
 
-  .wp-block-ai-zippy-child-story-timeline {
-    width: 100%;
-  }
-}
+		.az-about-timeline__line {
+			position: absolute;
+			top: 50%;
+			left: 0;
+			width: 100%;
+			height: 2px;
+			background: #e0e0e0;
+			z-index: 1;
+		}
 
-// ---- RESPONSIVE ADJUSTMENTS ----
-@include until(md) {
-  .az-about__hero {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+		.az-about-timeline__points {
+			position: relative;
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+			z-index: 2;
+		}
 
-    .wp-block-heading {
-      font-size: 1.75rem;
-      margin-bottom: 1.5rem;
-    }
+		.az-about-timeline__point {
+			background: #fff;
+			padding: 0 15px;
+			color: #ccc;
 
-    .az-about__hero-image img {
-      height: 300px;
-    }
+			&:nth-child(2) {
+				color: #cc5d33;
+			}
 
-    .az-about__intro p {
-      font-size: 0.95rem;
-      line-height: 1.7;
-    }
-  }
+			svg {
+				width: 36px;
+				height: 36px;
+			}
+		}
 
-  .az-about__stories {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+		.az-about-timeline__grid {
+			gap: 4rem !important;
 
-    .wp-block-column {
-      padding: 0;
+			h4 {
+				font-size: 1.4rem !important;
+				font-weight: 700 !important;
+				margin-bottom: 1.25rem !important;
+			}
 
-      &:not(:last-child) {
-        margin-bottom: 2rem;
-      }
-    }
-  }
-
-  .az-about__timeline-section {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-
-    h2 {
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-    }
-  }
-}
-
-// ---- LINK STYLING ----
-.az-about__stories a,
-.az-about__intro a {
-  color: $c-accent;
-  text-decoration: none;
-  font-weight: 500;
-  border-bottom: 2px solid transparent;
-  transition: border-color $transition-speed $transition-ease;
-
-  &:hover {
-    border-bottom-color: $c-accent;
-  }
-}
-
-// ---- ACCESSIBILITY ----
-@media (prefers-reduced-motion: reduce) {
-  .az-about__story-card,
-  a {
-    transition: none;
-  }
+			p {
+				font-size: 1.05rem !important;
+				line-height: 1.7 !important;
+				color: #666;
+			}
+		}
+	}
 }

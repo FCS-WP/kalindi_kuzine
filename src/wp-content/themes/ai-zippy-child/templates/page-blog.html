@@ -1,40 +1,61 @@
 <!-- wp:template-part {"slug":"header","area":"header"} /-->
 
-<!-- wp:group {"tagName":"main","className":"az-blog-page","layout":{"type":"constrained","contentSize":"1200px"}} -->
+<!-- wp:group {"tagName":"main","className":"az-blog-page","layout":{"type":"default"}} -->
 <main class="wp-block-group az-blog-page">
 
-	<!-- wp:group {"className":"az-blog-page__hero","layout":{"type":"constrained"}} -->
+	<!-- wp:group {"className":"az-blog-page__hero","layout":{"type":"constrained","contentSize":"1000px"}} -->
 	<div class="wp-block-group az-blog-page__hero">
-		<!-- wp:heading {"level":1,"fontSize":"xxx-large"} -->
-		<h1 class="wp-block-heading has-xxx-large-font-size">Blog</h1>
+		<!-- wp:heading {"textAlign":"center","level":1,"className":"az-blog-hero-title"} -->
+		<h1 class="wp-block-heading has-text-align-center az-blog-hero-title">From Our Kitchen to Yours</h1>
 		<!-- /wp:heading -->
 
-		<!-- wp:paragraph {"fontSize":"large"} -->
-		<p class="has-large-font-size">Stories from our kitchen, recipes for every season, and cafe notes written for you.</p>
+		<!-- wp:paragraph {"align":"center","className":"az-blog-hero-intro"} -->
+		<p class="has-text-align-center az-blog-hero-intro">Stories of flavor, traditions reborn, and notes on wholesome vegetarian living from Singapore's favorite home kitchen.</p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
 
-	<!-- wp:group {"className":"az-blog-page__grid-section","layout":{"type":"constrained"}} -->
+	<!-- wp:group {"className":"az-blog-page__grid-section","layout":{"type":"constrained","contentSize":"1200px"}} -->
 	<div class="wp-block-group az-blog-page__grid-section">
-		<!-- wp:heading {"level":2,"fontSize":"x-large"} -->
-		<h2 class="wp-block-heading has-x-large-font-size">Latest Posts</h2>
-		<!-- /wp:heading -->
-
+		
 		<!-- wp:query {"queryId":1,"query":{"perPage":9,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","inherit":false}} -->
 		<div class="wp-block-query is-layout-flow">
-			<!-- wp:post-template {"className":"az-blog-card__inner","layout":{"type":"grid","columnCount":3}} -->
-				<!-- wp:group {"className":"az-blog-card__content"} -->
-				<div class="wp-block-group az-blog-card__content">
-					<!-- wp:post-featured-image {"isLink":true,"style":{"border":{"radius":"10px"}}} /-->
-					<!-- wp:post-title {"isLink":true,"level":3,"fontSize":"medium"} /-->
-					<!-- wp:post-date {"fontSize":"small"} /-->
-					<!-- wp:post-excerpt {"excerptLength":15} /-->
+			<!-- wp:post-template {"className":"az-blog-card-item","layout":{"type":"grid","columnCount":3}} -->
+				<!-- wp:group {"className":"az-blog-card"} -->
+				<div class="wp-block-group az-blog-card">
+					
+					<!-- wp:group {"className":"az-blog-card__image-wrapper"} -->
+					<div class="wp-block-group az-blog-card__image-wrapper">
+						<!-- wp:post-featured-image {"isLink":true} /-->
+					</div>
+					<!-- /wp:group -->
+					
+					<!-- wp:group {"className":"az-blog-card__content"} -->
+					<div class="wp-block-group az-blog-card__content">
+						<!-- wp:post-terms {"term":"category","fontSize":"small","className":"az-blog-card__category"} /-->
+						
+						<!-- wp:post-title {"isLink":true,"level":3,"className":"az-blog-card__title"} /-->
+						
+						<!-- wp:group {"className":"az-blog-card__meta","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+						<div class="wp-block-group az-blog-card__meta">
+							<!-- wp:post-date {"fontSize":"small"} /-->
+						</div>
+						<!-- /wp:group -->
+
+						<!-- wp:post-excerpt {"excerptLength":20,"className":"az-blog-card__excerpt"} /-->
+						
+						<!-- wp:group {"className":"az-blog-card__footer"} -->
+						<div class="wp-block-group az-blog-card__footer">
+							<!-- wp:read-more {"content":"Read Story +","className":"az-blog-read-more"} /-->
+						</div>
+						<!-- /wp:group -->
+					</div>
+					<!-- /wp:group -->
 				</div>
 				<!-- /wp:group -->
 			<!-- /wp:post-template -->
 
-			<!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"center"}} -->
+			<!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"center"},"className":"az-blog-pagination"} -->
 			<!-- wp:query-pagination-previous /-->
 			<!-- wp:query-pagination-numbers /-->
 			<!-- wp:query-pagination-next /-->
@@ -42,7 +63,7 @@
 
 			<!-- wp:query-no-results -->
 			<!-- wp:paragraph {"align":"center"} -->
-			<p class="has-text-align-center">No blog posts found yet.</p>
+			<p class="has-text-align-center">We are currently cooking up some new stories. Check back soon!</p>
 			<!-- /wp:paragraph -->
 			<!-- /wp:query-no-results -->
 		</div>
