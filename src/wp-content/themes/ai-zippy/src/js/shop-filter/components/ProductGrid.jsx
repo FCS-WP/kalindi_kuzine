@@ -177,9 +177,14 @@ function ProductCard({ product, viewMode }) {
 				<div className="sf__card-actions">
 					{product.stock_status === "instock" && (
 						<a
-							href={product.add_to_cart_url}
-							className="sf__card-btn"
+							href="#lightbox-zippy-form"
+							className="sf__card-btn zippy-button lightbox-zippy-btn"
+							data-product_id={product.id}
 							data-product-id={product.id}
+							data-product-sku={product.sku || ""}
+							data-product-url={`?add-to-cart=${product.id}`}
+							data-quantity="1"
+							aria-label={`Add to cart: "${product.name}"`}
 						>
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
 								<circle cx="9" cy="21" r="1" />

@@ -48,4 +48,22 @@
 			white-space: nowrap;
 		}
 	}
+
+	// Fix: Overlay blocks clicking the background image in editor
+	.promotions-grid__card-overlay {
+		pointer-events: none; // Allow clicks to pass through to the image background
+	}
+
+	.promotions-grid__card-content {
+		pointer-events: auto; // Re-enable pointer events for RichText editing
+		position: relative;
+		z-index: 10;
+	}
+
+	// Make the remove button clickable too
+	.components-button {
+		position: relative;
+		z-index: 11;
+		pointer-events: auto;
+	}
 }

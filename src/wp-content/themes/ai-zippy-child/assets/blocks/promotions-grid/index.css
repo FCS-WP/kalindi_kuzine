@@ -30,5 +30,18 @@
   opacity: 0.7;
   white-space: nowrap;
 }
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-overlay {
+  pointer-events: none;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-content {
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+}
+.wp-block-ai-zippy-child-promotions-grid .components-button {
+  position: relative;
+  z-index: 11;
+  pointer-events: auto;
+}
 
 /*# sourceMappingURL=index.css.map*/

@@ -2,7 +2,21 @@
 	"$schema": "https://schemas.wp.org/trunk/theme.json",
 	"version": 3,
 	"settings": {
-		"appearanceTools": true
+		"appearanceTools": true,
+		"color": {
+			"palette": [
+				{
+					"slug": "primary",
+					"color": "#cc5d33",
+					"name": "Brand Red"
+				},
+				{
+					"slug": "secondary",
+					"color": "#fbfbfc",
+					"name": "Soft Gray"
+				}
+			]
+		}
 	},
 	"styles": {
 		"spacing": {

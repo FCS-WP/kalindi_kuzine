@@ -47,10 +47,20 @@ class OrderSessionApi
             return new WP_REST_Response([], 200);
         }
 
-        // Initialize session if needed
-        if (!WC()->session) {
+        // Ensure session is initialized
+        if (WC()->session === null) {
             WC()->session = new \WC_Session_Handler();
             WC()->session->init();
+        }
+
+        // If session is still empty, try to load from cookie
+        if (is_null(WC()->session->get_customer_id())) {
+            $session_cookie = $_COOKIE['wp_woocommerce_session_' . COOKIEHASH] ?? '';
+            if (!empty($session_cookie)) {
+                $session_data = explode('||', $session_cookie);
+                $customer_id = $session_data[0];
+                WC()->session->init_session_cookie();
+            }
         }
 
         $data = [

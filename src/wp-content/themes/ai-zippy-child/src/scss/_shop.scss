@@ -1,0 +1,73 @@
+// Shop Page Custom Styles - Child Theme Overrides
+@import "@scss/_variables.scss";
+
+// Shop Hero Banner
+.shop-hero {
+  background-color: #cc5d33 !important; // Accurate Brand Orange
+
+  // Remove the dark overlay from parent theme
+  &::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .wp-block-woocommerce-breadcrumbs,
+  .wp-block-query-title,
+  .wp-block-term-description {
+    color: #ffffff !important;
+    position: relative;
+    z-index: 2;
+  }
+
+  .woocommerce-breadcrumb a {
+    color: #ffffff !important;
+  }
+}
+
+// Shop Filter (React App) Overrides
+.sf {
+  // Buttons
+  .sf__card-btn {
+    background-color: #cc5d33 !important;
+
+    &:hover {
+      background-color: #cc5d33 !important;
+    }
+  }
+
+  // Categories / Price / Availability labels
+  .sf__section-toggle {
+    color: #ff6b00 !important;
+  }
+
+  // Product card title hover
+  .sf__card-title:hover {
+    color: #ff6b00 !important;
+  }
+
+  // Wishlist active state
+  .sf__card-wish.is-active,
+  .sf__card-wish-sm.is-active,
+  .sf__card-wish:hover,
+  .sf__card-wish-sm:hover {
+    color: #ff6b00 !important;
+    border-color: #ff6b00 !important;
+  }
+
+  // Range slider / toggle active states
+  .sf__layout-btn.is-active,
+  .sf__view-btn.is-active {
+    border-color: #ff6b00 !important;
+    color: #ff6b00 !important;
+  }
+
+  // Search focus
+  .sf__search-input:focus {
+    border-color: #ff6b00 !important;
+  }
+
+  // Category count badge
+  .sf__card-cat {
+    color: #ff6b00 !important;
+  }
+}

@@ -20,6 +20,7 @@ const input = {
 	cart: resolve(parentSrc, "js/cart/index.jsx"),
 	checkout: resolve(parentSrc, "js/checkout/index.jsx"),
 	"wc-checkout": resolve(parentSrc, "scss/wc-checkout-entry.scss"),
+	"order-mode-info": resolve(parentSrc, "js/order-mode-info/index.jsx"),
 };
 
 // Child theme assets (only if source files exist)
@@ -27,6 +28,7 @@ const childJs = resolve(childSrc, "js/child.js");
 const childScss = resolve(childSrc, "scss/style.scss");
 const childAboutScss = resolve(childSrc, "scss/about-us-entry.scss");
 const childContactScss = resolve(childSrc, "scss/contact-entry.scss");
+const childBlogScss = resolve(childSrc, "scss/blog-entry.scss");
 
 if (existsSync(childJs)) {
 	input["child-theme"] = childJs;
@@ -39,6 +41,9 @@ if (existsSync(childAboutScss)) {
 }
 if (existsSync(childContactScss)) {
 	input["child-contact"] = childContactScss;
+}
+if (existsSync(childBlogScss)) {
+	input["child-blog"] = childBlogScss;
 }
 
 export default defineConfig({

@@ -31,7 +31,7 @@
 
 	/* GRID SECTION */
 	.az-blog-page__grid-section {
-		padding: 0 2rem 10rem;
+		padding: 5rem 2rem 10rem;
 		
 		.wp-block-post-template {
 			gap: 3rem !important;
@@ -134,7 +134,7 @@
 		.az-blog-read-more {
 			margin-top: 1.5rem;
 
-			a {
+			&, a {
 				display: inline-block;
 				background-color: #cc5d33 !important;
 				color: #fff !important;

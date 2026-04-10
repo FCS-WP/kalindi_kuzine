@@ -1,47 +1,48 @@
 <!-- wp:template-part {"slug":"header","area":"header"} /-->
 
-<!-- wp:group {"className":"az-contact-page","layout":{"type":"constrained","contentSize":"1200px"}} -->
-<div class="wp-block-group az-contact-page">
+<!-- wp:group {"tagName":"main","className":"az-contact-page","layout":{"type":"default"}} -->
+<main class="wp-block-group az-contact-page">
 	
-	<!-- Hero Section -->
-	<!-- wp:cover {"overlayColor":"white","minHeight":400,"minHeightUnit":"px","contentPosition":"center center","isDark":false,"className":"az-contact-hero"} -->
-	<div class="wp-block-cover is-light az-contact-hero" style="min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-white-background-color has-background-dim-100 has-background-dim"></span><div class="wp-block-cover__inner-container">
-		<!-- wp:paragraph {"align":"center","placeholder":"Upload Hero Image...","fontSize":"large"} -->
-		<p class="has-text-align-center has-large-font-size"></p>
-		<!-- /wp:paragraph -->
-	</div></div>
-	<!-- /wp:cover -->
+	<!-- wp:ai-zippy-child/page-header {"title":"Contact Us","subtitle":"We are happy to assist with your catering enquiries and menu planning."} /-->
 
 	<!-- Contact Details Section -->
 	<!-- wp:group {"className":"az-contact-info-section","layout":{"type":"constrained"}} -->
 	<div class="wp-block-group az-contact-info-section">
-		<!-- wp:columns -->
-		<div class="wp-block-columns">
+		<!-- wp:columns {"className":"az-contact-info-grid"} -->
+		<div class="wp-block-columns az-contact-info-grid">
 			<!-- wp:column -->
 			<div class="wp-block-column">
-				<!-- wp:heading {"level":3} -->
-				<h3 class="wp-block-heading">Kalindi's Kuzines</h3>
-				<!-- /wp:heading -->
-				<!-- wp:paragraph -->
-				<p>Singapore</p>
-				<!-- /wp:paragraph -->
-				<!-- wp:paragraph -->
-				<p>WhatsApp: +65 9354 5155<br>Email: kalindiskuzines@gmail.com</p>
-				<!-- /wp:paragraph -->
+				<!-- wp:group {"className":"az-contact-card"} -->
+				<div class="wp-block-group az-contact-card">
+					<!-- wp:heading {"level":3} -->
+					<h3 class="wp-block-heading">Contact Info</h3>
+					<!-- /wp:heading -->
+					<!-- wp:paragraph -->
+					<p><strong>Kalindi's Kuzines</strong><br>Singapore</p>
+					<!-- /wp:paragraph -->
+					<!-- wp:paragraph -->
+					<p>WhatsApp: +65 9354 5155<br>Email: kalindiskuzines@gmail.com</p>
+					<!-- /wp:paragraph -->
+				</div>
+				<!-- /wp:group -->
 			</div>
 			<!-- /wp:column -->
 
 			<!-- wp:column -->
 			<div class="wp-block-column">
-				<!-- wp:heading {"level":3} -->
-				<h3 class="wp-block-heading">Operating Hours</h3>
-				<!-- /wp:heading -->
-				<!-- wp:paragraph -->
-				<p>Monday – Sunday<br>8 AM - 10 PM</p>
-				<!-- /wp:paragraph -->
-				<!-- wp:paragraph {"fontSize":"small"} -->
-				<p class="has-small-font-size">Catering orders require at least 24 hours' notice.</p>
-				<!-- /wp:paragraph -->
+				<!-- wp:group {"className":"az-contact-card"} -->
+				<div class="wp-block-group az-contact-card">
+					<!-- wp:heading {"level":3} -->
+					<h3 class="wp-block-heading">Operating Hours</h3>
+					<!-- /wp:heading -->
+					<!-- wp:paragraph -->
+					<p>Monday – Sunday<br>8 AM - 10 PM</p>
+					<!-- /wp:paragraph -->
+					<!-- wp:paragraph {"fontSize":"small"} -->
+					<p class="has-small-font-size">Catering orders require at least 24 hours' notice.</p>
+					<!-- /wp:paragraph -->
+				</div>
+				<!-- /wp:group -->
 			</div>
 			<!-- /wp:column -->
 		</div>
@@ -130,7 +131,7 @@
 	</div>
 	<!-- /wp:group -->
 
-</div>
+</main>
 <!-- /wp:group -->
 
 <!-- wp:template-part {"slug":"footer","area":"footer"} /-->

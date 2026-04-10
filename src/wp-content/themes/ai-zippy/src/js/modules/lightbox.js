@@ -42,13 +42,17 @@ async function getSessionInfo() {
 	}
 
 	sessionPromise = fetch("/wp-json/ai-zippy/v1/order-session")
-		.then((res) => res.json())
+		.then((res) => {
+			if (!res.ok) throw new Error("API Error");
+			return res.json();
+		})
 		.then((data) => {
 			sessionCache = data || {};
 			sessionPromise = null;
 			return sessionCache;
 		})
-		.catch(() => {
+		.catch((err) => {
+			console.warn("⚠️ Failed to fetch session info in lightbox:", err);
 			sessionCache = {};
 			sessionPromise = null;
 			return sessionCache;
@@ -202,16 +206,42 @@ function handleCustomAddedToCart() {
  * Update the WooCommerce mini cart after adding an item.
  */
 function updateMiniCart(cart) {
-	const count = cart.items_count;
+	// Use items_quantity (total products) or fallback to items_count (unique products)
+	const count = cart.items_quantity !== undefined ? cart.items_quantity : (cart.items_count || 0);
 	const totalPrice = cart.totals?.total_price;
 	const currencySymbol = cart.totals?.currency_symbol || "$";
 
-	// 1. Update badge count immediately
-	document.querySelectorAll(".wc-block-mini-cart__badge").forEach((badge) => {
-		badge.textContent = count;
-		badge.hidden = false;
-		badge.setAttribute("aria-hidden", "false");
+	console.log("🛒 [Lightbox] Updating cart UI:", { count, totalPrice });
+
+	// 1. Update/Create badge count with extra selectors for compatibility
+	const badgeSelectors = [
+		".wc-block-mini-cart__badge",
+		".wc-block-components-cart-badge",
+		".wp-block-woocommerce-mini-cart-contents > span",
+		".az-cart-count",
+	];
+
+	let foundBadge = false;
+	badgeSelectors.forEach((selector) => {
+		document.querySelectorAll(selector).forEach((badge) => {
+			badge.textContent = count;
+			badge.hidden = count === 0;
+			badge.style.display = count === 0 ? "none" : "flex";
+			badge.setAttribute("aria-hidden", count === 0 ? "true" : "false");
+			foundBadge = true;
+		});
 	});
+
+	if (!foundBadge && count > 0) {
+		// If no badge found anywhere, try to attach to known cart buttons
+		document.querySelectorAll(".wc-block-mini-cart__button, .az-header-cart-link").forEach((btn) => {
+			const newBadge = document.createElement("span");
+			newBadge.className = "wc-block-mini-cart__badge az-cart-count";
+			newBadge.style.display = "flex";
+			newBadge.textContent = count;
+			btn.appendChild(newBadge);
+		});
+	}
 
 	// 2. Update amount display
 	if (totalPrice) {
@@ -226,22 +256,40 @@ function updateMiniCart(cart) {
 		btn.setAttribute("aria-label", `${count} items in cart`);
 	});
 
-	// 4. Trigger WC Store API invalidation (if wp.data available)
+	// 4. Force refresh WC Blocks data store aggressively
 	if (typeof wp !== "undefined" && wp.data) {
 		try {
-			const store = wp.data.dispatch("wc/store/cart");
-			if (store?.invalidateResolutionForStoreCart) {
-				store.invalidateResolutionForStoreCart();
+			const cartStore = wp.data.dispatch("wc/store/cart");
+			if (cartStore) {
+				// Direct data push
+				if (cartStore.receiveCart) cartStore.receiveCart(cart);
+
+				// Invalidate resolutions
+				if (cartStore.invalidateResolution) {
+					cartStore.invalidateResolution("getCart");
+				}
+
+				// Internal WC Blocks method if available
+				if (cartStore.invalidateResolutionForStoreCart) {
+					cartStore.invalidateResolutionForStoreCart();
+				}
 			}
-		} catch { /* wp.data not ready */ }
+		} catch (err) {
+			console.warn("⚠️ Failed to update WC Blocks store:", err);
+		}
 	}
 
-	// 5. Dispatch WC blocks event for full refresh
-	document.body.dispatchEvent(new Event("wc-blocks_added_to_cart"));
+	// 5. Dispatch events (Standard WC Blocks trigger)
+	document.body.dispatchEvent(new CustomEvent("wc-blocks_added_to_cart", {
+		bubbles: true,
+		detail: { preserveCartData: false },
+	}));
 
-	// 6. Dispatch jQuery event (some WC themes/plugins listen for this)
+	// 6. Legacy / jQuery bits (fallback for older setups or plugins)
 	if (typeof jQuery !== "undefined") {
-		jQuery(document.body).trigger("added_to_cart");
+		// Some themes re-fetch fragments on these triggers
+		jQuery(document.body).trigger("added_to_cart", [cart.fragments, cart.cart_hash]);
+		jQuery(document.body).trigger("wc_fragment_refresh");
 	}
 }
 

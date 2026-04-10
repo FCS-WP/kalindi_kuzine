@@ -15,9 +15,10 @@ export default function OrderModeInfo() {
 	const loadSessionData = async () => {
 		try {
 			const result = await getSessionInfo();
+			console.log("💾 Order Mode Data received:", result);
 			setData(result);
 		} catch (err) {
-			console.error("Error loading session info:", err);
+			console.error("❌ Error loading session info:", err);
 		} finally {
 			setLoading(false);
 		}
