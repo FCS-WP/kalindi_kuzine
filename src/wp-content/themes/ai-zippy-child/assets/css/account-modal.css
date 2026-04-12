@@ -1,0 +1,311 @@
+/* Account Modal & Dropdown Premium Styles */
+:root {
+    --az-auth-primary: #cc5d33; /* Updated to user requested color */
+    --az-auth-text: #2d3436;
+    --az-auth-bg: #ffffff;
+    --az-auth-overlay: rgba(0, 0, 0, 0.6);
+    --az-auth-radius: 12px;
+    --az-auth-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    --az-auth-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Header Trigger & Dropdown */
+.az-header-icons {
+    position: relative;
+}
+
+.ai-zippy-account-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.az-header-user {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: var(--az-auth-transition);
+    color: var(--az-auth-text);
+    cursor: pointer;
+}
+
+.az-header-user:hover {
+    background: rgba(0,0,0,0.05);
+    color: var(--az-auth-primary);
+}
+
+.ai-zippy-account-dropdown {
+    position: absolute;
+    top: calc(100% + 15px);
+    right: 0;
+    width: 200px;
+    background: var(--az-auth-bg);
+    border-radius: var(--az-auth-radius);
+    box-shadow: var(--az-auth-shadow);
+    padding: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: var(--az-auth-transition);
+    z-index: 1000;
+}
+
+.ai-zippy-account-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.ai-zippy-account-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 15px;
+    width: 12px;
+    height: 12px;
+    background: var(--az-auth-bg);
+    transform: rotate(45deg);
+}
+
+.ai-zippy-account-dropdown a {
+    display: block;
+    padding: 12px 15px;
+    color: var(--az-auth-text);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.ai-zippy-account-dropdown a:hover {
+    background: rgba(204, 93, 51, 0.05);
+    color: var(--az-auth-primary);
+}
+
+/* Modal Core */
+.ai-zippy-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--az-auth-transition);
+}
+
+.ai-zippy-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ai-zippy-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--az-auth-overlay);
+    backdrop-filter: blur(4px);
+}
+
+.ai-zippy-modal-container {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    background: var(--az-auth-bg);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    padding: 40px;
+    transform: scale(0.9);
+    transition: var(--az-auth-transition);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.ai-zippy-modal.active .ai-zippy-modal-container {
+    transform: scale(1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    transition: 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--az-auth-primary);
+    transform: rotate(90deg);
+}
+
+/* Tabs */
+.auth-tabs {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.auth-tab-trigger {
+    background: none;
+    border: none;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #999;
+    cursor: pointer;
+    position: relative;
+    transition: 0.3s;
+}
+
+.auth-tab-trigger.active {
+    color: var(--az-auth-primary);
+}
+
+.auth-tab-trigger::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--az-auth-primary);
+    transition: 0.3s;
+}
+
+.auth-tab-trigger.active::after {
+    width: 100%;
+}
+
+.auth-tab-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.auth-tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Forms */
+.auth-form h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: var(--az-auth-primary);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.form-group input:focus {
+    border-color: var(--az-auth-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(204, 93, 51, 0.1);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--az-auth-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.auth-btn:hover {
+    background: #b04c27;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(204, 93, 51, 0.3);
+}
+
+.auth-footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.auth-footer a {
+    color: var(--az-auth-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Extra Mockup Specifics */
+.auth-tab-content h3 {
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--az-auth-primary);
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+}
+
+.register-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 600px) {
+    .register-grid {
+        grid-template-columns: 1fr;
+    }
+    .ai-zippy-modal-container {
+        padding: 25px;
+    }
+}
+
+/* AJAX Status Messages */
+.auth-status-message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.auth-status-message.error {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.auth-status-message.success {
+    background: rgba(46, 204, 113, 0.1);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+}

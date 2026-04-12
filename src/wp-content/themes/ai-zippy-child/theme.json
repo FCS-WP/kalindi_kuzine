@@ -16,9 +16,54 @@
 					"name": "Soft Gray"
 				}
 			]
+		},
+		"typography": {
+			"fontFamilies": [
+				{
+					"fontFamily": "Roboto, sans-serif",
+					"slug": "header-font",
+					"name": "Roboto",
+					"fontFace": [
+						{
+							"fontFamily": "Roboto",
+							"src": [
+								"file:./assets/fonts/Roboto-Bold.woff2"
+							],
+							"fontWeight": "700",
+							"fontStyle": "normal"
+						}
+					]
+				},
+				{
+					"fontFamily": "'Open Sans', sans-serif",
+					"slug": "body-font",
+					"name": "Open Sans",
+					"fontFace": [
+						{
+							"fontFamily": "Open Sans",
+							"src": [
+								"file:./assets/fonts/OpenSans-Regular.woff2"
+							],
+							"fontWeight": "400",
+							"fontStyle": "normal"
+						}
+					]
+				}
+			]
 		}
 	},
 	"styles": {
+		"typography": {
+			"fontFamily": "var(--wp--preset--font-family--body-font)"
+		},
+		"elements": {
+			"heading": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--header-font)",
+					"fontWeight": "700"
+				}
+			}
+		},
 		"spacing": {
 			"blockGap": "0"
 		}

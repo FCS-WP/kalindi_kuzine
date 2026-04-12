@@ -36,11 +36,11 @@
 
 .az-footer-plate-img {
 	margin: 0 !important;
-	
+
 	img {
 		width: 100%;
 		height: auto;
-		filter: drop-shadow(0 10px 30px rgba(0,0,0,0.25));
+		filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.25));
 	}
 }
 
@@ -63,7 +63,7 @@
 /* Newsletter */
 .az-newsletter-form {
 	margin-top: 1.5rem;
-	
+
 	input {
 		width: 100%;
 		padding: 0.75rem 1rem;
@@ -103,6 +103,7 @@
 
 	a {
 		opacity: 0.9;
+
 		&:hover {
 			opacity: 1;
 			transform: scale(1.1);
@@ -112,10 +113,9 @@
 
 /* Bottom Bar */
 .az-footer-bottom {
-	border-top: 1px solid rgba(255,255,255,0.1);
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
 	padding: 1.5rem 0;
 	margin: 0 -2rem;
-	background: rgba(0,0,0,0.1);
 
 	p {
 		margin: 0 !important;
@@ -129,7 +129,7 @@
 	.az-footer-columns {
 		flex-wrap: wrap !important;
 		gap: 2rem !important;
-		
+
 		.wp-block-column {
 			flex-basis: calc(50% - 1rem) !important;
 		}
