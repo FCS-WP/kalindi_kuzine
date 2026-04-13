@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getCart, updateCustomer, selectShippingRate, placeOrder, applyCoupon, removeCoupon, updateItemQty, removeItem } from "./api.js";
+import { getCart, updateCustomer, selectShippingRate, placeOrder, applyCoupon, removeCoupon, updateItemQty, removeItem, getOrderSession } from "./api.js";
 import { validateContact, validateAddress, validateCheckout } from "./validators.js";
 import CartSteps from "../cart/components/CartSteps.jsx";
 import CheckoutSection from "./components/CheckoutSection.jsx";
@@ -49,6 +49,7 @@ function joinName(first, last) {
 export default function CheckoutApp({ cartUrl, shopUrl }) {
 	const [cart, setCart] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [orderSession, setOrderSession] = useState(null);
 	const [placing, setPlacing] = useState(false);
 	const [error, setError] = useState(null);
 
@@ -77,9 +78,11 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 
 	// Load cart on mount
 	useEffect(() => {
-		getCart()
-			.then((c) => {
+		Promise.all([getCart(), getOrderSession()])
+			.then(([c, s]) => {
 				setCart(c);
+				setOrderSession(s);
+
 				const ba = c.billing_address || {};
 				const sa = c.shipping_address || {};
 
@@ -103,8 +106,22 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 						setActiveSection("billing");
 					}
 				}
+
+				// CRITICAL: Overwrite address from session if in delivery mode
+				if (s.order_mode === "delivery" && s.delivery_address) {
+					const sessionAddr = {
+						address_1: s.delivery_address,
+						postcode: s.postal || "",
+						city: s.city || "Singapore",
+						country: "SG",
+						first_name: ba.first_name || "",
+						last_name: ba.last_name || "",
+					};
+					setBilling((prev) => ({ ...prev, ...sessionAddr }));
+					setShipping((prev) => ({ ...prev, ...sessionAddr }));
+				}
 			})
-			.catch(() => setError("Failed to load cart"))
+			.catch(() => setError("Failed to load checkout data"))
 			.finally(() => setLoading(false));
 	}, []);
 
@@ -157,6 +174,19 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 			setCart(updated);
 		} catch { /* ignore */ }
 	}, [billing, shipping]);
+
+	// --- Auto-sync address to trigger shipping calculation ---
+	useEffect(() => {
+		const timer = setTimeout(async () => {
+			if (billing.address_1 || billing.postcode) {
+				try {
+					const updated = await updateCustomer(billing, shipToDifferent ? shipping : billing);
+					setCart(updated);
+				} catch { /* ignore */ }
+			}
+		}, 1000);
+		return () => clearTimeout(timer);
+	}, [billing.address_1, billing.postcode, shipToDifferent, shipping.address_1, shipping.postcode]);
 
 	const handleBillingContinue = useCallback(() => {
 		const errors = validateAddress(billing);
@@ -382,6 +412,7 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 							address={billing}
 							onChange={setBilling}
 							errors={fieldErrors.billing}
+							readOnly={orderSession?.order_mode === "delivery"}
 						/>
 
 						{allowDifferentShipping && (
@@ -453,6 +484,8 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 
 				<OrderSummary
 					cart={cart}
+					session={orderSession}
+					customerAddress={billing}
 					couponCode={couponCode}
 					couponError={couponError}
 					onCouponChange={setCouponCode}

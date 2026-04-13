@@ -42,7 +42,9 @@ class MostOrderedApi
 			'permission_callback' => '__return_true',
 			'args' => [
 				'category_id' => [
-					'validate_callback' => 'is_numeric',
+					'validate_callback' => function($param, $request, $key) {
+						return is_numeric($param);
+					},
 				],
 			],
 		]);
@@ -121,21 +123,23 @@ class MostOrderedApi
 		}
 
 		// Format products for frontend
-		$products = array_map(function ($product) {
+		$products = [];
+		foreach ($results as $product) {
 			$wc_product = wc_get_product($product->ID);
+			if (!$wc_product) continue;
 
-			return [
+			$products[] = [
 				'id' => (int) $product->ID,
 				'name' => sanitize_text_field($product->name),
 				'price' => floatval($product->price) ?: 0,
 				'regular_price' => floatval($wc_product->get_regular_price()) ?: 0,
-				'sale_price' => floatval($wc_product->get_sale_price()),
+				'sale_price' => floatval($wc_product->get_sale_price()) ?: null,
 				'description' => wp_trim_words($product->description, 20),
 				'image' => self::getProductImage($product->ID),
 				'order_count' => (int) $product->order_count,
 				'url' => get_permalink($product->ID),
 			];
-		}, $results);
+		}
 
 		return new \WP_REST_Response($products, 200);
 	}
@@ -208,8 +212,9 @@ class MostOrderedApi
 			WHERE p.post_type = 'product'
 			AND p.post_status = 'publish'
 			AND p.ID IN (
-				SELECT object_id FROM {$wpdb->prefix}term_relationships
-				WHERE term_taxonomy_id = %d
+				SELECT object_id FROM {$wpdb->prefix}term_relationships tr
+				JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+				WHERE tt.term_id = %d
 			)
 			ORDER BY p.post_date DESC
 			LIMIT %d OFFSET %d
@@ -225,10 +230,12 @@ class MostOrderedApi
 			return new \WP_REST_Response([], 200);
 		}
 
-		$products = array_map(function ($product) {
+		$products = [];
+		foreach ($results as $product) {
 			$wc_product = wc_get_product($product->ID);
+			if (!$wc_product) continue;
 
-			return [
+			$products[] = [
 				'id' => (int) $product->ID,
 				'name' => sanitize_text_field($product->name),
 				'price' => floatval($product->price) ?: 0,
@@ -238,7 +245,7 @@ class MostOrderedApi
 				'image' => self::getProductImage($product->ID),
 				'url' => get_permalink($product->ID),
 			];
-		}, $results);
+		}
 
 		return new \WP_REST_Response($products, 200);
 	}

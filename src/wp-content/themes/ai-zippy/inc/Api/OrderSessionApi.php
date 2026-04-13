@@ -69,6 +69,10 @@ class OrderSessionApi
             'time'           => WC()->session->get('time'),
             'outlet_name'    => WC()->session->get('outlet_name'),
             'outlet_address' => WC()->session->get('outlet_address'),
+            'delivery_address' => WC()->session->get('delivery_address') ?: WC()->session->get('address_name'),
+            'postal'         => WC()->session->get('postal'),
+            'total_distance' => WC()->session->get('total_distance'),
+            'shipping_fee'   => WC()->session->get('shipping_fee'),
             'status_popup'   => WC()->session->get('status_popup'),
         ];
 

@@ -1,5 +1,7 @@
 export default function OrderSummary({
 	cart,
+	session,
+	customerAddress,
 	couponCode,
 	couponError,
 	onCouponChange,
@@ -10,12 +12,69 @@ export default function OrderSummary({
 	busyKeys,
 	placeOrderButton,
 }) {
-	const { items, totals, coupons } = cart;
+	const { items, totals, coupons, extensions } = cart;
 	const currency = totals.currency_code || "USD";
+	const distance = extensions?.zippy_booking?.distance_km || 0;
+
+	const hasSession = session && session.order_mode;
+
+	const formatDate = (dateStr) => {
+		if (!dateStr) return "";
+		const d = new Date(dateStr);
+		return d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+	};
+
+	const formatAddress = (addr) => {
+		if (!addr || !addr.address_1) return "Not entered yet";
+		return [addr.address_1, addr.address_2, addr.city, addr.postcode].filter(Boolean).join(", ");
+	};
+
+	const formatTime = (time) => {
+		if (!time) return "N/A";
+		if (typeof time === "object" && time.from && time.to) {
+			return `From ${time.from} To ${time.to}`;
+		}
+		return String(time);
+	};
 
 	return (
 		<aside className="zk__sidebar">
 			<h3 className="zk__sidebar-title">Order summary</h3>
+
+			{hasSession && (
+				<div className="zk__delivery-info">
+					<div className="zk__delivery-header">
+						<span>{session.order_mode?.toUpperCase()}</span>
+						<span className="zk__delivery-mode">SHIPPING</span>
+					</div>
+					<div className="zk__delivery-grid">
+						<div className="zk__delivery-row">
+							<span className="zk__delivery-label">Outlet Name:</span>
+							<span className="zk__delivery-value">{session.outlet_name || "N/A"}</span>
+						</div>
+						<div className="zk__delivery-row">
+							<span className="zk__delivery-label">Delivery Address:</span>
+							<span className="zk__delivery-value">{formatAddress(customerAddress)}</span>
+						</div>
+						<div className="zk__delivery-row">
+							<span className="zk__delivery-label">Delivery Date:</span>
+							<span className="zk__delivery-value">{formatDate(session.date)}</span>
+						</div>
+						<div className="zk__delivery-row">
+							<span className="zk__delivery-label">Delivery Time:</span>
+							<span className="zk__delivery-value">{formatTime(session.time)}</span>
+						</div>
+						{session.order_mode === "delivery" && (
+							<div className="zk__delivery-row">
+								<span className="zk__delivery-label">Shipping Fee:</span>
+								<span className="zk__delivery-value">
+									{formatPrice(totals.total_shipping, currency)} {distance > 0 ? `- ${distance}km` : ""}
+								</span>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
 
 			<div className="zk__order-items">
 				{items.map((item) => {

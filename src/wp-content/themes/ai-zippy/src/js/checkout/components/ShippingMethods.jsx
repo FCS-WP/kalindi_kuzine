@@ -29,7 +29,7 @@ export default function ShippingMethods({ packages, onSelect }) {
 										className="zk__radio-input"
 									/>
 									<div className="zk__radio-body">
-										<span className="zk__radio-label">{rate.name}</span>
+										<span className="zk__radio-label">{decodeEntities(rate.name)}</span>
 										{rate.delivery_time?.value && (
 											<span className="zk__radio-desc">{rate.delivery_time.value}</span>
 										)}
@@ -45,6 +45,12 @@ export default function ShippingMethods({ packages, onSelect }) {
 			))}
 		</fieldset>
 	);
+}
+
+function decodeEntities(html) {
+	const txt = document.createElement("textarea");
+	txt.innerHTML = html;
+	return txt.value;
 }
 
 function formatPrice(priceInCents, currency = "USD") {
