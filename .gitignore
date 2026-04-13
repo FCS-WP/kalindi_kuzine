@@ -31,3 +31,4 @@ src/wp-content/cache
 .DS_Store
 Thumbs.db
 src/wp-content/plugins/zippy-addons/
+docs/
