@@ -12,9 +12,12 @@ function getNonce() {
 }
 
 function headers() {
+	const nonce = getNonce();
 	return {
 		"Content-Type": "application/json",
-		Nonce: getNonce(),
+		"X-WC-Store-API-Nonce": nonce,
+		"Nonce": nonce,
+		"X-WP-Nonce": nonce,
 	};
 }
 

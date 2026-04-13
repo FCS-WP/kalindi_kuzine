@@ -72,7 +72,7 @@
 .bi__subtitle {
   font-size: 16px;
   line-height: 1.65;
-  color: var(--wp--preset--color--primary, #1a1a1a);
+  color: #000000;
   margin: 0;
   font-weight: 400;
 }
@@ -92,7 +92,7 @@
 .bi__story-text {
   font-size: 16px;
   line-height: 1.7;
-  color: var(--wp--preset--color--primary, #1a1a1a);
+  color: #000000;
   max-width: 640px;
   margin: 0 auto 1.75rem;
 }
@@ -115,11 +115,29 @@
     min-height: 320px;
   }
   .bi__arch {
-    width: 300px;
-    padding: 2rem 1.5rem 1.5rem;
+    width: 320px;
+    max-width: 95%;
+    height: 125px; /* Chiều cao thấp dưới mức bán nguyệt */
+    background: #f5f4f3;
+    bottom: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem 1rem 0.5rem;
+    /* Border radius elip đặc biệt để cong toàn bộ từ chân đáy, không có cạnh thẳng */
+    border-radius: 50% 50% 0 0/100% 100% 0 0;
+  }
+  .bi__arch::before {
+    display: none;
   }
   .bi__tagline {
     font-size: 1.35rem;
+    margin-top: 0;
+    position: relative;
+    z-index: 1;
+    color: #e9a80a;
   }
   .bi__subtitle-wrap {
     padding: 1.5rem 1.5rem 2rem;
@@ -139,11 +157,16 @@
     min-height: 240px;
   }
   .bi__arch {
-    width: 260px;
-    padding: 1.5rem 1.25rem 1.25rem;
+    width: 280px;
+    height: 110px;
+    padding: 1.25rem 1rem 0.5rem;
+    border-radius: 50% 50% 0 0/100% 100% 0 0;
+  }
+  .bi__arch::before {
+    display: none;
   }
   .bi__tagline {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
   .bi__brand-name {
     font-size: 1.25rem;

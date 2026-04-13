@@ -109,8 +109,15 @@
 	}
 
 	.bi__arch {
-		width: 300px;
-		padding: 2rem 1.5rem 1.5rem;
+		width: 280px;
+		height: 280px;
+		aspect-ratio: 1 / 1;
+		border-radius: 50%;
+		padding: 2rem 1.75rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		bottom: -20px;
 	}
 
 	.bi__tagline {
@@ -118,7 +125,7 @@
 	}
 
 	.bi__subtitle-wrap {
-		padding: 1.5rem 1.5rem 2rem;
+		padding: 2.5rem 1.5rem 2rem;
 	}
 
 	.bi__brand-name {
@@ -140,12 +147,14 @@
 	}
 
 	.bi__arch {
-		width: 260px;
-		padding: 1.5rem 1.25rem 1.25rem;
+		width: 220px;
+		height: 220px;
+		padding: 1.5rem 1.25rem;
+		bottom: -10px;
 	}
 
 	.bi__tagline {
-		font-size: 1.1rem;
+		font-size: 1.15rem;
 	}
 
 	.bi__brand-name {
