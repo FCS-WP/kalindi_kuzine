@@ -39,9 +39,9 @@ class Zippy_Settings
 
 	public function debug_mode()
 	{
-		// ini_set('display_errors', 1);
-		// ini_set('display_startup_errors', 1);
-		// error_reporting(E_ALL);
+		ini_set('display_errors', 1);
+		ini_set('display_startup_errors', 1);
+		error_reporting(E_ALL);
 	}
 
 	public function check_health_check_endpoint($url)
