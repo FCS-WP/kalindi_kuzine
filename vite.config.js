@@ -15,21 +15,35 @@ const childSrc = resolve(childDir, "src");
 const input = {
 	theme: resolve(parentSrc, "js/theme.js"),
 	style: resolve(parentSrc, "scss/style.scss"),
+	"most-ordered": resolve(parentSrc, "js/most-ordered/index.jsx"),
 	"shop-filter": resolve(parentSrc, "js/shop-filter/index.jsx"),
 	cart: resolve(parentSrc, "js/cart/index.jsx"),
 	checkout: resolve(parentSrc, "js/checkout/index.jsx"),
 	"wc-checkout": resolve(parentSrc, "scss/wc-checkout-entry.scss"),
+	"order-mode-info": resolve(parentSrc, "js/order-mode-info/index.jsx"),
 };
 
 // Child theme assets (only if source files exist)
 const childJs = resolve(childSrc, "js/child.js");
 const childScss = resolve(childSrc, "scss/style.scss");
+const childAboutScss = resolve(childSrc, "scss/about-us-entry.scss");
+const childContactScss = resolve(childSrc, "scss/contact-entry.scss");
+const childBlogScss = resolve(childSrc, "scss/blog-entry.scss");
 
 if (existsSync(childJs)) {
 	input["child-theme"] = childJs;
 }
 if (existsSync(childScss)) {
 	input["child-style"] = childScss;
+}
+if (existsSync(childAboutScss)) {
+	input["child-about-us"] = childAboutScss;
+}
+if (existsSync(childContactScss)) {
+	input["child-contact"] = childContactScss;
+}
+if (existsSync(childBlogScss)) {
+	input["child-blog"] = childBlogScss;
 }
 
 export default defineConfig({
@@ -64,6 +78,7 @@ export default defineConfig({
 		preprocessorOptions: {
 			scss: {
 				api: "modern-compiler",
+				silenceDeprecations: ["import", "global-builtin"],
 			},
 		},
 	},

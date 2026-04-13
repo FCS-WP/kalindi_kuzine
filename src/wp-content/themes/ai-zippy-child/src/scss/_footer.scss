@@ -1,0 +1,149 @@
+// Footer styles for Kalindi Kuzine
+
+.az-site-footer {
+	position: relative;
+	padding: 100px 2rem 0 !important;
+	background-color: #cc5d33 !important;
+	color: #fff;
+	overflow: visible !important;
+
+	a {
+		color: #fff;
+		text-decoration: none;
+		transition: color 0.3s ease;
+
+		&:hover {
+			color: #f2cb05;
+		}
+	}
+}
+
+/* Protruding Plate */
+.az-footer-plate-wrapper {
+	position: absolute;
+	top: -150px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
+	width: 320px;
+	pointer-events: none;
+
+	@media (max-width: 768px) {
+		width: 200px;
+		top: -100px;
+	}
+}
+
+.az-footer-plate-img {
+	margin: 0 !important;
+
+	img {
+		width: 100%;
+		height: auto;
+		filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.25));
+	}
+}
+
+/* Columns */
+.az-footer-columns {
+	gap: 3rem !important;
+
+	h4 {
+		margin-bottom: 2rem !important;
+		letter-spacing: 1px;
+	}
+
+	.wp-block-navigation {
+		ul {
+			gap: 0.75rem !important;
+		}
+	}
+}
+
+/* Newsletter */
+.az-newsletter-form {
+	margin-top: 1.5rem;
+
+	input {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border: none;
+		background: #fff;
+		color: #333;
+		border-radius: 4px;
+		margin-bottom: 0.75rem;
+		font-size: 0.9rem;
+
+		&::placeholder {
+			color: #aaa;
+		}
+	}
+
+	.az-newsletter-btn {
+		display: inline-flex;
+		align-items: center;
+		font-weight: 600;
+		font-size: 0.95rem;
+
+		span {
+			margin-left: 0.5rem;
+			transition: transform 0.3s ease;
+		}
+
+		&:hover span {
+			transform: translateX(5px);
+		}
+	}
+}
+
+/* Socials */
+.az-footer-socials {
+	display: flex;
+	gap: 1.25rem;
+
+	a {
+		opacity: 0.9;
+
+		&:hover {
+			opacity: 1;
+			transform: scale(1.1);
+		}
+	}
+}
+
+/* Bottom Bar */
+.az-footer-bottom {
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+	padding: 1.5rem 0;
+	margin: 0 -2rem;
+
+	p {
+		margin: 0 !important;
+		font-size: 0.85rem;
+		opacity: 0.8;
+	}
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+	.az-footer-columns {
+		flex-wrap: wrap !important;
+		gap: 2rem !important;
+
+		.wp-block-column {
+			flex-basis: calc(50% - 1rem) !important;
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.az-site-footer {
+		padding-top: 80px !important;
+	}
+
+	.az-footer-columns {
+		.wp-block-column {
+			flex-basis: 100% !important;
+		}
+	}
+}

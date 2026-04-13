@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "ai-zippy-child/story-timeline",
+  "version": "1.0.0",
+  "title": "Story Timeline",
+  "category": "ai-zippy",
+  "icon": "format-gallery",
+  "description": "Display timeline items with icons, titles, and descriptions.",
+  "keywords": [
+    "timeline",
+    "story",
+    "history",
+    "milestone"
+  ],
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "items": {
+      "type": "array",
+      "default": [
+        {
+          "id": "item-1",
+          "icon": "📅",
+          "title": "Since 2016",
+          "description": "Kalindi's Kuzines was founded with a simple idea: share honest, home-cooked vegetarian food."
+        },
+        {
+          "id": "item-2",
+          "icon": "🍽️",
+          "title": "The Food",
+          "description": "Every meal is crafted with quality ingredients, strict hygiene, and the care we give our own family."
+        },
+        {
+          "id": "item-3",
+          "icon": "💚",
+          "title": "Our Commitment",
+          "description": "We remain dedicated to bringing wholesome, authentic Indian vegetarian cuisine to every table."
+        }
+      ]
+    }
+  },
+  "textdomain": "ai-zippy",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,88 @@
+// Header styles for Kalindi Kuzine
+
+header.wp-block-group {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	transition: box-shadow 0.3s ease;
+
+	&.is-scrolled {
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+}
+
+.header-layout {
+	display: flex !important;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.header-logo {
+	display: flex !important;
+	justify-content: center;
+	align-items: center;
+
+	img {
+		height: auto;
+		display: block;
+	}
+}
+
+.header-nav {
+	display: flex !important;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 1.5rem;
+	gap: 2rem;
+
+	// Navigation menu
+	.wp-block-navigation {
+		display: flex !important;
+		justify-content: center;
+		flex-wrap: wrap;
+		width: 100%;
+
+		a {
+			font-size: 0.95rem;
+			font-weight: 500;
+			letter-spacing: 0.5px;
+			color: #333;
+			text-decoration: none;
+			transition: color 0.3s ease;
+			padding: 0.5rem 0;
+
+			&:hover {
+				color: #d4a574;
+			}
+		}
+	}
+}
+
+// Responsive
+@media (max-width: 768px) {
+	header.wp-block-group {
+		padding-top: 1.5rem !important;
+		padding-bottom: 1.5rem !important;
+		padding-left: 1rem !important;
+		padding-right: 1rem !important;
+	}
+
+	.header-logo {
+		img {
+			width: 60px !important;
+			height: 60px !important;
+		}
+	}
+
+	.header-nav {
+		margin-top: 1rem;
+		gap: 1.5rem;
+
+		.wp-block-navigation a {
+			font-size: 0.85rem;
+		}
+	}
+}

@@ -1,0 +1,113 @@
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/wp-content/themes/ai-zippy-child/blocks/promotions-grid/style.scss ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************/
+.wp-block-ai-zippy-child-promotions-grid {
+  padding: 60px max(16px, (100% - 1200px) / 2);
+  background-color: #ffffff;
+  margin-block-start: 0 !important;
+}
+@media (max-width: 480px) {
+  .wp-block-ai-zippy-child-promotions-grid {
+    padding: 60px 1rem;
+  }
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__title {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.3;
+  color: #d4884f;
+  text-align: center;
+  margin: 0 0 2rem;
+  letter-spacing: 0;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .wp-block-ai-zippy-child-promotions-grid .promotions-grid__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+@media (max-width: 480px) {
+  .wp-block-ai-zippy-child-promotions-grid .promotions-grid__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card:hover {
+  transform: translateY(-4px);
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card:hover .promotions-grid__card-overlay {
+  background-color: rgba(0, 0, 0, 0.35);
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f5f5f5;
+  z-index: 1;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image:not([style*=background-image]) {
+  background: linear-gradient(135deg, #d4a574 0%, #c49460 100%);
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  padding: 1.5rem;
+  width: 100%;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-title {
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(1.5rem, 3vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-subtitle {
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  font-weight: 400;
+  line-height: 1.4;
+  color: #ffffff;
+  margin: 0;
+}
+
+/*# sourceMappingURL=style-index.css.map*/

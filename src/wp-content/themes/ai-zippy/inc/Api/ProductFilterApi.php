@@ -24,11 +24,13 @@ class ProductFilterApi
     const PRODUCTS_RATE_LIMIT = 60;   // per minute
     const OPTIONS_RATE_LIMIT = 20;    // per minute
 
-    /**
-     * Register REST routes.
-     */
     public static function register(): void
-    {
+	{
+		add_action('rest_api_init', [self::class, 'registerRoute']);
+	}
+
+    public static function registerRoute(): void
+	{
         register_rest_route(self::NAMESPACE, '/products', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'getProducts'],
@@ -41,7 +43,7 @@ class ProductFilterApi
             'callback'            => [self::class, 'getFilterOptions'],
             'permission_callback' => [self::class, 'checkPermission'],
         ]);
-    }
+	}
 
     /**
      * Permission check with rate limiting.

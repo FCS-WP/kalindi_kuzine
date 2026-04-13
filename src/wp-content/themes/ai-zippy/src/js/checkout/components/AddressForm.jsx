@@ -1,6 +1,22 @@
-export default function AddressForm({ address, onChange, errors = {} }) {
+export default function AddressForm({ address, onChange, errors = {}, readOnly = false }) {
 	function update(key, value) {
+		if (readOnly) return;
 		onChange({ ...address, [key]: value });
+	}
+
+	if (readOnly) {
+		return (
+			<div className="zk__address-readonly">
+				<div className="zk__field">
+					<label className="zk__label">Delivery Address</label>
+					<div className="zk__address-static">
+						{address.address_1}
+						{address.postcode && <><br />Singapore {address.postcode}</>}
+					</div>
+					<p className="zk__address-help">Address is locked based on your delivery selection.</p>
+				</div>
+			</div>
+		);
 	}
 
 	return (

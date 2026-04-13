@@ -1,0 +1,258 @@
+// Hero Banner Block — Split-layer with semi-circle overlay
+// Design: Top food photography + White content area with curved bridge
+// Colors: Warm browns, golden tans - food/restaurant aesthetic
+
+// Design Tokens (from image analysis)
+$banner-headline-color: #8B7355;    // Warm brown/taupe
+$banner-brand-color: #D4A574;       // Golden/tan
+$banner-text-muted: #666666;        // Medium gray for body
+$banner-cta-default: #D4A574;       // Golden/tan
+$banner-transition: 0.3s ease;
+
+.wp-block-ai-zippy-child-banner {
+	position: relative;
+	overflow: hidden;
+	background: #ffffff;
+	display: flex;
+	flex-direction: column;
+	font-family: inherit;
+
+	// ============================================
+	// TOP IMAGE LAYER
+	// ============================================
+	.banner__top-image {
+		position: relative;
+		width: 100%;
+		height: 280px;
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		background-color: #f5f5f5;
+
+		// Placeholder gradient when no image (warm food tones)
+		&:not([style*="background-image"]) {
+			background: linear-gradient(135deg, #e8d5c4 0%, #d4c4b0 100%);
+		}
+	}
+
+	// ============================================
+	// SEMI-CIRCLE OVERLAY
+	// Creates elegant transition between photo and content
+	// ============================================
+	.banner__semicircle {
+		position: relative;
+		margin-top: -100px;
+		padding: 70px 20px 30px;
+		background: #ffffff;
+		border-radius: 50% 50% 0 0 / 100px 100px 0 0;
+		z-index: 2;
+		text-align: center;
+
+		// Extended white background behind semi-circle
+		&::before {
+			content: '';
+			position: absolute;
+			top: -100px;
+			left: 0;
+			right: 0;
+			height: 100px;
+			background: #ffffff;
+			clip-path: ellipse(52% 100% at 50% 100%);
+		}
+	}
+
+	.banner__semicircle-content {
+		position: relative;
+		z-index: 1;
+		max-width: 550px;
+		margin: 0 auto;
+	}
+
+	// Headline inside semi-circle (Serif font for elegance)
+	.banner__headline {
+		font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+		font-size: clamp(1.25rem, 3vw, 1.5rem);
+		font-weight: 400;
+		font-style: italic;
+		line-height: 1.5;
+		letter-spacing: 0.5px;
+		color: $banner-headline-color;
+		margin: 0 0 12px;
+		white-space: pre-line;
+	}
+
+	// Headline description
+	.banner__headline-desc {
+		font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+		font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+		line-height: 1.7;
+		color: $banner-text-muted;
+		margin: 0;
+	}
+
+	// ============================================
+	// BOTTOM CONTENT AREA
+	// ============================================
+	.banner__content {
+		position: relative;
+		padding: 35px 20px 50px;
+		text-align: center;
+		background: #ffffff;
+		z-index: 1;
+	}
+
+	// Brand name (largest text, Sans-serif, UPPERCASE)
+	.banner__brand-name {
+		font-family: 'Montserrat', 'Inter', 'Segoe UI', system-ui, sans-serif;
+		font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+		font-weight: 600;
+		letter-spacing: 4px;
+		text-transform: uppercase;
+		color: $banner-brand-color;
+		margin: 0 0 20px;
+		line-height: 1.2;
+	}
+
+	// Brand description/story
+	.banner__brand-desc {
+		font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+		font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+		font-weight: 400;
+		line-height: 1.8;
+		color: $banner-text-muted;
+		margin: 0 0 32px;
+		max-width: 600px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	// ============================================
+	// CTA BUTTON (Pill shape, golden/tan)
+	// ============================================
+	.banner__cta {
+		margin-top: 8px;
+	}
+
+	.banner__btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 16px 40px;
+		background: $banner-cta-default;
+		color: #ffffff;
+		border: none;
+		border-radius: 50px;
+		font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+		font-size: 0.95rem;
+		font-weight: 600;
+		text-decoration: none;
+		cursor: pointer;
+		transition: transform $banner-transition, box-shadow $banner-transition, opacity $banner-transition;
+
+		&:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 25px rgba(212, 165, 116, 0.45);
+			opacity: 0.92;
+			color: #ffffff;
+		}
+
+		&:focus {
+			outline: 2px solid $banner-brand-color;
+			outline-offset: 2px;
+		}
+
+		span {
+			display: inline-block;
+		}
+	}
+
+	// ============================================
+	// RESPONSIVE DESIGN
+	// ============================================
+	@media (min-width: 600px) {
+		.banner__top-image {
+			height: 350px;
+		}
+
+		.banner__semicircle {
+			margin-top: -120px;
+			padding: 90px 30px 40px;
+
+			&::before {
+				top: -120px;
+				height: 120px;
+			}
+		}
+
+		.banner__content {
+			padding: 45px 40px 60px;
+		}
+	}
+
+	@media (min-width: 900px) {
+		.banner__top-image {
+			height: 420px;
+		}
+
+		.banner__semicircle {
+			margin-top: -140px;
+			padding: 110px 50px 50px;
+
+			&::before {
+				top: -140px;
+				height: 140px;
+			}
+		}
+
+		.banner__headline {
+			font-size: 1.75rem;
+		}
+
+		.banner__brand-name {
+			font-size: 2.5rem;
+			letter-spacing: 5px;
+		}
+
+		.banner__brand-desc {
+			font-size: 1rem;
+		}
+
+		.banner__content {
+			padding: 55px 60px 70px;
+		}
+
+		.banner__btn {
+			padding: 18px 48px;
+			font-size: 1rem;
+		}
+	}
+
+	@media (min-width: 1200px) {
+		.banner__top-image {
+			height: 480px;
+		}
+
+		.banner__semicircle {
+			margin-top: -150px;
+			padding: 120px 80px 60px;
+
+			&::before {
+				top: -150px;
+				height: 150px;
+			}
+		}
+
+		.banner__headline {
+			font-size: 2rem;
+		}
+
+		.banner__brand-name {
+			font-size: 3rem;
+			letter-spacing: 6px;
+		}
+
+		.banner__content {
+			padding: 60px 80px 80px;
+		}
+	}
+}

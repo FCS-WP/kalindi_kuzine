@@ -31,3 +31,27 @@ header .wp-block-button__link {
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
 }
+
+// Header icons (cart + user)
+.az-header-icons {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.az-header-user {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: $c-primary;
+	transition: color $transition-speed ease;
+
+	&:hover {
+		color: $c-accent;
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+}

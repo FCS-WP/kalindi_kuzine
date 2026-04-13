@@ -1,0 +1,113 @@
+<!-- wp:group {"tagName":"header","metadata":{"name":"Site Header"},"style":{"spacing":{"padding":{"top":"2rem","bottom":"2rem","left":"2rem","right":"2rem"}}},"backgroundColor":"white","layout":{"type":"constrained","contentSize":"1400px"}} -->
+<header class="wp-block-group has-white-background-color has-background CHILD-THEME-HEADER" style="padding-top:2rem;padding-right:2rem;padding-bottom:2rem;padding-left:2rem">
+
+	<!-- wp:group {"className":"header-layout","layout":{"type":"flex","orientation":"vertical","justifyContent":"center","flexWrap":"nowrap","verticalAlignment":"center"}} -->
+	<div class="wp-block-group header-layout">
+
+		<!-- Top: Centered Logo -->
+		<!-- wp:group {"className":"header-logo-row","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center","justifyContent":"center"},"style":{"spacing":{"margin":{"bottom":"1.5rem"}}}} -->
+		<div class="wp-block-group header-logo-row">
+			<!-- wp:site-logo {"width":180,"shouldSyncIcon":false} /-->
+		</div>
+		<!-- /wp:group -->
+
+		<!-- Bottom Row: Centered Menu + Right Icons -->
+		<!-- wp:group {"className":"header-nav-row","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center","justifyContent":"space-between"}} -->
+		<div class="wp-block-group header-nav-row">
+			
+			<!-- Left Spacer (to keep menu centered) -->
+			<!-- wp:group {"className":"header-nav-spacer","layout":{"type":"flex"}} -->
+			<div class="wp-block-group header-nav-spacer"></div>
+			<!-- /wp:group -->
+
+			<!-- Center: Navigation -->
+			<!-- wp:navigation {"overlayMenu":"mobile","layout":{"type":"flex","justifyContent":"center"},"fontSize":"medium","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"capitalize"}},"className":"header-main-menu"} /-->
+
+			<!-- Right: User & Cart Icons -->
+			<!-- wp:group {"className":"az-header-icons","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"1.25rem"}}} -->
+			<div class="wp-block-group az-header-icons">
+				<!-- wp:woocommerce/mini-cart {"hasHiddenPrice":true,"transparentButton":true} /-->
+
+				<!-- wp:html -->
+				<div class="ai-zippy-account-wrapper">
+					<a href="#" class="az-header-user ai-zippy-account-trigger" aria-label="My Account">
+						<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+							<circle cx="12" cy="7" r="4"></circle>
+						</svg>
+					</a>
+
+					<div class="ai-zippy-account-dropdown">
+						<a href="#" class="open-login-modal">Login</a>
+						<a href="#" class="open-register-modal">Register</a>
+					</div>
+				</div>
+
+				<!-- Modal Structure at the end of the HTML block or header -->
+				<div id="ai-zippy-auth-modal" class="ai-zippy-modal">
+					<div class="ai-zippy-modal-overlay"></div>
+					<div class="ai-zippy-modal-container">
+						<button class="modal-close">&times;</button>
+						
+						<div class="auth-tabs">
+							<button class="auth-tab-trigger active" data-tab="login">LOGIN</button>
+							<button class="auth-tab-trigger" data-tab="register">REGISTER ACCOUNT</button>
+						</div>
+
+						<div class="auth-tab-content active" id="auth-tab-login">
+							<h3>LOGIN</h3>
+							<form class="auth-form" method="post" action="/my-account/">
+								<div class="form-group">
+									<input type="text" name="username" placeholder="Username or Email" required>
+								</div>
+								<div class="form-group">
+									<input type="password" name="password" placeholder="Password" required>
+								</div>
+								<div class="auth-footer" style="margin-bottom: 20px; text-align: left;">
+									<a href="/my-account/lost-password/">Forgot your password? Reset here</a><br>
+									Don't have an account? <a href="#" class="open-register-modal">Register Now</a>
+								</div>
+								<button type="submit" name="login" value="Login" class="auth-btn">LOGIN</button>
+							</form>
+						</div>
+
+						<div class="auth-tab-content" id="auth-tab-register">
+							<h3>REGISTER ACCOUNT</h3>
+							<form class="auth-form" method="post" action="/my-account/">
+								<div class="register-grid">
+									<div class="form-group">
+										<input type="text" name="first_name" placeholder="First Name" required>
+									</div>
+									<div class="form-group">
+										<input type="text" name="last_name" placeholder="Last Name" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<input type="email" name="email" placeholder="Email Address" required>
+								</div>
+								<div class="form-group">
+									<input type="password" name="password" placeholder="Password" required>
+								</div>
+								<div class="auth-footer" style="margin-bottom: 20px; text-align: left;">
+									<label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer;">
+										<input type="checkbox" style="width: auto; margin-top: 4px;"> 
+										<span>I agree and agree to the Privacy Policy</span>
+									</label>
+								</div>
+								<button type="submit" name="register" value="Register" class="auth-btn">PROCEED</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!-- /wp:html -->
+			</div>
+			<!-- /wp:group -->
+
+		</div>
+		<!-- /wp:group -->
+
+	</div>
+	<!-- /wp:group -->
+
+</header>
+<!-- /wp:group -->

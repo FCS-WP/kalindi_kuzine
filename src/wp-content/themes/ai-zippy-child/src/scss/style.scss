@@ -1,0 +1,19 @@
+// Main Child Theme Stylesheet
+@import "@scss/_variables.scss";
+
+// Theme part styles
+@import "_header.scss";
+@import "_footer.scss";
+
+// Page styles
+@import "_blog.scss";
+@import "_shop.scss";
+@import "_about-us.scss";
+@import "_contact.scss";
+
+// Child theme block styles
+@import "../../blocks/banner/style.scss";
+@import "../../blocks/promotions-grid/style.scss";
+@import "../../blocks/most-ordered/style.scss";
+@import "../../blocks/brand-intro/style.scss";
+@import "../../blocks/story-timeline/style.scss";

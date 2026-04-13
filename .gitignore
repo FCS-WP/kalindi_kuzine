@@ -30,3 +30,5 @@ src/wp-content/cache
 # OS files
 .DS_Store
 Thumbs.db
+src/wp-content/plugins/zippy-addons/
+docs/

@@ -1,0 +1,205 @@
+@import "@scss/_variables.scss";
+
+// Contact Page Styles
+
+.az-contact-page {
+  padding: 0;
+  background: #fff;
+
+  /* HERO IMAGE */
+  .az-contact-hero {
+    margin-bottom: 5rem;
+
+    .az-contact-hero__img {
+      margin: 0 !important;
+
+      img {
+        width: 100%;
+        height: auto;
+        max-height: 450px;
+        object-fit: cover;
+        display: block;
+      }
+    }
+  }
+
+  /* CONTACT INFO SECTION */
+  .az-contact-info-section {
+    padding: 5rem 2rem 8rem !important;
+
+    .az-contact-info-grid {
+      gap: 3rem !important;
+      max-width: 1000px;
+      margin: 0 auto !important;
+    }
+
+    .az-contact-card {
+      background: #ffffff;
+      padding: 3rem !important;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      height: 100%;
+      transition: all 0.3s ease;
+      text-align: center;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+        border-color: #cc5d33;
+      }
+
+      h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 2rem !important;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #555;
+        margin-bottom: 1rem !important;
+
+        strong {
+          color: #cc5d33;
+        }
+      }
+    }
+  }
+
+  /* FAQ SECTION (GRAY) */
+  .az-contact-faq-section {
+    padding: 8rem 2rem !important;
+    background-color: #f5f4f3 !important;
+
+    .az-contact-faq-grid {
+      gap: 4rem !important;
+      align-items: center;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 3rem;
+    }
+
+    .az-faq-item {
+      margin-bottom: 0;
+      padding: 2rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      p {
+        margin: 0 !important;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #555;
+
+        strong {
+          display: block;
+          margin-bottom: 0.75rem;
+          font-size: 1.2rem;
+          color: #1a1a1a;
+          font-weight: 700;
+          position: relative;
+          padding-left: 1.5rem;
+
+          &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.6rem;
+            width: 8px;
+            height: 8px;
+            background-color: #cc5d33;
+            border-radius: 2px;
+            transform: rotate(45deg);
+          }
+        }
+      }
+    }
+
+    /* STAGGERED PHOTOS */
+    .az-contact-faq-photos {
+      display: flex;
+      gap: 2rem;
+      justify-content: flex-end;
+
+      .az-contact-side-img {
+        width: 45%;
+        margin: 0 !important;
+
+        img {
+          width: 100%;
+          aspect-ratio: 3/4;
+          object-fit: cover;
+          border-radius: 4px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        &.az-img--offset {
+          transform: translateY(-40px);
+        }
+      }
+    }
+  }
+
+  /* BOTTOM CTA SECTION */
+  .az-contact-cta {
+    padding: 12rem 2rem;
+    text-align: center;
+
+    p {
+      font-size: 1.25rem;
+      line-height: 1.8;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto 3rem !important;
+    }
+
+    .az-whatsapp-btn {
+      .wp-block-button__link {
+        background-color: #cc5d33 !important; // Match theme
+        padding: 1.2rem 3rem !important;
+        border-radius: 50px !important; // Fully rounded
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 8px 25px rgba(204, 93, 51, 0.3);
+
+        &:hover {
+          background-color: #a04928 !important;
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(204, 93, 51, 0.4);
+        }
+      }
+    }
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .az-contact-page {
+    .az-contact-hero__img img {
+      max-height: 300px;
+    }
+
+    .az-contact-faq-section {
+      padding: 4rem 1.5rem !important;
+    }
+
+    .az-contact-faq-photos {
+      display: none; // Hide staggered photos on mobile for better readability
+    }
+
+    .az-contact-cta {
+      padding: 8rem 1.5rem;
+    }
+  }
+}
