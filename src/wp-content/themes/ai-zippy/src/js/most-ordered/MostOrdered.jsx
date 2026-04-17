@@ -27,7 +27,7 @@ export default function MostOrdered() {
 	const loadCategories = async () => {
 		try {
 			const data = await fetchCategories();
-			setCategories(data || []);
+			setCategories(Array.isArray(data) ? data : Object.values(data || {}));
 		} catch (err) {
 			console.error("Error loading categories:", err);
 		}
@@ -70,6 +70,7 @@ export default function MostOrdered() {
 	const filteredProducts = products.filter((p) =>
 		p.name.toLowerCase().includes(searchQuery.toLowerCase())
 	);
+
 
 	return (
 		<section className="most-ordered-browser">
