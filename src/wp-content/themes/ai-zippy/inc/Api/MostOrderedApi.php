@@ -42,7 +42,7 @@ class MostOrderedApi
 			'permission_callback' => '__return_true',
 			'args' => [
 				'category_id' => [
-					'validate_callback' => function($param, $request, $key) {
+					'validate_callback' => function ($param, $request, $key) {
 						return is_numeric($param);
 					},
 				],
@@ -97,12 +97,16 @@ class MostOrderedApi
 
 		// Filter by category
 		if ($category > 0) {
+			$category_ids = self::getCategoryIdsWithChildren($category);
+			$placeholders = implode(',', array_fill(0, count($category_ids), '%d'));
 			$query .= $wpdb->prepare(
 				" AND p.ID IN (
-					SELECT object_id FROM {$wpdb->prefix}term_relationships
-					WHERE term_taxonomy_id = %d
+					SELECT tr.object_id 
+					FROM {$wpdb->prefix}term_relationships tr
+					JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+					WHERE tt.term_id IN ($placeholders)
 				)",
-				$category
+				...$category_ids
 			);
 		}
 
@@ -164,6 +168,7 @@ class MostOrderedApi
 		$categories = get_terms([
 			'taxonomy' => 'product_cat',
 			'hide_empty' => true,
+			'parent' => 0,
 			'number' => 10,
 			'orderby' => 'name',
 		]);
@@ -182,7 +187,7 @@ class MostOrderedApi
 			];
 		}, $categories);
 
-		return new \WP_REST_Response($formatted, 200);
+		return new \WP_REST_Response(array_values($formatted), 200);
 	}
 
 	/**
@@ -199,6 +204,9 @@ class MostOrderedApi
 
 		$offset = ($page - 1) * $per_page;
 
+		$category_ids = self::getCategoryIdsWithChildren($category_id);
+		$placeholders = implode(',', array_fill(0, count($category_ids), '%d'));
+
 		// Query products in category
 		$query = $wpdb->prepare(
 			"
@@ -212,16 +220,15 @@ class MostOrderedApi
 			WHERE p.post_type = 'product'
 			AND p.post_status = 'publish'
 			AND p.ID IN (
-				SELECT object_id FROM {$wpdb->prefix}term_relationships tr
+				SELECT tr.object_id 
+				FROM {$wpdb->prefix}term_relationships tr
 				JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-				WHERE tt.term_id = %d
+				WHERE tt.term_id IN ($placeholders)
 			)
 			ORDER BY p.post_date DESC
 			LIMIT %d OFFSET %d
 			",
-			$category_id,
-			$per_page,
-			$offset
+			...array_merge($category_ids, [$per_page, $offset])
 		);
 
 		$results = $wpdb->get_results($query);
@@ -260,5 +267,20 @@ class MostOrderedApi
 		}
 
 		return wc_placeholder_img_src();
+	}
+
+	/**
+	 * Get category IDs including children
+	 */
+	private static function getCategoryIdsWithChildren(int $category_id): array
+	{
+		$term_ids = [$category_id];
+		$children = get_term_children($category_id, 'product_cat');
+
+		if (!is_wp_error($children) && !empty($children)) {
+			$term_ids = array_merge($term_ids, $children);
+		}
+
+		return array_unique(array_map('intval', $term_ids));
 	}
 }

@@ -6,10 +6,7 @@ console.log("📦 Most Ordered script loaded");
 // Wait for DOM to be ready before mounting
 function initMostOrdered() {
 	const container = document.getElementById("ai-zippy-most-ordered");
-	console.log("🔍 Looking for container #ai-zippy-most-ordered:", container);
-
 	if (container) {
-		console.log("✅ Found container, mounting React app");
 		createRoot(container).render(<MostOrdered />);
 	} else {
 		console.warn("⚠️ Container #ai-zippy-most-ordered not found!");
