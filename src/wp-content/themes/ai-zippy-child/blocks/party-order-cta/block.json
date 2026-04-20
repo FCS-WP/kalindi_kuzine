@@ -1,0 +1,50 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "ai-zippy-child/party-order-cta",
+	"version": "1.0.0",
+	"title": "[Party Order] CTA",
+	"category": "ai-zippy",
+	"icon": "megaphone",
+	"description": "Call to action block for Party Order page with two buttons.",
+	"attributes": {
+		"text": {
+			"type": "string",
+			"default": "Please contact us via WhatsApp before placing your catering order to confirm availability and menu details."
+		},
+		"menuLabel": {
+			"type": "string",
+			"default": "View Full Catering Menu"
+		},
+		"menuUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"whatsappLabel": {
+			"type": "string",
+			"default": "Whatsapp Now"
+		},
+		"whatsappUrl": {
+			"type": "string",
+			"default": "https://wa.me/6593545155"
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": ["wide", "full"],
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true
+		}
+	},
+	"textdomain": "ai-zippy",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

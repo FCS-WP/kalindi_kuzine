@@ -11,6 +11,11 @@
 
 $section_title = $attributes['sectionTitle'] ?? '';
 $promotions    = $attributes['promotions'] ?? [];
+$is_hidden     = $attributes['isHidden'] ?? false;
+
+if ($is_hidden && !is_admin() && !is_customize_preview()) {
+	return;
+}
 
 $wrapper_attributes = get_block_wrapper_attributes();
 ?>
@@ -33,8 +38,7 @@ $wrapper_attributes = get_block_wrapper_attributes();
 				<?php if ($image_url) : ?>
 					<div
 						class="promotions-grid__card-image"
-						style="background-image: url(<?php echo $image_url; ?>);"
-					></div>
+						style="background-image: url(<?php echo $image_url; ?>);"></div>
 				<?php else : ?>
 					<div class="promotions-grid__card-image" style="background: linear-gradient(135deg, #e8d5c4 0%, #d4c4b0 100%);"></div>
 				<?php endif; ?>

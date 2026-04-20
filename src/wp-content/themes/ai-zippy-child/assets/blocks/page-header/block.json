@@ -4,7 +4,7 @@
   "name": "ai-zippy-child/page-header",
   "version": "1.0.0",
   "title": "Page Header Banner",
-  "category": "design",
+  "category": "ai-zippy",
   "description": "A simple page header banner with background color and title.",
   "attributes": {
     "title": {
@@ -22,11 +22,19 @@
     "textColor": {
       "type": "string",
       "default": "#ffffff"
+    },
+    "align": {
+      "type": "string",
+      "default": "full"
     }
   },
   "supports": {
     "html": false,
-    "anchor": true
+    "anchor": true,
+    "align": [
+      "full",
+      "wide"
+    ]
   },
   "textdomain": "ai-zippy",
   "editorScript": "file:./index.js",

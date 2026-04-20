@@ -50,6 +50,10 @@
           "subtitle": "Limited time offer"
         }
       ]
+    },
+    "isHidden": {
+      "type": "boolean",
+      "default": false
     }
   },
   "textdomain": "ai-zippy",
