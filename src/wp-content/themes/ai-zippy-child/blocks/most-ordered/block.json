@@ -10,7 +10,15 @@
 	"keywords": ["most ordered", "products", "popular"],
 	"supports": {
 		"html": false,
-		"align": ["wide", "full"]
+		"align": ["wide", "full"],
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true
+		}
 	},
 	"attributes": {
 		"limit": {

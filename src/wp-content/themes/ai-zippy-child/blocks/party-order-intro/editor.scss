@@ -1,0 +1,14 @@
+.wp-block-ai-zippy-child-party-order-intro {
+  .components-placeholder {
+    min-height: 200px;
+    background: #f8f9fa;
+    border: 2px dashed #ddd;
+  }
+
+  .party-order-intro__hero-img {
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}

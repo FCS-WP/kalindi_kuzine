@@ -1,0 +1,81 @@
+.party-order-cta {
+  padding: 4rem 1.5rem;
+  text-align: center;
+  background: #f5f4f3; // Default light background
+
+  .party-order-cta__container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .party-order-cta__text {
+    font-family: var(--wp--preset--font-family--header-font);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.4;
+    margin-bottom: 2.5rem;
+  }
+
+  .party-order-cta__buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  // Shared button styles
+  .az-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 99px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 200px;
+
+    &--outline {
+      background: transparent;
+      color: #cc5d33;
+      border: 2px solid #cc5d33;
+
+      &:hover {
+        background: rgba(204, 93, 51, 0.05);
+        transform: translateY(-2px);
+      }
+    }
+
+    &--solid {
+      background: #cc5d33;
+      color: #ffffff;
+      border: 2px solid #cc5d33;
+
+      &:hover {
+        background: #a04928;
+        border-color: #a04928;
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+// Mobile
+@media (max-width: 600px) {
+  .party-order-cta {
+    padding: 3rem 1rem;
+
+    .party-order-cta__buttons {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+
+    .az-btn {
+      min-width: 100%;
+    }
+  }
+}

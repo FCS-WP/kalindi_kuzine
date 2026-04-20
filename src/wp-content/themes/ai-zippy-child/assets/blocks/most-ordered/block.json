@@ -17,7 +17,15 @@
     "align": [
       "wide",
       "full"
-    ]
+    ],
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    }
   },
   "attributes": {
     "limit": {

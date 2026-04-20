@@ -21,6 +21,14 @@
 			"type": "string",
 			"default": ""
 		},
+		"heroImageId2": {
+			"type": "number",
+			"default": 0
+		},
+		"heroImageUrl2": {
+			"type": "string",
+			"default": ""
+		},
 		"tagline": {
 			"type": "string",
 			"default": "Pure Vegetarian.\nAuthentic.\nMade with Care."
@@ -52,6 +60,7 @@
 	},
 	"textdomain": "ai-zippy",
 	"editorScript": "file:./index.js",
+	"viewScript": "file:./view.js",
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",
 	"render": "file:./render.php"

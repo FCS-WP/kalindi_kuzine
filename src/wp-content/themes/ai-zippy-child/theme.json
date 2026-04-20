@@ -20,14 +20,30 @@
 		"typography": {
 			"fontFamilies": [
 				{
-					"fontFamily": "Roboto, sans-serif",
+					"fontFamily": "Ubuntu, sans-serif",
 					"slug": "header-font",
-					"name": "Roboto",
+					"name": "Ubuntu",
 					"fontFace": [
 						{
-							"fontFamily": "Roboto",
+							"fontFamily": "Ubuntu",
 							"src": [
-								"file:./assets/fonts/Roboto-Bold.woff2"
+								"file:./assets/fonts/Ubuntu-Regular.ttf"
+							],
+							"fontWeight": "400",
+							"fontStyle": "normal"
+						},
+						{
+							"fontFamily": "Ubuntu",
+							"src": [
+								"file:./assets/fonts/Ubuntu-Medium.ttf"
+							],
+							"fontWeight": "500",
+							"fontStyle": "normal"
+						},
+						{
+							"fontFamily": "Ubuntu",
+							"src": [
+								"file:./assets/fonts/Ubuntu-Bold.ttf"
 							],
 							"fontWeight": "700",
 							"fontStyle": "normal"
@@ -42,14 +58,26 @@
 						{
 							"fontFamily": "Open Sans",
 							"src": [
-								"file:./assets/fonts/OpenSans-Regular.woff2"
+								"file:./assets/fonts/OpenSans-VariableFont_wdth,wght.ttf"
 							],
-							"fontWeight": "400",
+							"fontWeight": "300 800",
 							"fontStyle": "normal"
+						},
+						{
+							"fontFamily": "Open Sans",
+							"src": [
+								"file:./assets/fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf"
+							],
+							"fontWeight": "300 800",
+							"fontStyle": "italic"
 						}
 					]
 				}
 			]
+		},
+		"layout": {
+			"contentSize": "1200px",
+			"wideSize": "1400px"
 		}
 	},
 	"styles": {

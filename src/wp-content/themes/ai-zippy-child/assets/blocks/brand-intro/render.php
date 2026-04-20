@@ -9,6 +9,7 @@ $story      = $attributes['story'] ?? '';
 $link_text  = $attributes['linkText'] ?? '';
 $link_url   = $attributes['linkUrl'] ?? '#';
 $hero_url   = $attributes['heroImageUrl'] ?? '';
+$hero_url2  = $attributes['heroImageUrl2'] ?? '';
 $bg_color   = $attributes['bgColor'] ?? '#f5f0eb';
 
 $wrapper = get_block_wrapper_attributes(['class' => 'bi']);
@@ -16,10 +17,21 @@ $wrapper = get_block_wrapper_attributes(['class' => 'bi']);
 <div <?php echo $wrapper; ?>>
 
 	<!-- Hero Image + Arch -->
-	<div class="bi__hero">
-		<?php if ($hero_url) : ?>
-			<img class="bi__hero-img" src="<?php echo esc_url($hero_url); ?>" alt="" loading="lazy" />
-		<?php endif; ?>
+	<div class="bi__hero <?php echo ($hero_url2) ? 'bi--has-slider' : ''; ?>">
+		<div class="bi__swiper swiper">
+			<div class="swiper-wrapper">
+				<?php if ($hero_url) : ?>
+					<div class="swiper-slide">
+						<img class="bi__hero-img" src="<?php echo esc_url($hero_url); ?>" alt="" loading="lazy" />
+					</div>
+				<?php endif; ?>
+				<?php if ($hero_url2) : ?>
+					<div class="swiper-slide">
+						<img class="bi__hero-img" src="<?php echo esc_url($hero_url2); ?>" alt="" loading="lazy" />
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
 
 		<div class="bi__arch">
 			<h2 class="bi__tagline"><?php echo wp_kses_post(nl2br($tagline)); ?></h2>
