@@ -11,9 +11,11 @@
   grid-template-columns: 1fr 380px;
   gap: 2rem;
   align-items: start;
+  padding-bottom: 80px;
 
   @include until(lg) {
     grid-template-columns: 1fr;
+    padding-bottom: 20px;
   }
 }
 
