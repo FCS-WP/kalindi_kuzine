@@ -66,6 +66,7 @@ AiZippy\Checkout\OrderConfirmationShortcode::register();
 AiZippy\Checkout\CheckoutValidation::register();
 AiZippy\Checkout\CheckoutAssets::register();
 AiZippy\Checkout\CheckoutShipping::register();
+AiZippy\Checkout\AdminOrderFields::register();
 
 // Order
 AiZippy\Order\OrderModeInfoAssets::register();
