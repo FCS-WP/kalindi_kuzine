@@ -123,10 +123,15 @@ class CheckoutShipping
             $label = strtolower($label_original);
 
             if ($order_mode === 'delivery') {
-                if (strpos($label, 'shipping fee') !== false) {
+                // Match any label that contains 'shipping' or 'flat rate'
+                if (strpos($label, 'shipping') !== false || strpos($label, 'flat rate') !== false) {
                     if ($distance_km > 0) {
-                        $rate->set_label($label_original . ': ' . $distance_km . 'km');
+                        $rate->set_label('Shipping Fee (' . $distance_km . 'km)');
+                    } elseif ($fee > 0) {
+                        // Fallback if distance is zero but fee exists
+                        $rate->set_label('Shipping Fee');
                     }
+                    
                     if ($fee > 0) {
                         $rate->set_cost($fee);
                     }
@@ -135,7 +140,7 @@ class CheckoutShipping
                     unset($rates[$rate_id]);
                 }
             } elseif ($order_mode === 'takeaway') {
-                if (strpos($label, 'shipping fee') !== false) {
+                if (strpos($label, 'shipping') !== false || strpos($label, 'flat rate') !== false) {
                     unset($rates[$rate_id]);
                 }
             }

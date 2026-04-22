@@ -317,6 +317,12 @@
   .wc-block-components-totals-shipping__via {
     font-size: 0.75rem !important;
     color: $c-muted;
+    margin-top: 2px;
+  }
+
+  // Remove redundant "Shipment" title in totals
+  .wc-block-components-totals-shipping > .wc-block-components-totals-item__label {
+     display: none !important;
   }
 }
 
@@ -798,7 +804,12 @@
 
 .az-thankyou {
   max-width: 640px;
-  margin: 0 auto;
+  margin: 3rem auto 8rem; // Added top and large bottom margin to push away footer
+}
+
+.az-thankyou-wrap {
+  padding: 4rem 1rem;
+  overflow: hidden;
 }
 
 // ---- Header ----
@@ -1156,4 +1167,54 @@
     align-items: center;
   }
 }
+
+// ---- CUSTOM SHIPPING METHODS SECTION ----
+.az-checkout__shipping-methods {
+  background: #fff;
+  border: 1px solid $c-border;
+  border-radius: $border-radius;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  
+  // Title (Shipment text)
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $c-muted;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 0.65rem;
+  margin-bottom: 1rem;
+
+  .woocommerce-shipping-methods {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+
+      label {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: $c-primary;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        align-items: center;
+        cursor: pointer;
+
+        .woocommerce-Price-amount {
+          color: $c-accent;
+          font-weight: 700;
+          font-size: 1.05rem;
+        }
+      }
+    }
+  }
+}
+
 

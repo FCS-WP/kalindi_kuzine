@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { fetchMostOrdered, fetchCategories, fetchProductsByCategory } from "./api";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { fetchMostOrdered, fetchCategories, fetchProductsByCategory, fetchSessionInfo } from "./api";
 import "./style.scss";
 
 export default function MostOrdered() {
@@ -11,18 +11,38 @@ export default function MostOrdered() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [page, setPage] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
+	const [sessionData, setSessionData] = useState({ date: null, order_mode: null });
+	const searchTimeout = useRef(null);
 	const PER_PAGE = 4;
 
-	// Load categories on mount
+	// Load categories and session info on mount
 	useEffect(() => {
 		loadCategories();
+		loadSession();
 	}, []);
 
-	// Reset page and reload products when active tab changes
+	// Reload products when active tab changes
 	useEffect(() => {
 		setPage(1);
-		loadProducts(1, true);
+		loadProducts(1, true, searchQuery);
 	}, [activeTab]);
+
+	// Debounced search
+	useEffect(() => {
+		if (searchTimeout.current) clearTimeout(searchTimeout.current);
+		
+		searchTimeout.current = setTimeout(() => {
+			setPage(1);
+			loadProducts(1, true, searchQuery);
+		}, 500);
+
+		return () => clearTimeout(searchTimeout.current);
+	}, [searchQuery]);
+
+	const loadSession = async () => {
+		const data = await fetchSessionInfo();
+		setSessionData(data);
+	};
 
 	const loadCategories = async () => {
 		try {
@@ -33,11 +53,11 @@ export default function MostOrdered() {
 		}
 	};
 
-	const loadProducts = async (pageNum, isInitial = false) => {
+	const loadProducts = async (pageNum, isInitial = false, search = "") => {
 		try {
 			setLoading(true);
 			let data = [];
-			const params = { page: pageNum, per_page: PER_PAGE };
+			const params = { page: pageNum, per_page: PER_PAGE, search };
 
 			if (activeTab === "most-ordered") {
 				data = await fetchMostOrdered(params);
@@ -64,12 +84,18 @@ export default function MostOrdered() {
 	const handleLoadMore = () => {
 		const nextPage = page + 1;
 		setPage(nextPage);
-		loadProducts(nextPage);
+		loadProducts(nextPage, false, searchQuery);
 	};
 
-	const filteredProducts = products.filter((p) =>
-		p.name.toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const formatDate = (dateString) => {
+		if (!dateString) return "";
+		const parts = dateString.split("-");
+		if (parts.length !== 3) return dateString;
+		const [year, month, day] = parts;
+		return `${day}/${month}/${year}`;
+	};
+
+    const currentTabName = activeTab === "most-ordered" ? "Most Ordered" : categories.find(c => String(c.id) === String(activeTab))?.name || "Category";
 
 
 	return (
@@ -107,7 +133,7 @@ export default function MostOrdered() {
 							See full menu <span>→</span>
 						</a>
 						<h2 className="most-ordered-browser__title">
-							{activeTab === "most-ordered" ? "Most Ordered" : categories.find(c => c.id === activeTab)?.name || "Category Products"}
+							{currentTabName}
 						</h2>
 						<p className="most-ordered-browser__description">
 							The most commonly ordered items and dishes from the store
@@ -136,12 +162,16 @@ export default function MostOrdered() {
 				<div className="most-ordered-browser__content">
 					{error ? (
 						<div className="most-ordered-browser__error">{error}</div>
-					) : filteredProducts.length === 0 && !loading ? (
-						<div className="most-ordered-browser__error">No products found matching "{searchQuery}"</div>
+					) : products.length === 0 && !loading ? (
+						<div className="most-ordered-browser__error">
+							{sessionData.date 
+								? `No products available in the ${currentTabName} category on ${formatDate(sessionData.date)}.`
+								: `No products found in the ${currentTabName} category.`}
+						</div>
 					) : (
 						<>
 							<div className="most-ordered-browser__grid">
-								{filteredProducts.map((product) => (
+								{products.map((product) => (
 									<ProductCard key={product.id} product={product} />
 								))}
 							</div>

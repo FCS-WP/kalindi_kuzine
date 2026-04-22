@@ -13,6 +13,7 @@ export async function fetchMostOrdered(params = {}) {
   if (params.stock_status) query.append("stock_status", params.stock_status);
   if (params.page) query.append("page", params.page);
   if (params.per_page) query.append("per_page", params.per_page);
+  if (params.search) query.append("search", params.search);
 
   try {
     const response = await fetch(`${BASE}/most-ordered?${query.toString()}`);
@@ -50,6 +51,7 @@ export async function fetchProductsByCategory(categoryId, params = {}) {
   if (params.limit) query.append("limit", params.limit);
   if (params.page) query.append("page", params.page);
   if (params.per_page) query.append("per_page", params.per_page);
+  if (params.search) query.append("search", params.search);
 
   try {
     const url = `${BASE}/products/category/${categoryId}`;
@@ -64,5 +66,19 @@ export async function fetchProductsByCategory(categoryId, params = {}) {
   } catch (error) {
     console.error(`Failed to fetch category ${categoryId} products:`, error);
     return [];
+  }
+}
+
+export async function fetchSessionInfo() {
+  try {
+    const response = await fetch(`${BASE}/session-info`);
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch session info:", error);
+    return { date: null, order_mode: null };
   }
 }

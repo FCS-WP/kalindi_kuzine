@@ -48,6 +48,13 @@ class MostOrderedApi
 				],
 			],
 		]);
+
+		// Get session info
+		register_rest_route('ai-zippy/v1', '/session-info', [
+			'methods' => 'GET',
+			'callback' => [self::class, 'getSessionInfo'],
+			'permission_callback' => '__return_true',
+		]);
 	}
 
 	/**
@@ -67,8 +74,8 @@ class MostOrderedApi
 		$stock_status = $request->get_param('stock_status') ?: 'instock';
 		$page = (int) $request->get_param('page') ?: 1;
 		$per_page = (int) $request->get_param('per_page') ?: $limit;
-
 		$offset = ($page - 1) * $per_page;
+		$search = $request->get_param('search');
 
 		// Query to get products by order count
 		$query = "
@@ -95,6 +102,11 @@ class MostOrderedApi
 			AND p.post_status = 'publish'
 		";
 
+		// Search filter
+		if (!empty($search)) {
+			$query .= $wpdb->prepare(" AND p.post_title LIKE %s", '%' . $wpdb->esc_like($search) . '%');
+		}
+
 		// Filter by category
 		if ($category > 0) {
 			$category_ids = self::getCategoryIdsWithChildren($category);
@@ -106,16 +118,17 @@ class MostOrderedApi
 					JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
 					WHERE tt.term_id IN ($placeholders)
 				)",
-				...$category_ids
+				$category_ids
 			);
 		}
 
-		// Filter by stock status
-		if ($stock_status === 'instock') {
-			$query .= " AND p.ID IN (
-				SELECT post_id FROM {$wpdb->prefix}postmeta
-				WHERE meta_key = '_stock_status' AND meta_value = 'instock'
-			)";
+		// Filter by disabled products (Menus)
+		if (class_exists('\Zippy_Booking\Src\Services\Zippy_Booking_Helper')) {
+			$disabled_ids = \Zippy_Booking\Src\Services\Zippy_Booking_Helper::handle_check_disabled_products();
+			if (!empty($disabled_ids)) {
+				$placeholders = implode(',', array_fill(0, count($disabled_ids), '%d'));
+				$query .= $wpdb->prepare(" AND p.ID NOT IN ($placeholders)", $disabled_ids);
+			}
 		}
 
 		$query .= " ORDER BY order_count DESC LIMIT " . intval($per_page) . " OFFSET " . intval($offset);
@@ -169,7 +182,7 @@ class MostOrderedApi
 			'taxonomy' => 'product_cat',
 			'hide_empty' => true,
 			'parent' => 0,
-			'number' => 10,
+			// 'number' => 10,
 			'orderby' => 'name',
 		]);
 
@@ -201,8 +214,8 @@ class MostOrderedApi
 		$limit = (int) $request->get_param('limit') ?: 4;
 		$page = (int) $request->get_param('page') ?: 1;
 		$per_page = (int) $request->get_param('per_page') ?: $limit;
-
 		$offset = ($page - 1) * $per_page;
+		$search = $request->get_param('search');
 
 		$category_ids = self::getCategoryIdsWithChildren($category_id);
 		$placeholders = implode(',', array_fill(0, count($category_ids), '%d'));
@@ -228,8 +241,45 @@ class MostOrderedApi
 			ORDER BY p.post_date DESC
 			LIMIT %d OFFSET %d
 			",
-			...array_merge($category_ids, [$per_page, $offset])
+			array_merge($category_ids, [$per_page, $offset])
 		);
+
+		// Search filter
+		if (!empty($search)) {
+			$query = str_replace("AND p.post_status = 'publish'", "AND p.post_status = 'publish' AND p.post_title LIKE " . $wpdb->prepare('%s', '%' . $wpdb->esc_like($search) . '%'), $query);
+		}
+
+		// Filter by disabled products (Menus)
+		if (class_exists('\Zippy_Booking\Src\Services\Zippy_Booking_Helper')) {
+			$disabled_ids = \Zippy_Booking\Src\Services\Zippy_Booking_Helper::handle_check_disabled_products();
+			if (!empty($disabled_ids)) {
+				$placeholders_not_in = implode(',', array_fill(0, count($disabled_ids), '%d'));
+				// Re-prepare with NOT IN
+				$query = $wpdb->prepare(
+					"
+					SELECT 
+						p.ID,
+						p.post_title as name,
+						p.post_content as description,
+						pm.meta_value as price
+					FROM {$wpdb->prefix}posts p
+					LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id AND pm.meta_key = '_regular_price'
+					WHERE p.post_type = 'product'
+					AND p.post_status = 'publish'
+					AND p.ID IN (
+						SELECT tr.object_id 
+						FROM {$wpdb->prefix}term_relationships tr
+						JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+						WHERE tt.term_id IN ($placeholders)
+					)
+					AND p.ID NOT IN ($placeholders_not_in)
+					ORDER BY p.post_date DESC
+					LIMIT %d OFFSET %d
+					",
+					array_merge($category_ids, $disabled_ids, [$per_page, $offset])
+				);
+			}
+		}
 
 		$results = $wpdb->get_results($query);
 
@@ -282,5 +332,24 @@ class MostOrderedApi
 		}
 
 		return array_unique(array_map('intval', $term_ids));
+	}
+
+	/**
+	 * Get current session info
+	 */
+	public static function getSessionInfo(\WP_REST_Request $request)
+	{
+		if (class_exists('\Zippy_Booking\Utils\Zippy_Session_Handler')) {
+			$session = new \Zippy_Booking\Utils\Zippy_Session_Handler();
+			return new \WP_REST_Response([
+				'date' => $session->get('date'),
+				'order_mode' => $session->get('order_mode'),
+			], 200);
+		}
+
+		return new \WP_REST_Response([
+			'date' => null,
+			'order_mode' => null,
+		], 200);
 	}
 }
