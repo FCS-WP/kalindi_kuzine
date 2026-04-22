@@ -125,7 +125,8 @@ add_action('rest_api_init', function () {
     ]);
 });
 
-function ai_zippy_rest_login($request) {
+function ai_zippy_rest_login($request)
+{
     $creds = array();
     $creds['user_login'] = sanitize_text_field($request->get_param('username'));
     $creds['user_password'] = $request->get_param('password');
@@ -143,7 +144,8 @@ function ai_zippy_rest_login($request) {
     ];
 }
 
-function ai_zippy_rest_register($request) {
+function ai_zippy_rest_register($request)
+{
     if (!class_exists('WooCommerce')) {
         return new WP_Error('no_woo', 'WooCommerce is not active', ['status' => 500]);
     }
@@ -172,4 +174,3 @@ function ai_zippy_rest_register($request) {
         'message' => __('Registration successful!'),
     ];
 }
-
