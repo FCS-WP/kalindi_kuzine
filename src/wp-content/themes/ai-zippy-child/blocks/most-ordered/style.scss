@@ -2,6 +2,44 @@
 // (The actual styling is in the React app's style.scss)
 
 .wp-block-ai-zippy-child-most-ordered {
-	width: 100%;
-	margin-block-start: 0 !important;
+  width: 100%;
+  margin-block-start: 0 !important;
+}
+
+/* Most Ordered Tabs Scrollable - Specificity increased */
+body .most-ordered-browser .most-ordered-browser__tabs-container {
+  display: block !important;
+  overflow: hidden !important;
+  justify-content: flex-start !important;
+}
+
+body .most-ordered-browser .most-ordered-browser__tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  padding-bottom: 12px !important;
+  scrollbar-width: auto !important;
+  -ms-overflow-style: auto !important;
+  justify-content: flex-start !important;
+  -webkit-overflow-scrolling: touch !important;
+
+  &::-webkit-scrollbar {
+    display: block !important;
+    height: 8px !important;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1 !important;
+    border-radius: 10px !important;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cc5d33 !important;
+    border-radius: 10px !important;
+    border: 2px solid #f1f1f1 !important;
+
+    &:hover {
+      background: #a04928 !important;
+    }
+  }
 }

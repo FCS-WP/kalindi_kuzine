@@ -169,7 +169,7 @@ class MostOrderedApi
 			'taxonomy' => 'product_cat',
 			'hide_empty' => true,
 			'parent' => 0,
-			'number' => 10,
+			// 'number' => 10,
 			'orderby' => 'name',
 		]);
 

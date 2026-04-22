@@ -181,4 +181,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // Hijack /my-account links if user is not logged in (optional, but good for UX)
   // Note: This logic assumes if the modal exists, we might want to use it
   // But we should check if global ai_zippy_is_logged_in variable exists (not implemented yet)
+
+  // Intercept and redirect shop links (e.g., in Mini Cart)
+  document.addEventListener("click", function (e) {
+    const link = e.target.closest("a");
+    if (
+      link &&
+      (link.href.includes("/shop/") ||
+        link.classList.contains("wc-block-mini-cart__shopping-button"))
+    ) {
+      // If it matches shop pattern or is the mini cart button, redirect to party-order
+      if (link.href.includes("/shop/")) {
+        link.href = link.href.replace(/\/shop\/?$/, "/party-order/");
+      } else {
+        // If it's the shopping button but doesn't have /shop/ yet for some reason
+        link.href = "/party-order/";
+      }
+    }
+  });
 });

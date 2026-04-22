@@ -174,3 +174,44 @@ function ai_zippy_rest_register($request)
         'message' => __('Registration successful!'),
     ];
 }
+
+/**
+ * WooCommerce Redirects:
+ * 1. Redirect Shop to /party-order/
+ * 2. Redirect Single Products to Home
+ */
+add_action('template_redirect', function () {
+    if (is_shop()) {
+        wp_safe_redirect(home_url('/party-order/'));
+        exit;
+    }
+
+    if (is_product()) {
+        wp_safe_redirect(home_url());
+        exit;
+    }
+});
+
+/**
+ * Filter WooCommerce "Return to Shop" URL
+ */
+add_filter('woocommerce_return_to_shop_redirect', function () {
+    return home_url('/party-order/');
+});
+
+/**
+ * Force shop links to point to /party-order/
+ */
+add_filter('woocommerce_get_shop_instance_url', function () {
+    return home_url('/party-order/');
+});
+
+/**
+ * Filter product archive link
+ */
+add_filter('post_type_archive_link', function ($link, $post_type) {
+    if ($post_type === 'product') {
+        return home_url('/party-order/');
+    }
+    return $link;
+}, 10, 2);
