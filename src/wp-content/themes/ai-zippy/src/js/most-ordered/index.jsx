@@ -7,7 +7,11 @@ console.log("📦 Most Ordered script loaded");
 function initMostOrdered() {
 	const container = document.getElementById("ai-zippy-most-ordered");
 	if (container) {
-		createRoot(container).render(<MostOrdered />);
+		const props = {
+			limit: container.dataset.limit ? parseInt(container.dataset.limit) : 4,
+			menuUrl: container.dataset.menuUrl || ""
+		};
+		createRoot(container).render(<MostOrdered {...props} />);
 	} else {
 		console.warn("⚠️ Container #ai-zippy-most-ordered not found!");
 	}

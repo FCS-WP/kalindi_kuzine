@@ -24,6 +24,10 @@
 		"limit": {
 			"type": "number",
 			"default": 4
+		},
+		"menuUrl": {
+			"type": "string",
+			"default": "/full-menu.pdf"
 		}
 	},
 	"textdomain": "ai-zippy",

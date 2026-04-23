@@ -7,6 +7,7 @@
  */
 
 $limit = isset($attributes['limit']) ? intval($attributes['limit']) : 4;
+$menu_url = $attributes['menuUrl'] ?? '';
 
 // Enqueue via ViteAssets (proper manifest-based loading)
 if (class_exists('\AiZippy\Core\ViteAssets')) {
@@ -24,5 +25,5 @@ $wrapper_attributes = get_block_wrapper_attributes(['class' => 'wp-block-ai-zipp
 ?>
 
 <div <?php echo $wrapper_attributes; ?>>
-	<div id="ai-zippy-most-ordered" data-limit="<?php echo esc_attr($limit); ?>"></div>
+	<div id="ai-zippy-most-ordered" data-limit="<?php echo esc_attr($limit); ?>" data-menu-url="<?php echo esc_url($menu_url); ?>"></div>
 </div>

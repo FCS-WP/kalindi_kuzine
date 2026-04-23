@@ -1,1 +1,62 @@
-.wp-block-ai-zippy-child-promotions-grid .block-editor-rich-text__editable:focus{border-radius:4px;outline:2px solid hsla(31,53%,64%,.5);outline-offset:2px}.wp-block-ai-zippy-child-promotions-grid .promotions-grid__title:empty:before{opacity:.5}.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-subtitle:empty:before,.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-title:empty:before{opacity:.6}.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image:not([style*=background-image]){background:linear-gradient(135deg,#e8d5c4,#d4c4b0);position:relative}.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image:not([style*=background-image]):after{color:#8b7355;content:"Select an image";font-size:12px;left:50%;opacity:.7;position:absolute;top:50%;transform:translate(-50%,-50%);white-space:nowrap}.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-overlay{pointer-events:none}.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-content{pointer-events:auto;position:relative;z-index:10}.wp-block-ai-zippy-child-promotions-grid .components-button{pointer-events:auto;position:relative;z-index:11}.wp-block-ai-zippy-child-promotions-grid.is-hidden-block{border:1px dashed #ce6d23;opacity:.6;position:relative}.wp-block-ai-zippy-child-promotions-grid .block-hidden-notice{background:#ce6d23;border-radius:4px;color:#fff;font-size:13px;font-weight:600;margin-bottom:15px;padding:8px 12px;text-align:center}
+/*!************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/wp-content/themes/ai-zippy-child/blocks/promotions-grid/editor.scss ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************/
+.wp-block-ai-zippy-child-promotions-grid .block-editor-rich-text__editable:focus {
+  outline: 2px solid rgba(212, 165, 116, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__title:empty::before {
+  opacity: 0.5;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-title:empty::before {
+  opacity: 0.6;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-subtitle:empty::before {
+  opacity: 0.6;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image:not([style*=background-image]) {
+  background: linear-gradient(135deg, #e8d5c4 0%, #d4c4b0 100%);
+  position: relative;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-image:not([style*=background-image])::after {
+  content: "Select an image";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #8b7355;
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-overlay {
+  pointer-events: none;
+}
+.wp-block-ai-zippy-child-promotions-grid .promotions-grid__card-content {
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+}
+.wp-block-ai-zippy-child-promotions-grid .components-button {
+  position: relative;
+  z-index: 11;
+  pointer-events: auto;
+}
+.wp-block-ai-zippy-child-promotions-grid.is-hidden-block {
+  opacity: 0.6;
+  border: 1px dashed #ce6d23;
+  position: relative;
+}
+.wp-block-ai-zippy-child-promotions-grid .block-hidden-notice {
+  background: #ce6d23;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+/*# sourceMappingURL=index.css.map*/

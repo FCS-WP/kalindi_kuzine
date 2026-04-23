@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { fetchMostOrdered, fetchCategories, fetchProductsByCategory, fetchSessionInfo } from "./api";
 import "./style.scss";
 
-export default function MostOrdered() {
+export default function MostOrdered({ limit: propLimit, menuUrl }) {
 	const [categories, setCategories] = useState([]);
 	const [products, setProducts] = useState([]);
 	const [activeTab, setActiveTab] = useState("most-ordered");
@@ -13,7 +13,7 @@ export default function MostOrdered() {
 	const [hasMore, setHasMore] = useState(true);
 	const [sessionData, setSessionData] = useState({ date: null, order_mode: null });
 	const searchTimeout = useRef(null);
-	const PER_PAGE = 4;
+	const PER_PAGE = propLimit || 4;
 
 	// Load categories and session info on mount
 	useEffect(() => {
@@ -128,33 +128,48 @@ export default function MostOrdered() {
 				</div>
 
 				<div className="most-ordered-browser__header">
-					<div className="most-ordered-browser__header-info">
-						<a href="#" className="most-ordered-browser__see-more">
+					<div className="most-ordered-browser__utility">
+						<a href={menuUrl || "#"} className="most-ordered-browser__see-more" target="_blank" rel="noopener noreferrer">
 							See full menu <span>→</span>
 						</a>
+
+						<div className="most-ordered-browser__search">
+							<div className="most-ordered-browser__search-box">
+								<input
+									type="text"
+									placeholder="Search menu"
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+								/>
+							</div>
+							<button type="button" className="most-ordered-browser__search-btn">
+								<svg 
+									width="24" 
+									height="24" 
+									viewBox="0 0 24 24" 
+									fill="none" 
+									xmlns="http://www.w3.org/2000/svg"
+									aria-hidden="true"
+								>
+									<path 
+										d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" 
+										stroke="currentColor" 
+										strokeWidth="3" 
+										strokeLinecap="round" 
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</button>
+						</div>
+					</div>
+
+					<div className="most-ordered-browser__header-info">
 						<h2 className="most-ordered-browser__title">
 							{currentTabName}
 						</h2>
 						<p className="most-ordered-browser__description">
 							The most commonly ordered items and dishes from the store
 						</p>
-					</div>
-
-					<div className="most-ordered-browser__search">
-						<div className="most-ordered-browser__search-box">
-							<input
-								type="text"
-								placeholder="Search menu"
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-							/>
-							<button type="button" className="most-ordered-browser__search-btn">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-									<circle cx="11" cy="11" r="8"></circle>
-									<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-								</svg>
-							</button>
-						</div>
 					</div>
 				</div>
 

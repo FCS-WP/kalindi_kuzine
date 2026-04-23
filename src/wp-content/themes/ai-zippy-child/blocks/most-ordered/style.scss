@@ -24,22 +24,40 @@ body .most-ordered-browser .most-ordered-browser__tabs {
   -webkit-overflow-scrolling: touch !important;
 
   &::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+body .most-ordered-browser .most-ordered-browser__tab {
+  font-family: var(--wp--preset--font-family--header-font) !important;
+  font-weight: 400 !important;
+}
+
+// Fix search button appearance
+.most-ordered-browser .most-ordered-browser__search-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: transform 0.2s ease;
+  margin: 0 !important;
+
+  svg {
     display: block !important;
-    height: 8px !important;
-  }
+    width: 26px !important;
+    height: 26px !important;
 
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1 !important;
-    border-radius: 10px !important;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #cc5d33 !important;
-    border-radius: 10px !important;
-    border: 2px solid #f1f1f1 !important;
-
-    &:hover {
-      background: #a04928 !important;
+    path {
+      stroke: #cc5d33 !important;
     }
+  }
+
+  &:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
   }
 }
