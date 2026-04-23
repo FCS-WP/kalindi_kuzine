@@ -27,6 +27,14 @@
 						{
 							"fontFamily": "Ubuntu",
 							"src": [
+								"file:./assets/fonts/Ubuntu-Light.ttf"
+							],
+							"fontWeight": "300",
+							"fontStyle": "normal"
+						},
+						{
+							"fontFamily": "Ubuntu",
+							"src": [
 								"file:./assets/fonts/Ubuntu-Regular.ttf"
 							],
 							"fontWeight": "400",

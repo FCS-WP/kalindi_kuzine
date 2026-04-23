@@ -2,56 +2,62 @@
 
 // Sticky header
 header.wp-block-group {
-	position: sticky;
-	top: 0;
-	z-index: 100;
-	transition: box-shadow $transition-speed ease;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: box-shadow $transition-speed ease;
 
-	// Add shadow on scroll (via JS or native)
-	&.is-scrolled {
-		box-shadow: $box-shadow;
-	}
+  // Add shadow on scroll (via JS or native)
+  &.is-scrolled {
+    box-shadow: $box-shadow;
+  }
 }
 
 // Navigation links
 .wp-block-navigation a {
-	transition: color $transition-speed ease;
+  color: #000 !important; // Force black color
+  font-family: "Ubuntu", sans-serif !important;
+  font-weight: 400;
+  text-transform: none !important; // Based on mockup screenshot "Order online", "Party orders" etc
+  transition: color $transition-speed ease;
 
-	&:hover {
-		color: $c-accent !important;
-	}
+  &:hover {
+    color: $c-accent !important;
+  }
 }
 
 // CTA button in header
 header .wp-block-button__link {
-	transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+  transition:
+    transform $transition-speed ease,
+    box-shadow $transition-speed ease;
 
-	&:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	}
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 
 // Header icons (cart + user)
 .az-header-icons {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .az-header-user {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: $c-primary;
-	transition: color $transition-speed ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $c-primary;
+  transition: color $transition-speed ease;
 
-	&:hover {
-		color: $c-accent;
-	}
+  &:hover {
+    color: $c-accent;
+  }
 
-	svg {
-		width: 24px;
-		height: 24px;
-	}
+  svg {
+    width: 24px;
+    height: 24px;
+  }
 }
