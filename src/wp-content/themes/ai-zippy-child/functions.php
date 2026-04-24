@@ -187,7 +187,7 @@ add_action('template_redirect', function () {
     }
 
     if (is_product()) {
-        wp_safe_redirect(home_url());
+        wp_safe_redirect(home_url('/'));
         exit;
     }
 });
