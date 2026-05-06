@@ -6,12 +6,14 @@ yarn.lock
 # Build output
 src/wp-content/themes/ai-zippy/assets/dist
 src/wp-content/themes/ai-zippy/assets/blocks
+src/wp-content/themes/ai-zippy-child/assets/blocks
 src/wp-content/themes/ai-zippy-child/assets/dist
 
 # Environment
 .env
+.env.child
 
-# WordPress default themes (not needed)
+# WordPress default themes (not needed) 
 src/wp-content/themes/twentytwentyone
 src/wp-content/themes/twentytwentytwo
 src/wp-content/themes/twentytwentythree
