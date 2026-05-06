@@ -11,9 +11,11 @@ defined('ABSPATH') || exit;
 
 // Include child theme classes
 require_once get_stylesheet_directory() . '/inc/BlockRegistration.php';
+require_once get_stylesheet_directory() . '/inc/SplitOrder.php';
 
 // Register child theme blocks
 \AiZippyChild\BlockRegistration::register();
+\AiZippyChild\Inc\SplitOrder::init();
 
 /**
  * Enqueue child theme styles after parent.
@@ -187,7 +189,7 @@ add_action('template_redirect', function () {
     }
 
     if (is_product()) {
-        wp_safe_redirect(home_url());
+        wp_safe_redirect(home_url('/'));
         exit;
     }
 });
@@ -215,3 +217,4 @@ add_filter('post_type_archive_link', function ($link, $post_type) {
     }
     return $link;
 }, 10, 2);
+

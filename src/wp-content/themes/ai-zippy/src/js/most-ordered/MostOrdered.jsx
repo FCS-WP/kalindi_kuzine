@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { fetchMostOrdered, fetchCategories, fetchProductsByCategory, fetchSessionInfo } from "./api";
+import { fetchMostOrdered, fetchCategories, fetchProductsByMenu, fetchSessionInfo } from "./api";
 import "./style.scss";
 
 export default function MostOrdered({ limit: propLimit, menuUrl }) {
 	const [categories, setCategories] = useState([]);
 	const [products, setProducts] = useState([]);
-	const [activeTab, setActiveTab] = useState("most-ordered");
+	const [activeTab, setActiveTab] = useState("");
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -47,7 +47,13 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 	const loadCategories = async () => {
 		try {
 			const data = await fetchCategories();
-			setCategories(Array.isArray(data) ? data : Object.values(data || {}));
+			const cats = Array.isArray(data) ? data : Object.values(data || {});
+			setCategories(cats);
+			
+			// Set first category as active tab if none selected
+			if (cats.length > 0 && !activeTab) {
+				setActiveTab(cats[0].id);
+			}
 		} catch (err) {
 			console.error("Error loading categories:", err);
 		}
@@ -59,11 +65,8 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 			let data = [];
 			const params = { page: pageNum, per_page: PER_PAGE, search };
 
-			if (activeTab === "most-ordered") {
-				data = await fetchMostOrdered(params);
-			} else {
-				data = await fetchProductsByCategory(activeTab, params);
-			}
+			if (!activeTab) return;
+			data = await fetchProductsByMenu(activeTab, params);
 
 			if (isInitial) {
 				setProducts(data || []);
@@ -95,7 +98,7 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 		return `${day}/${month}/${year}`;
 	};
 
-    const currentTabName = activeTab === "most-ordered" ? "Most Ordered" : categories.find(c => String(c.id) === String(activeTab))?.name || "Category";
+    const currentTabName = categories.find(c => String(c.id) === String(activeTab))?.name || "Category";
 
 
 	return (
@@ -104,14 +107,6 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 				{/* Tabs Navigation */}
 				<div className="most-ordered-browser__tabs-container">
 					<div className="most-ordered-browser__tabs">
-						<button
-							className={`most-ordered-browser__tab ${
-								activeTab === "most-ordered" ? "is-active" : ""
-							}`}
-							onClick={() => setActiveTab("most-ordered")}
-						>
-							Most Ordered
-						</button>
 
 						{categories.map((cat) => (
 							<button
@@ -187,7 +182,7 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 						<>
 							<div className="most-ordered-browser__grid">
 								{products.map((product) => (
-									<ProductCard key={product.id} product={product} />
+									<ProductCard key={product.id} product={product} menuId={activeTab} />
 								))}
 							</div>
 
@@ -213,7 +208,7 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 	);
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product, menuId }) {
 	return (
 		<div className="most-ordered-browser__product">
 			<div className="most-ordered-browser__product-image">
@@ -236,6 +231,7 @@ function ProductCard({ product }) {
 					href="#lightbox-zippy-form"
 					data-product-id={product.id}
 					data-product_id={product.id}
+					data-menu-id={menuId}
 					data-product-sku={product.sku || ""}
 					data-product-url={`?add-to-cart=${product.id}`}
 					data-quantity="1"

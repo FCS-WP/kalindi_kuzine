@@ -24,11 +24,14 @@ function headers() {
 /**
  * Add a product to the cart.
  */
-export async function addToCart(productId, quantity = 1) {
+export async function addToCart(productId, quantity = 1, menuId = null) {
+	const body = { id: productId, quantity };
+	if (menuId) body.menu_id = menuId;
+
 	const res = await fetch(`${STORE_API}/cart/add-item`, {
 		method: "POST",
 		headers: headers(),
-		body: JSON.stringify({ id: productId, quantity }),
+		body: JSON.stringify(body),
 	});
 
 	if (!res.ok) {

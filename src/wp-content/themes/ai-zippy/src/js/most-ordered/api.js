@@ -45,7 +45,7 @@ export async function fetchCategories() {
   }
 }
 
-export async function fetchProductsByCategory(categoryId, params = {}) {
+export async function fetchProductsByMenu(menuId, params = {}) {
   const query = new URLSearchParams();
 
   if (params.limit) query.append("limit", params.limit);
@@ -54,7 +54,7 @@ export async function fetchProductsByCategory(categoryId, params = {}) {
   if (params.search) query.append("search", params.search);
 
   try {
-    const url = `${BASE}/products/category/${categoryId}`;
+    const url = `${BASE}/products/menu/${menuId}`;
     const response = await fetch(query.toString() ? `${url}?${query}` : url);
 
     if (!response.ok) {
@@ -64,7 +64,7 @@ export async function fetchProductsByCategory(categoryId, params = {}) {
     const data = await response.json();
     return Array.isArray(data) ? data : [];
   } catch (error) {
-    console.error(`Failed to fetch category ${categoryId} products:`, error);
+    console.error(`Failed to fetch menu ${menuId} products:`, error);
     return [];
   }
 }

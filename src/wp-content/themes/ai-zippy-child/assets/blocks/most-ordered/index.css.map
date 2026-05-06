@@ -1,1 +1,0 @@
-{"version":3,"file":"most-ordered/index.css","mappings":";;;AAGC;EACC;AAFF,C","sources":["webpack://ai-zippy/./src/wp-content/themes/ai-zippy-child/blocks/most-ordered/editor.scss"],"sourcesContent":["// Most Ordered Block - Editor styles\n\n.wp-block-ai-zippy-child-most-ordered {\n\t.components-placeholder {\n\t\tpadding: 2rem;\n\t}\n}\n"],"names":[],"sourceRoot":""}
