@@ -16,6 +16,12 @@ class OrderModeInfoAssets
     public static function register(): void
     {
         add_action('wp_enqueue_scripts', [self::class, 'enqueue']);
+        add_action('woocommerce_before_cart', [self::class, 'renderContainer']);
+    }
+
+    public static function renderContainer(): void
+    {
+        echo '<div id="selected-mode-user-info"></div>';
     }
 
     public static function enqueue(): void

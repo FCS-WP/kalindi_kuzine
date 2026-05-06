@@ -21,7 +21,7 @@ export async function getSessionInfo() {
 	}
 }
 
-export async function clearSession() {
+export async function clearSession(menuId = null) {
 	try {
 		const response = await fetch(`${BASE}/order-session/clear`, {
 			method: "POST",
@@ -29,6 +29,7 @@ export async function clearSession() {
 				"Content-Type": "application/json",
 				"X-WP-Nonce": window.orderModeInfo?.restNonce || "",
 			},
+			body: JSON.stringify({ menu_id: menuId }),
 		});
 
 		if (!response.ok) {
@@ -39,5 +40,20 @@ export async function clearSession() {
 	} catch (error) {
 		console.error("Failed to clear session:", error);
 		throw error;
+	}
+}
+
+export async function getGroupedCart() {
+	try {
+		const response = await fetch(`${BASE}/order-session/grouped-cart`);
+
+		if (!response.ok) {
+			throw new Error(`API Error: ${response.status}`);
+		}
+
+		return await response.json();
+	} catch (error) {
+		console.error("Failed to fetch grouped cart:", error);
+		return [];
 	}
 }

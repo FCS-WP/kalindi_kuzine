@@ -32,35 +32,21 @@ export function initLightbox() {
 /**
  * Get session info from API (cached).
  */
-async function getSessionInfo() {
-	// Return cached data if available
-	if (sessionCache !== null) {
-		return sessionCache;
+async function getSessionInfo(menuId) {
+	// Always append a timestamp to avoid browser caching of the REST response
+	const timestamp = new Date().getTime();
+	let url = `/wp-json/ai-zippy/v1/order-session?_=${timestamp}`;
+	if (menuId) url += `&menu_id=${menuId}`;
+
+	try {
+		const res = await fetch(url);
+		if (!res.ok) throw new Error("API Error");
+		const data = await res.json();
+		return data || {};
+	} catch (err) {
+		console.warn("⚠️ Failed to fetch session info in lightbox:", err);
+		return {};
 	}
-
-	// Return existing promise if request is in flight
-	if (sessionPromise) {
-		return sessionPromise;
-	}
-
-	sessionPromise = fetch("/wp-json/ai-zippy/v1/order-session")
-		.then((res) => {
-			if (!res.ok) throw new Error("API Error");
-			return res.json();
-		})
-		.then((data) => {
-			sessionCache = data || {};
-			sessionPromise = null;
-			return sessionCache;
-		})
-		.catch((err) => {
-			console.warn("⚠️ Failed to fetch session info in lightbox:", err);
-			sessionCache = {};
-			sessionPromise = null;
-			return sessionCache;
-		});
-
-	return sessionPromise;
 }
 
 function createModal() {
@@ -91,23 +77,24 @@ async function handleLightboxClick(e) {
 	e.preventDefault();
 
 	const productId = btn.dataset.product_id;
+	const menuId = btn.dataset.menuId;
 	if (!productId) return;
 
 	// Prevent double-click
 	if (btn.classList.contains("is-loading")) return;
 
-	// Check session for order_mode
+	// Check session for order_mode and specific menuId
 	try {
-		const session = await getSessionInfo();
+		const session = await getSessionInfo(menuId);
 
 		if (session.order_mode) {
-			// User already selected order mode — add directly to cart
+			// User already selected order mode for this menu — add directly to cart
 			btn.classList.add("is-loading");
 			const originalText = btn.innerHTML;
 			btn.innerHTML = spinnerSvg() + " Adding...";
 
 			try {
-				const cart = await addToCart(Number(productId));
+				const cart = await addToCart(Number(productId), 1, menuId);
 
 				// Success state
 				btn.classList.remove("is-loading");
@@ -131,21 +118,24 @@ async function handleLightboxClick(e) {
 				showToast(err.message || "Failed to add to cart", "error");
 			}
 		} else {
-			// No session — show lightbox popup
-			openLightbox(productId);
+			// No session for this menu — show lightbox popup
+			openLightbox(productId, menuId);
 		}
 	} catch (err) {
 		// On error, fallback to showing lightbox
-		openLightbox(productId);
+		openLightbox(productId, menuId);
 	}
 }
 
-function openLightbox(productId) {
+function openLightbox(productId, menuId) {
 	const form = document.getElementById("lightbox-zippy-form");
 	const wrapper = document.getElementById("lightbox-zippy-form-wrapper");
 
 	if (form && wrapper) {
 		form.setAttribute("data-product_id", productId);
+		if (menuId) {
+			form.setAttribute("data-menu-id", menuId);
+		}
 		wrapper.style.display = "flex";
 		// Force reflow
 		wrapper.offsetHeight; // eslint-disable-line no-unused-expressions

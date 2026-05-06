@@ -4,7 +4,7 @@
  * Checkout Form — AI Zippy Override
  *
  * @package AiZippy
- * @version 9.4.0
+ * @version 9.4.2
  */
 
 if (! defined('ABSPATH')) {
@@ -32,8 +32,8 @@ if (function_exists('WC')) {
 }
 $order_mode = $session['order_mode'] ?? '';
 
-// FORCE ADDRESS IN SESSION/CUSTOMER OBJECT (Crucial for initial render)
-if (function_exists('WC') && WC()->customer && $order_mode === 'delivery' && ! empty($session['delivery_address'])) {
+// FORCE ADDRESS IN SESSION/CUSTOMER OBJECT (Ensure shipping total calculation)
+if (function_exists('WC') && WC()->customer && ! empty($session['delivery_address'])) {
 	WC()->customer->set_billing_address_1($session['delivery_address']);
 	WC()->customer->set_shipping_address_1($session['delivery_address']);
 	WC()->customer->set_billing_postcode($session['postal']);
@@ -43,41 +43,12 @@ if (function_exists('WC') && WC()->customer && $order_mode === 'delivery' && ! e
 	WC()->customer->set_billing_city('Singapore');
 	WC()->customer->set_shipping_city('Singapore');
 
-	// Recalculate shipping and totals now
+	// Recalculate shipping and totals
 	WC()->cart->calculate_shipping();
 	WC()->cart->calculate_totals();
 }
 
-// Inject Autofill into WooCommerce Checkout Fields
-add_filter('woocommerce_checkout_get_value', function ($value, $input) use ($session, $order_mode) {
-	if ($order_mode === 'delivery' && ! empty($session['delivery_address'])) {
-		switch ($input) {
-			case 'billing_address_1':
-			case 'shipping_address_1':
-				return $session['delivery_address'];
-			case 'billing_postcode':
-			case 'shipping_postcode':
-				return $session['postal'];
-			case 'billing_country':
-			case 'shipping_country':
-				return 'SG';
-			case 'billing_city':
-			case 'shipping_city':
-				return 'Singapore';
-		}
-	}
-	return $value;
-}, 10, 2);
-
 do_action('woocommerce_before_checkout_form', $checkout);
-
-// Helper for formatting
-$formatted_date = ! empty($session['date']) ? date('D, M d, Y', strtotime($session['date'])) : '-';
-$formatted_time = '-';
-if (! empty($session['time'])) {
-	$time_data = is_string($session['time']) ? json_decode($session['time'], true) : $session['time'];
-	$formatted_time = (is_array($time_data) && isset($time_data['from'])) ? "From {$time_data['from']} To {$time_data['to']}" : (string)$session['time'];
-}
 ?>
 
 <form name="checkout" method="post" class="checkout woocommerce-checkout az-checkout" action="<?php echo esc_url(wc_get_checkout_url()); ?>" enctype="multipart/form-data">
@@ -89,7 +60,7 @@ if (! empty($session['time'])) {
 			<div class="az-checkout__form">
 				<div class="az-checkout__card">
 					<div class="az-checkout__card-header">
-						<h3 class="az-checkout__card-title"><?php esc_html_e('Contact & Billing', 'ai-zippy'); ?></h3>
+						<h3 class="az-checkout__card-title"><?php esc_html_e('Contact Information', 'ai-zippy'); ?></h3>
 					</div>
 					<div class="az-checkout__card-body">
 						<?php do_action('woocommerce_checkout_before_customer_details'); ?>
@@ -98,12 +69,6 @@ if (! empty($session['time'])) {
 							<div class="woocommerce-billing-fields">
 								<?php do_action('woocommerce_checkout_billing'); ?>
 							</div>
-
-							<?php if ($order_mode !== 'delivery') : ?>
-								<div class="woocommerce-shipping-fields">
-									<?php do_action('woocommerce_checkout_shipping'); ?>
-								</div>
-							<?php endif; ?>
 						</div>
 
 						<?php do_action('woocommerce_checkout_after_customer_details'); ?>
@@ -135,60 +100,84 @@ if (! empty($session['time'])) {
 					</div>
 					<div class="az-checkout__card-body">
 
-						<!-- SELECTED INFO BOX -->
-						<?php if (! empty($order_mode)) : ?>
-							<div class="zk__delivery-info" style="margin-bottom: 20px; border: 1px solid #1e293b; padding: 15px; border-radius: 8px; background: #fff;">
-								<div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; font-weight: bold; text-transform: uppercase;">
-									<span><?php echo esc_html($order_mode === 'takeaway' ? 'Takeaway' : 'Delivery'); ?></span>
-									<span style="color: #64748b; font-size: 11px;">SELECTED INFO</span>
-								</div>
-								<div style="display: grid; gap: 8px; font-size: 13px;">
-									<div style="display: grid; grid-template-columns: 80px 1fr;">
-										<span style="color: #64748b;">Outlet:</span>
-										<span style="font-weight: 600;"><?php echo esc_html($session['outlet_name'] ?? '-'); ?></span>
-									</div>
-									<?php if ($order_mode === 'delivery') : ?>
-										<div style="display: grid; grid-template-columns: 80px 1fr;">
-											<span style="color: #64748b;">Address:</span>
-											<span style="font-weight: 600;"><?php echo esc_html($session['delivery_address']); ?></span>
-										</div>
-									<?php endif; ?>
-									<div style="display: grid; grid-template-columns: 80px 1fr;">
-										<span style="color: #64748b;">Date:</span>
-										<span style="font-weight: 600;"><?php echo esc_html($formatted_date); ?></span>
-									</div>
-									<div style="display: grid; grid-template-columns: 80px 1fr;">
-										<span style="color: #64748b;">Time:</span>
-										<span style="font-weight: 600;"><?php echo esc_html($formatted_time); ?></span>
-									</div>
-								</div>
-							</div>
-						<?php endif; ?>
+						<div class="az-checkout__items omi-grouped-container">
+							<?php
+							$grouped_items = [];
+							foreach (WC()->cart->get_cart() as $key => $item) {
+								$menu_id = $item['menu_id'] ?? 'default';
+								if (!isset($grouped_items[$menu_id])) {
+									$grouped_items[$menu_id] = [];
+								}
+								$grouped_items[$menu_id][$key] = $item;
+							}
 
-						<div class="az-checkout__items">
-							<?php foreach (WC()->cart->get_cart() as $key => $item) :
-								$_product = apply_filters('woocommerce_cart_item_product', $item['data'], $item, $key);
-								if ($_product && $_product->exists() && $item['quantity'] > 0) :
+							foreach ($grouped_items as $menu_id => $items) :
+								$suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
+								$g_order_mode = WC()->session->get('order_mode' . $suffix);
+								$g_outlet_name = WC()->session->get('outlet_name' . $suffix);
+								$g_date = WC()->session->get('date' . $suffix);
+								$g_time = WC()->session->get('time' . $suffix);
+								$g_shipping_fee = (float) WC()->session->get('shipping_fee' . $suffix);
+
+								$g_formatted_date = ! empty($g_date) ? date('D, M d, Y', strtotime($g_date)) : '-';
+								$g_formatted_time = '-';
+								if (! empty($g_time)) {
+									$g_time_data = is_string($g_time) ? json_decode($g_time, true) : $g_time;
+									$g_formatted_time = (is_array($g_time_data) && isset($g_time_data['from'])) ? "{$g_time_data['from']} - {$g_time_data['to']}" : (string)$g_time;
+								}
 							?>
-									<div class="az-checkout__item" data-cart-key="<?php echo esc_attr($key); ?>">
-										<div class="az-checkout__item-img"><?php echo $_product->get_image(); ?></div>
-										<div class="az-checkout__item-detail">
-											<div class="az-checkout__item-top">
-												<span class="az-checkout__item-name"><?php echo $_product->get_name(); ?></span>
-												<span class="az-checkout__item-total"><?php echo WC()->cart->get_product_subtotal($_product, $item['quantity']); ?></span>
+								<div class="omi-group-card">
+									<div class="omi-group-card__header">
+										<div class="omi-group-card__info">
+											<div>
+												<span class="omi-label">MODE:</span>
+												<span class="omi-value"><?php echo esc_html($g_order_mode === 'takeaway' ? 'Takeaway' : 'Delivery'); ?></span>
 											</div>
-											<div class="az-checkout__item-bottom">
-												<span class="az-checkout__item-meta">Qty: <?php echo $item['quantity']; ?></span>
-												<div class="az-checkout__item-qty">
-													<button type="button" class="az-checkout__qty-btn az-checkout__qty-btn--minus">-</button>
-													<span class="az-checkout__qty-val"><?php echo $item['quantity']; ?></span>
-													<button type="button" class="az-checkout__qty-btn az-checkout__qty-btn--plus">+</button>
-												</div>
+											<div>
+												<span class="omi-label">OUTLET:</span>
+												<span class="omi-value"><?php echo esc_html($g_outlet_name ?: '-'); ?></span>
+											</div>
+											<div>
+												<span class="omi-label">TIME:</span>
+												<span class="omi-value"><?php echo esc_html($g_formatted_date); ?> (<?php echo esc_html($g_formatted_time); ?>)</span>
 											</div>
 										</div>
+										<button type="button" class="omi-group-card__reset az-checkout__group-reset" data-menu-id="<?php echo esc_attr($menu_id); ?>">RESET</button>
 									</div>
-							<?php endif;
-							endforeach; ?>
+									<div class="omi-group-card__items">
+										<?php foreach ($items as $key => $item) :
+											$_product = apply_filters('woocommerce_cart_item_product', $item['data'], $item, $key);
+											if ($_product && $_product->exists() && $item['quantity'] > 0) :
+										?>
+												<div class="az-checkout__item omi-item" data-cart-key="<?php echo esc_attr($key); ?>">
+													<div class="az-checkout__item-img omi-item__image"><?php echo $_product->get_image(); ?></div>
+													<div class="az-checkout__item-detail omi-item__content">
+														<div class="az-checkout__item-top">
+															<span class="az-checkout__item-name omi-item__name"><?php echo $_product->get_name(); ?></span>
+														</div>
+														<div class="az-checkout__item-bottom omi-item__meta">
+															<span class="az-checkout__item-meta">Qty: <?php echo $item['quantity']; ?></span>
+															<span class="az-checkout__item-total"><?php echo WC()->cart->get_product_subtotal($_product, $item['quantity']); ?></span>
+														</div>
+													</div>
+												</div>
+										<?php endif;
+										endforeach; ?>
+
+										<!-- GROUP SHIPPING FEE -->
+										<div class="omi-group-shipping">
+											<span class="omi-label">SHIPPING:</span>
+											<span class="omi-value">
+												<?php if ($g_order_mode === 'takeaway') : ?>
+													<strong>Free</strong>
+												<?php else : ?>
+													<strong><?php echo wc_price($g_shipping_fee); ?></strong>
+												<?php endif; ?>
+											</span>
+										</div>
+									</div>
+								</div>
+							<?php endforeach; ?>
 						</div>
 
 						<div class="az-checkout__totals">
@@ -197,19 +186,10 @@ if (! empty($session['time'])) {
 								<span><?php wc_cart_totals_subtotal_html(); ?></span>
 							</div>
 
-							<!-- SHIPPING SELECTION -->
-							<div class="az-checkout__totals-row az-checkout__shipping-selection">
-								<div style="width: 100%;">
-									<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-										<span>Shipping</span>
-										<span><?php echo WC()->cart->get_cart_shipping_total(); ?></span>
-									</div>
-									<div class="az-checkout__shipping-methods">
-										<?php if (WC()->cart->needs_shipping() && WC()->cart->show_shipping()) : ?>
-											<?php wc_cart_totals_shipping_html(); ?>
-										<?php endif; ?>
-									</div>
-								</div>
+							<!-- TOTAL SHIPPING -->
+							<div class="az-checkout__totals-row">
+								<span>Shipping Total</span>
+								<span><?php echo WC()->cart->get_cart_shipping_total(); ?></span>
 							</div>
 
 							<?php foreach (WC()->cart->get_fees() as $fee) : ?>
@@ -239,24 +219,6 @@ if (! empty($session['time'])) {
 
 <script>
 	jQuery(function($) {
-		// Autofill & Lock Address fields if Delivery
-		var orderMode = "<?php echo esc_js($order_mode); ?>";
-		if (orderMode === 'delivery') {
-			var addr = "<?php echo esc_js($session['delivery_address']); ?>";
-			var zip = "<?php echo esc_js($session['postal']); ?>";
-			var city = "Singapore";
-
-			if (addr) {
-				$('#billing_address_1, #shipping_address_1').val(addr).prop('readonly', true);
-				$('#billing_country, #shipping_country').val('SG').trigger('change');
-				$('#billing_city, #shipping_city').val(city).prop('readonly', true);
-				if (zip) $('#billing_postcode, #shipping_postcode').val(zip).prop('readonly', true);
-
-				// Optional: Trigger update_checkout if anything changed
-				// $(document.body).trigger('update_checkout');
-			}
-		}
-
 		$(document).on('click', '.az-checkout__qty-btn', function() {
 			var $item = $(this).closest('.az-checkout__item');
 			var key = $item.data('cart-key');
@@ -274,28 +236,183 @@ if (! empty($session['time'])) {
 				location.reload();
 			});
 		});
+
+		// Group Reset Logic
+		$(document).on('click', '.az-checkout__group-reset', function() {
+			var menuId = $(this).data('menu-id');
+			if (!confirm('Are you sure you want to reset this menu group? This will clear the session and remove associated items from your cart.')) {
+				return;
+			}
+
+			var $btn = $(this);
+			$btn.prop('disabled', true).text('RESETTING...');
+
+			$.ajax({
+				url: '/wp-json/ai-zippy/v1/order-session/clear',
+				method: 'POST',
+				data: { menu_id: menuId },
+				success: function(response) {
+					if (response.success) {
+						location.reload();
+					} else {
+						alert('Failed to reset: ' + (response.message || 'Unknown error'));
+						$btn.prop('disabled', false).text('RESET');
+					}
+				},
+				error: function() {
+					alert('Connection error. Please try again.');
+					$btn.prop('disabled', false).text('RESET');
+				}
+			});
+		});
 	});
 </script>
 
 <style>
-	/* Hide the default order review table */
-	#order_review table.shop_table {
+	/* Hide the default order review table and shipping methods list */
+	#order_review table.shop_table,
+	.az-checkout__shipping-selection,
+	ul#shipping_method,
+	.woocommerce-shipping-totals,
+	.woocommerce-shipping-fields {
 		display: none !important;
 	}
 
-	/* Style for shipping methods in sidebar */
-	.az-checkout__shipping-methods ul#shipping_method {
-		list-style: none;
-		padding: 0;
-		margin: 0;
+	/* OMI Group Card Styling (Matched with Sidebar) */
+	.omi-grouped-container {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		margin-bottom: 30px;
+		width: 100%;
 	}
 
-	.az-checkout__shipping-methods ul#shipping_method li {
-		font-size: 12px;
-		margin-bottom: 5px;
+	.omi-group-card {
+		background: #fff;
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		border-radius: 16px;
+		overflow: hidden;
+		box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 20px;
 	}
 
-	.az-checkout__shipping-methods input[type="radio"] {
+	.omi-group-card__header {
+		background: linear-gradient(135deg, #df6f22 0%, #ff8c42 100%);
+		padding: 15px 20px;
+		color: #fff;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.omi-group-card__info {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.omi-label {
+		font-weight: 800;
+		font-size: 10px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		opacity: 0.85;
 		margin-right: 8px;
+		display: inline-block;
+		min-width: 50px;
+	}
+
+	.omi-value {
+		font-weight: 600;
+		font-size: 13px;
+	}
+
+	.omi-group-card__reset {
+		background: rgba(255, 255, 255, 0.25);
+		border: 1px solid rgba(255, 255, 255, 0.4);
+		color: #fff;
+		padding: 4px 12px;
+		border-radius: 6px;
+		font-size: 10px;
+		font-weight: 800;
+		cursor: pointer;
+		backdrop-filter: blur(4px);
+		transition: all 0.2s;
+	}
+
+	.omi-group-card__reset:hover {
+		background: #fff;
+		color: #df6f22;
+	}
+
+	.omi-group-card__items {
+		padding: 15px 20px;
+	}
+
+	.omi-item {
+		display: flex;
+		gap: 15px;
+		align-items: center;
+		padding-bottom: 15px;
+		border-bottom: 1px dashed #eee;
+		margin-bottom: 15px;
+	}
+
+	.omi-item:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+		margin-bottom: 0;
+	}
+
+	.omi-item__image {
+		width: 50px;
+		height: 50px;
+		border-radius: 8px;
+		overflow: hidden;
+		flex-shrink: 0;
+	}
+
+	.omi-item__image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.omi-item__name {
+		font-weight: 700;
+		font-size: 14px;
+		color: #1a1a1a;
+	}
+
+	.omi-item__meta {
+		display: flex;
+		justify-content: space-between;
+		font-size: 12px;
+		margin-top: 5px;
+	}
+
+	.omi-item__meta span:last-child {
+		color: #df6f22;
+		font-weight: 800;
+	}
+
+	.omi-group-shipping {
+		margin-top: 15px;
+		padding-top: 15px;
+		border-top: 1px solid #f0f0f0;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.omi-group-shipping .omi-label {
+		color: #64748b;
+	}
+
+	.omi-group-shipping .omi-value {
+		color: #1a1a1a;
+		font-size: 14px;
 	}
 </style>

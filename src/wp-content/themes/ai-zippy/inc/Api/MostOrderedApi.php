@@ -3,6 +3,7 @@
 namespace AiZippy\Api;
 
 use WC_Product_Query;
+use Zippy_Booking\Src\Services\Zippy_Booking_Helper;
 
 defined('ABSPATH') || exit;
 
@@ -35,13 +36,13 @@ class MostOrderedApi
 			'permission_callback' => '__return_true',
 		]);
 
-		// Get products by category
-		register_rest_route('ai-zippy/v1', '/products/category/(?P<category_id>\d+)', [
+		// Get products by menu
+		register_rest_route('ai-zippy/v1', '/products/menu/(?P<menu_id>\d+)', [
 			'methods' => 'GET',
-			'callback' => [self::class, 'getProductsByCategory'],
+			'callback' => [self::class, 'getProductsByMenu'],
 			'permission_callback' => '__return_true',
 			'args' => [
-				'category_id' => [
+				'menu_id' => [
 					'validate_callback' => function ($param, $request, $key) {
 						return is_numeric($param);
 					},
@@ -173,54 +174,56 @@ class MostOrderedApi
 		return wc_placeholder_img_src();
 	}
 
-	/**
-	 * Get all product categories
-	 */
 	public static function getCategories(\WP_REST_Request $request)
 	{
-		$categories = get_terms([
-			'taxonomy' => 'product_cat',
-			'hide_empty' => true,
-			'parent' => 0,
-			// 'number' => 10,
-			'orderby' => 'name',
-		]);
+		global $wpdb;
 
-		if (is_wp_error($categories) || empty($categories)) {
+		$menus = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}zippy_menus ORDER BY id ASC");
+
+		if (empty($menus)) {
 			return new \WP_REST_Response([], 200);
 		}
 
-		$formatted = array_map(function ($cat) {
+		$formatted = array_map(function ($menu) {
 			return [
-				'id' => (int) $cat->term_id,
-				'name' => sanitize_text_field($cat->name),
-				'slug' => sanitize_text_field($cat->slug),
-				'count' => (int) $cat->count,
-				'image' => self::getCategoryImage($cat->term_id),
+				'id' => (int) $menu->id,
+				'name' => sanitize_text_field($menu->name),
+				'slug' => sanitize_title($menu->name),
+				'count' => 0,
+				'image' => wc_placeholder_img_src(),
 			];
-		}, $categories);
+		}, $menus);
 
 		return new \WP_REST_Response(array_values($formatted), 200);
 	}
 
-	/**
-	 * Get products by category ID
-	 */
-	public static function getProductsByCategory(\WP_REST_Request $request)
+	public static function getProductsByMenu(\WP_REST_Request $request)
 	{
 		global $wpdb;
 
-		$category_id = (int) $request->get_param('category_id');
+		$menu_id = (int) $request->get_param('menu_id');
 		$limit = (int) $request->get_param('limit') ?: 4;
 		$page = (int) $request->get_param('page') ?: 1;
 		$per_page = (int) $request->get_param('per_page') ?: $limit;
 		$offset = ($page - 1) * $per_page;
 		$search = $request->get_param('search');
 
-		$category_ids = self::getCategoryIdsWithChildren($category_id);
-		$placeholders = implode(',', array_fill(0, count($category_ids), '%d'));
+		// Calculate the target delivery date for this menu
+		$menu = $wpdb->get_row($wpdb->prepare("SELECT days_of_week FROM {$wpdb->prefix}zippy_menus WHERE id = %d", $menu_id));
+		$target_date = current_time('Y-m-d');
 
-		// Query products in category
+		if ($menu && !empty($menu->days_of_week)) {
+			$days = json_decode($menu->days_of_week, true);
+			if (!empty($days) && isset($days[0]['weekday'])) {
+				$menu_weekday = (int) $days[0]['weekday']; // 1 (Mon) - 7 (Sun)
+				$current_weekday = (int) current_time('N');
+
+				$days_until = ($menu_weekday - $current_weekday + 7) % 7;
+				$target_date = date('Y-m-d', strtotime("+$days_until days", strtotime(current_time('Y-m-d'))));
+			}
+		}
+
+		// Query products in menu
 		$query = $wpdb->prepare(
 			"
 			SELECT 
@@ -229,20 +232,24 @@ class MostOrderedApi
 				p.post_content as description,
 				pm.meta_value as price
 			FROM {$wpdb->prefix}posts p
+			JOIN {$wpdb->prefix}zippy_menu_products zmp ON p.ID = zmp.id_product
 			LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id AND pm.meta_key = '_regular_price'
 			WHERE p.post_type = 'product'
 			AND p.post_status = 'publish'
-			AND p.ID IN (
-				SELECT tr.object_id 
-				FROM {$wpdb->prefix}term_relationships tr
-				JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-				WHERE tt.term_id IN ($placeholders)
-			)
+			AND zmp.id_menu = %d
+			AND zmp.status = 1
+			AND (zmp.from_date IS NULL OR zmp.from_date <= %s)
+			AND (zmp.to_date IS NULL OR zmp.to_date >= %s)
 			ORDER BY p.post_date DESC
 			LIMIT %d OFFSET %d
 			",
-			array_merge($category_ids, [$per_page, $offset])
+			$menu_id,
+			$target_date,
+			$target_date,
+			$per_page,
+			$offset
 		);
+
 
 		// Search filter
 		if (!empty($search)) {
@@ -250,8 +257,8 @@ class MostOrderedApi
 		}
 
 		// Filter by disabled products (Menus)
-		if (class_exists('\Zippy_Booking\Src\Services\Zippy_Booking_Helper')) {
-			$disabled_ids = \Zippy_Booking\Src\Services\Zippy_Booking_Helper::handle_check_disabled_products();
+		if (class_exists('Zippy_Booking_Helper')) {
+			$disabled_ids = Zippy_Booking_Helper::handle_check_disabled_products($target_date);
 			if (!empty($disabled_ids)) {
 				$placeholders_not_in = implode(',', array_fill(0, count($disabled_ids), '%d'));
 				// Re-prepare with NOT IN
@@ -263,20 +270,19 @@ class MostOrderedApi
 						p.post_content as description,
 						pm.meta_value as price
 					FROM {$wpdb->prefix}posts p
+					JOIN {$wpdb->prefix}zippy_menu_products zmp ON p.ID = zmp.id_product
 					LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id AND pm.meta_key = '_regular_price'
 					WHERE p.post_type = 'product'
 					AND p.post_status = 'publish'
-					AND p.ID IN (
-						SELECT tr.object_id 
-						FROM {$wpdb->prefix}term_relationships tr
-						JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-						WHERE tt.term_id IN ($placeholders)
-					)
+					AND zmp.id_menu = %d
+					AND zmp.status = 1
+					AND (zmp.from_date IS NULL OR zmp.from_date <= %s)
+					AND (zmp.to_date IS NULL OR zmp.to_date >= %s)
 					AND p.ID NOT IN ($placeholders_not_in)
 					ORDER BY p.post_date DESC
 					LIMIT %d OFFSET %d
 					",
-					array_merge($category_ids, $disabled_ids, [$per_page, $offset])
+					array_merge([$menu_id, $target_date, $target_date], $disabled_ids, [$per_page, $offset])
 				);
 			}
 		}
@@ -301,6 +307,7 @@ class MostOrderedApi
 				'description' => wp_trim_words($product->description, 20),
 				'image' => self::getProductImage($product->ID),
 				'url' => get_permalink($product->ID),
+				'menu_id' => $menu_id,
 			];
 		}
 
