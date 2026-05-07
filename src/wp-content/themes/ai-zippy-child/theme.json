@@ -14,6 +14,11 @@
 					"slug": "secondary",
 					"color": "#fbfbfc",
 					"name": "Soft Gray"
+				},
+				{
+					"slug": "base",
+					"color": "#f5f4f3",
+					"name": "Base Background"
 				}
 			]
 		},
@@ -89,6 +94,9 @@
 		}
 	},
 	"styles": {
+		"color": {
+			"background": "var(--wp--preset--color--base)"
+		},
 		"typography": {
 			"fontFamily": "var(--wp--preset--font-family--body-font)"
 		},

@@ -52,6 +52,7 @@ export async function fetchProductsByMenu(menuId, params = {}) {
   if (params.page) query.append("page", params.page);
   if (params.per_page) query.append("per_page", params.per_page);
   if (params.search) query.append("search", params.search);
+  if (params.category) query.append("category", params.category);
 
   try {
     const url = `${BASE}/products/menu/${menuId}`;
@@ -65,6 +66,21 @@ export async function fetchProductsByMenu(menuId, params = {}) {
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error(`Failed to fetch menu ${menuId} products:`, error);
+    return [];
+  }
+}
+
+export async function fetchCategoriesByMenu(menuId) {
+  try {
+    const response = await fetch(`${BASE}/categories/menu/${menuId}`);
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(`Failed to fetch categories for menu ${menuId}:`, error);
     return [];
   }
 }

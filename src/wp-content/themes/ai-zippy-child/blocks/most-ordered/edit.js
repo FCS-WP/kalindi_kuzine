@@ -15,7 +15,7 @@ export default function Edit({ attributes, setAttributes }) {
             value={limit}
             onChange={(val) => setAttributes({ limit: val })}
             min={1}
-            max={12}
+            max={24}
           />
           <TextControl
             label={__("Full Menu PDF URL", "ai-zippy")}

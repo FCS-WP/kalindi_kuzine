@@ -1,0 +1,57 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "ai-zippy-child/pre-order-teaser",
+	"version": "1.0.0",
+	"title": "[Home] Pre-order Teaser",
+	"category": "ai-zippy",
+	"icon": "cart",
+	"description": "A promotional block to encourage users to visit the pre-order page.",
+	"attributes": {
+		"title": {
+			"type": "string",
+			"default": "Delicious Meals, Pre-ordered for You"
+		},
+		"description": {
+			"type": "string",
+			"default": "Plan your meals ahead and enjoy fresh, home-cooked food delivered to your door."
+		},
+		"buttonLabel": {
+			"type": "string",
+			"default": "Order Now"
+		},
+		"buttonUrl": {
+			"type": "string",
+			"default": "/pre-order"
+		},
+		"imageUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"imageId": {
+			"type": "number"
+		},
+		"overlayOpacity": {
+			"type": "number",
+			"default": 0.4
+		},
+		"minHeight": {
+			"type": "string",
+			"default": "400px"
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": ["wide", "full"],
+		"spacing": {
+			"padding": true,
+			"margin": true
+		}
+	},
+	"textdomain": "ai-zippy",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

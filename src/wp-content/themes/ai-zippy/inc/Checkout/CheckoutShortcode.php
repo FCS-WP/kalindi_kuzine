@@ -29,14 +29,8 @@ class CheckoutShortcode
             return '<div id="ai-zippy-checkout" data-cart-url="/cart" data-shop-url="/shop"></div>';
         }
 
-        // Render the WooCommerce Checkout block (used by block/FSE themes)
-        $block_markup = '<!-- wp:woocommerce/checkout /-->';
-        $output = do_blocks($block_markup);
-
-        // Fallback to classic shortcode if block output is empty
-        if (empty(trim($output))) {
-            $output = do_shortcode('[woocommerce_checkout]');
-        }
+        // Always use classic shortcode for [ai_zippy_checkout] to support custom logic
+        $output = do_shortcode('[woocommerce_checkout]');
 
         return self::cleanOutput($output);
     }

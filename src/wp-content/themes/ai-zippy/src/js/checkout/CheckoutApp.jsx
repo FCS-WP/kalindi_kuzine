@@ -361,6 +361,8 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 		);
 	}
 
+	const hasPartyOrder = cart?.extensions?.zippy_booking?.has_party_order;
+
 	return (
 		<div className="zk">
 			{error && <div className="zk__error">{error}</div>}
@@ -412,7 +414,8 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 							address={billing}
 							onChange={setBilling}
 							errors={fieldErrors.billing}
-							readOnly={orderSession?.order_mode === "delivery"}
+							readOnly={orderSession?.order_mode === "delivery" && !hasPartyOrder}
+							hasPartyOrder={hasPartyOrder}
 						/>
 
 						{allowDifferentShipping && (
@@ -433,6 +436,7 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 								address={shipping}
 								onChange={setShipping}
 								errors={fieldErrors.shipping}
+								hasPartyOrder={hasPartyOrder}
 							/>
 						)}
 
@@ -496,6 +500,7 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 					busyKeys={busyKeys}
 					placeOrderButton={
 						<button
+							type="button"
 							className="zk__btn zk__btn--primary zk__btn--place"
 							onClick={handlePlaceOrder}
 							disabled={placing}

@@ -19,8 +19,10 @@ const input = {
 	"shop-filter": resolve(parentSrc, "js/shop-filter/index.jsx"),
 	cart: resolve(parentSrc, "js/cart/index.jsx"),
 	checkout: resolve(parentSrc, "js/checkout/index.jsx"),
+	"checkout-classic": resolve(parentSrc, "js/checkout/checkout-classic.js"),
 	"wc-checkout": resolve(parentSrc, "scss/wc-checkout-entry.scss"),
 	"order-mode-info": resolve(parentSrc, "js/order-mode-info/index.jsx"),
+	"party-order": resolve(childSrc, "js/party-order/index.jsx"),
 };
 
 // Child theme assets (only if source files exist)

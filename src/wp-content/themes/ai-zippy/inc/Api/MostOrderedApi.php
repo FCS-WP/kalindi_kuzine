@@ -50,6 +50,13 @@ class MostOrderedApi
 			],
 		]);
 
+		// Get categories by menu
+		register_rest_route('ai-zippy/v1', '/categories/menu/(?P<menu_id>\d+)', [
+			'methods' => 'GET',
+			'callback' => [self::class, 'getCategoriesByMenu'],
+			'permission_callback' => '__return_true',
+		]);
+
 		// Get session info
 		register_rest_route('ai-zippy/v1', '/session-info', [
 			'methods' => 'GET',
@@ -63,7 +70,7 @@ class MostOrderedApi
 	 * 
 	 * Params:
 	 * - limit: Number of products (default: 4)
-	 * - category: Filter by category ID
+	 * - category: Filter by category ID or SLUG
 	 * - stock_status: instock|outofstock (default: instock)
 	 */
 	public static function getMostOrdered(\WP_REST_Request $request)
@@ -71,7 +78,18 @@ class MostOrderedApi
 		global $wpdb;
 
 		$limit = (int) $request->get_param('limit') ?: 4;
-		$category = (int) $request->get_param('category') ?: 0;
+		$category_param = $request->get_param('category');
+		$category_id = 0;
+
+		if (is_numeric($category_param)) {
+			$category_id = (int) $category_param;
+		} elseif (!empty($category_param)) {
+			$term = get_term_by('slug', $category_param, 'product_cat');
+			if ($term) {
+				$category_id = $term->term_id;
+			}
+		}
+
 		$stock_status = $request->get_param('stock_status') ?: 'instock';
 		$page = (int) $request->get_param('page') ?: 1;
 		$per_page = (int) $request->get_param('per_page') ?: $limit;
@@ -109,8 +127,8 @@ class MostOrderedApi
 		}
 
 		// Filter by category
-		if ($category > 0) {
-			$category_ids = self::getCategoryIdsWithChildren($category);
+		if ($category_id > 0) {
+			$category_ids = self::getCategoryIdsWithChildren($category_id);
 			$placeholders = implode(',', array_fill(0, count($category_ids), '%d'));
 			$query .= $wpdb->prepare(
 				" AND p.ID IN (
@@ -202,6 +220,7 @@ class MostOrderedApi
 		global $wpdb;
 
 		$menu_id = (int) $request->get_param('menu_id');
+		$category_id = (int) $request->get_param('category');
 		$limit = (int) $request->get_param('limit') ?: 4;
 		$page = (int) $request->get_param('page') ?: 1;
 		$per_page = (int) $request->get_param('per_page') ?: $limit;
@@ -224,8 +243,7 @@ class MostOrderedApi
 		}
 
 		// Query products in menu
-		$query = $wpdb->prepare(
-			"
+		$query = "
 			SELECT 
 				p.ID,
 				p.post_title as name,
@@ -240,54 +258,44 @@ class MostOrderedApi
 			AND zmp.status = 1
 			AND (zmp.from_date IS NULL OR zmp.from_date <= %s)
 			AND (zmp.to_date IS NULL OR zmp.to_date >= %s)
-			ORDER BY p.post_date DESC
-			LIMIT %d OFFSET %d
-			",
-			$menu_id,
-			$target_date,
-			$target_date,
-			$per_page,
-			$offset
-		);
+		";
 
+		$params = [$menu_id, $target_date, $target_date];
+
+		// Category filter
+		if ($category_id > 0) {
+			$category_ids = self::getCategoryIdsWithChildren($category_id);
+			$placeholders = implode(',', array_fill(0, count($category_ids), '%d'));
+			$query .= " AND p.ID IN (
+				SELECT tr.object_id 
+				FROM {$wpdb->prefix}term_relationships tr
+				JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+				WHERE tt.term_id IN ($placeholders)
+			)";
+			$params = array_merge($params, $category_ids);
+		}
 
 		// Search filter
 		if (!empty($search)) {
-			$query = str_replace("AND p.post_status = 'publish'", "AND p.post_status = 'publish' AND p.post_title LIKE " . $wpdb->prepare('%s', '%' . $wpdb->esc_like($search) . '%'), $query);
+			$query .= " AND p.post_title LIKE %s";
+			$params[] = '%' . $wpdb->esc_like($search) . '%';
 		}
 
 		// Filter by disabled products (Menus)
 		if (class_exists('Zippy_Booking_Helper')) {
-			$disabled_ids = Zippy_Booking_Helper::handle_check_disabled_products($target_date);
+			$disabled_ids = \Zippy_Booking\Src\Services\Zippy_Booking_Helper::handle_check_disabled_products($target_date);
 			if (!empty($disabled_ids)) {
 				$placeholders_not_in = implode(',', array_fill(0, count($disabled_ids), '%d'));
-				// Re-prepare with NOT IN
-				$query = $wpdb->prepare(
-					"
-					SELECT 
-						p.ID,
-						p.post_title as name,
-						p.post_content as description,
-						pm.meta_value as price
-					FROM {$wpdb->prefix}posts p
-					JOIN {$wpdb->prefix}zippy_menu_products zmp ON p.ID = zmp.id_product
-					LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id AND pm.meta_key = '_regular_price'
-					WHERE p.post_type = 'product'
-					AND p.post_status = 'publish'
-					AND zmp.id_menu = %d
-					AND zmp.status = 1
-					AND (zmp.from_date IS NULL OR zmp.from_date <= %s)
-					AND (zmp.to_date IS NULL OR zmp.to_date >= %s)
-					AND p.ID NOT IN ($placeholders_not_in)
-					ORDER BY p.post_date DESC
-					LIMIT %d OFFSET %d
-					",
-					array_merge([$menu_id, $target_date, $target_date], $disabled_ids, [$per_page, $offset])
-				);
+				$query .= " AND p.ID NOT IN ($placeholders_not_in)";
+				$params = array_merge($params, $disabled_ids);
 			}
 		}
 
-		$results = $wpdb->get_results($query);
+		$query .= " ORDER BY p.post_date DESC LIMIT %d OFFSET %d";
+		$params[] = $per_page;
+		$params[] = $offset;
+
+		$results = $wpdb->get_results($wpdb->prepare($query, ...$params));
 
 		if (empty($results)) {
 			return new \WP_REST_Response([], 200);
@@ -312,6 +320,73 @@ class MostOrderedApi
 		}
 
 		return new \WP_REST_Response($products, 200);
+	}
+
+	public static function getCategoriesByMenu(\WP_REST_Request $request)
+	{
+		global $wpdb;
+
+		$menu_id = (int) $request->get_param('menu_id');
+
+		// Calculate the target delivery date for this menu
+		$menu = $wpdb->get_row($wpdb->prepare("SELECT days_of_week FROM {$wpdb->prefix}zippy_menus WHERE id = %d", $menu_id));
+		$target_date = current_time('Y-m-d');
+
+		if ($menu && !empty($menu->days_of_week)) {
+			$days = json_decode($menu->days_of_week, true);
+			if (!empty($days) && isset($days[0]['weekday'])) {
+				$menu_weekday = (int) $days[0]['weekday'];
+				$current_weekday = (int) current_time('N');
+				$days_until = ($menu_weekday - $current_weekday + 7) % 7;
+				$target_date = date('Y-m-d', strtotime("+$days_until days", strtotime(current_time('Y-m-d'))));
+			}
+		}
+
+		// Query to get categories that have products in this menu on this day
+		$query = $wpdb->prepare(
+			"
+			SELECT DISTINCT t.term_id as id, t.name, t.slug
+			FROM {$wpdb->prefix}terms t
+			JOIN {$wpdb->prefix}term_taxonomy tt ON t.term_id = tt.term_id
+			JOIN {$wpdb->prefix}term_relationships tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
+			JOIN {$wpdb->prefix}zippy_menu_products zmp ON tr.object_id = zmp.id_product
+			JOIN {$wpdb->prefix}posts p ON p.ID = zmp.id_product
+			WHERE tt.taxonomy = 'product_cat'
+			AND p.post_type = 'product'
+			AND p.post_status = 'publish'
+			AND zmp.id_menu = %d
+			AND zmp.status = 1
+			AND (zmp.from_date IS NULL OR zmp.from_date <= %s)
+			AND (zmp.to_date IS NULL OR zmp.to_date >= %s)
+			",
+			$menu_id,
+			$target_date,
+			$target_date
+		);
+
+		// Filter by disabled products
+		if (class_exists('Zippy_Booking_Helper')) {
+			$disabled_ids = \Zippy_Booking\Src\Services\Zippy_Booking_Helper::handle_check_disabled_products($target_date);
+			if (!empty($disabled_ids)) {
+				$placeholders_not_in = implode(',', array_fill(0, count($disabled_ids), '%d'));
+				$query .= $wpdb->prepare(" AND p.ID NOT IN ($placeholders_not_in)", $disabled_ids);
+			}
+		}
+
+		$query .= " ORDER BY t.name ASC";
+
+		$results = $wpdb->get_results($query);
+
+		// Format results
+		$categories = array_map(function ($cat) {
+			return [
+				'id' => (int) $cat->id,
+				'name' => sanitize_text_field($cat->name),
+				'slug' => $cat->slug,
+			];
+		}, $results);
+
+		return new \WP_REST_Response($categories, 200);
 	}
 
 	private static function getCategoryImage(int $category_id): string

@@ -98,7 +98,7 @@ do_action('woocommerce_before_checkout_form', $checkout);
 					<div class="az-checkout__card-header">
 						<h3 class="az-checkout__card-title"><?php esc_html_e('Order summary', 'ai-zippy'); ?></h3>
 					</div>
-					<div class="az-checkout__card-body">
+					<div class="az-checkout__card-body" id="az-checkout-sidebar-fragments">
 
 						<div class="az-checkout__items omi-grouped-container">
 							<?php

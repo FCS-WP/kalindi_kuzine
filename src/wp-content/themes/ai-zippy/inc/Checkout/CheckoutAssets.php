@@ -55,6 +55,13 @@ class CheckoutAssets
         }
 
         if (CheckoutSettings::isReact()) {
+            // Dequeue standard WC checkout scripts to prevent double-processing
+            wp_dequeue_script('wc-checkout');
+            wp_dequeue_script('wc-cart');
+            wp_dequeue_script('wc-chosen');
+            wp_dequeue_script('select2');
+            wp_dequeue_script('selectWoo');
+            
             self::enqueueReactCheckout();
         } else {
             self::enqueueWcCheckout();
@@ -88,6 +95,16 @@ class CheckoutAssets
             'ai-zippy-wc-checkout',
             'src/wp-content/themes/ai-zippy/src/scss/wc-checkout-entry.scss'
         );
+
+        // Enqueue classic checkout JS for autocomplete
+        \AiZippy\Core\ViteAssets::enqueue(
+            'ai-zippy-checkout-classic',
+            'src/wp-content/themes/ai-zippy/src/js/checkout/checkout-classic.js'
+        );
+
+        wp_localize_script('ai-zippy-checkout-classic', 'azClassicCheckout', [
+            'nonce' => wp_create_nonce('wp_rest'),
+        ]);
     }
 
     /**

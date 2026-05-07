@@ -23,7 +23,7 @@
 	"attributes": {
 		"limit": {
 			"type": "number",
-			"default": 4
+			"default": 12
 		},
 		"menuUrl": {
 			"type": "string",
