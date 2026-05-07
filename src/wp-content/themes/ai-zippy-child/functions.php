@@ -217,4 +217,3 @@ add_filter('post_type_archive_link', function ($link, $post_type) {
     }
     return $link;
 }, 10, 2);
-

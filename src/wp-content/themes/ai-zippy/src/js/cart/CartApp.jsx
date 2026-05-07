@@ -13,10 +13,34 @@ export default function CartApp({ checkoutUrl, shopUrl }) {
 
 	// Load cart
 	useEffect(() => {
-		getCart()
-			.then(setCart)
-			.catch(() => setError("Failed to load cart"))
-			.finally(() => setLoading(false));
+		const loadData = () => {
+			getCart()
+				.then(setCart)
+				.catch(() => setError("Failed to load cart"))
+				.finally(() => setLoading(false));
+		};
+
+		loadData();
+
+		// Listen for cart events to refresh data
+		const handleRefresh = () => {
+			console.log("🔄 Cart updated externally, refreshing CartApp...");
+			loadData();
+		};
+
+		document.body.addEventListener("wc-blocks_added_to_cart", handleRefresh);
+		
+		const $ = window.jQuery;
+		if ($) {
+			$(document.body).on("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
+		}
+
+		return () => {
+			document.body.removeEventListener("wc-blocks_added_to_cart", handleRefresh);
+			if ($) {
+				$(document.body).off("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
+			}
+		};
 	}, []);
 
 	const markBusy = useCallback((key, busy) => {

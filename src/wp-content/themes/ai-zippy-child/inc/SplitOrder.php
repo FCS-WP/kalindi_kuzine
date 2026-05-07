@@ -23,6 +23,7 @@ class SplitOrder
         add_action('woocommerce_checkout_order_processed', [self::class, 'split_order_by_menu'], 999, 3);
         add_filter('woocommerce_shipping_package_name', [self::class, 'rename_shipping_packages'], 10, 3);
         add_action('woocommerce_order_status_changed', [self::class, 'sync_status_to_suborders'], 10, 4);
+        add_action('woocommerce_checkout_order_processed', [self::class, 'clear_all_sessions'], 1000, 1);
     }
 
     /**
@@ -51,9 +52,19 @@ class SplitOrder
     public static function add_menu_id_to_cart_item($cart_item_data, $product_id, $variation_id)
     {
         $menu_id = sanitize_text_field($_REQUEST['menu_id'] ?? '');
+
+        // Fallback: If menu_id is missing, try to find an active menu session for this product
+        if (empty($menu_id)) {
+            $menu_id = self::get_active_menu_for_product($product_id);
+            if ($menu_id) {
+                self::log("Fallback: Assigned Product #$product_id to Menu #$menu_id via active session.");
+            }
+        }
+
         if ($menu_id) {
             $cart_item_data['menu_id'] = $menu_id;
-            $cart_item_data['unique_key'] = md5($menu_id . '_' . $product_id . '_' . microtime());
+            // Removed microtime() to allow WooCommerce to merge identical items in the same menu
+            $cart_item_data['unique_key'] = md5($menu_id . '_' . $product_id);
         }
         return $cart_item_data;
     }
@@ -61,9 +72,20 @@ class SplitOrder
     public static function add_menu_id_to_store_api_cart($cart_item_data, $request)
     {
         $menu_id = sanitize_text_field($request['menu_id'] ?? '');
+        $product_id = $cart_item_data['product_id'] ?? 0;
+
+        // Fallback: If menu_id is missing, try to find an active menu session for this product
+        if (empty($menu_id) && $product_id) {
+            $menu_id = self::get_active_menu_for_product($product_id);
+            if ($menu_id) {
+                self::log("Store API Fallback: Assigned Product #$product_id to Menu #$menu_id via active session.");
+            }
+        }
+
         if ($menu_id) {
             $cart_item_data['menu_id'] = $menu_id;
-            $cart_item_data['unique_key'] = md5($menu_id . '_' . ($cart_item_data['product_id'] ?? '') . '_' . microtime());
+            // Removed microtime() to allow WooCommerce to merge identical items in the same menu
+            $cart_item_data['unique_key'] = md5($menu_id . '_' . $product_id);
         }
         return $cart_item_data;
     }
@@ -135,118 +157,198 @@ class SplitOrder
     }
 
     /**
+     * Tries to find an active menu session that this product belongs to.
+     */
+    private static function get_active_menu_for_product($product_id)
+    {
+        if (!$product_id) return null;
+
+        global $wpdb;
+        // Get all menus this product belongs to
+        $menu_ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT id_menu FROM {$wpdb->prefix}zippy_menu_products WHERE id_product = %d AND status = 1",
+            $product_id
+        ));
+
+        if (empty($menu_ids)) return null;
+
+        // If it only belongs to one menu, and that menu has an active session, return it
+        // Or if multiple, return the first one that has an active session
+        foreach ($menu_ids as $m_id) {
+            if (function_exists('WC') && WC()->session) {
+                $order_mode = WC()->session->get('order_mode_' . $m_id);
+                if ($order_mode) {
+                    return $m_id;
+                }
+            }
+        }
+
+        // Final fallback: if it only belongs to ONE menu and no session is set, 
+        // we might still want to assign it, but let's be conservative and only assign if session exists.
+        return null;
+    }
+
+    /**
+     * Get all related orders (parent + children)
+     */
+    public static function get_related_orders($order_id)
+    {
+        $order = wc_get_order($order_id);
+        if (!$order) return [$order_id];
+
+        $parent_id = $order->get_parent_id();
+        
+        // If it's a sub-order, use its parent_id as the root
+        // If it's a parent (parent_id is 0), use its own ID
+        $main_order_id = $parent_id ? $parent_id : $order_id;
+
+        $related_ids = wc_get_orders([
+            'parent' => $main_order_id,
+            'return' => 'ids',
+            'limit'  => -1,
+            'status' => 'any',
+        ]);
+
+        // Include the main order itself
+        $related_ids[] = (int)$main_order_id;
+
+        return array_unique($related_ids);
+    }
+
+    /**
      * CORE LOGIC: Split order by menu ID after checkout processing.
      */
     public static function split_order_by_menu($order_id, $posted_data, $order)
     {
-        if ($order->get_meta('_zippy_split_done') || $order->get_created_via() === 'split_order') return;
+        if (!$order_id || !$order) return;
 
-        self::log("---------- START SPLIT ORDER #$order_id ----------");
-
-        $items = $order->get_items();
-        $shipping_items = $order->get_items('shipping');
-        $groups = [];
-
-        // 1. Group items by menu_id
-        foreach ($items as $item) {
-            $menu_id = (string)($item->get_meta('_menu_id') ?: 'default');
-            if (!isset($groups[$menu_id])) {
-                $groups[$menu_id] = ['items' => [], 'shipping' => null];
-            }
-            $groups[$menu_id]['items'][] = $item;
+        // Prevent parallel splitting for the same order (race conditions)
+        $lock_key = 'zippy_splitting_lock_' . $order_id;
+        if (get_transient($lock_key)) {
+            self::log("Race Condition Prevented: Order #$order_id is already being split.");
+            return;
         }
+        set_transient($lock_key, '1', 60); // 1 minute lock
 
-        // 2. Assign shipping lines to groups
-        foreach ($shipping_items as $sh_item) {
-            $label = $sh_item->get_name();
-            foreach ($groups as $menu_id => &$data) {
-                $menu_name = self::get_menu_name($menu_id);
-                if ($menu_name && strpos($label, $menu_name) !== false) {
-                    $data['shipping'] = $sh_item;
-                    break;
-                }
-            }
-        }
-
-        if (count($groups) <= 1) {
-            self::log("Only one menu group found. No split needed.");
-            $menu_id = array_key_first($groups);
-            self::save_session_to_order($order, $menu_id);
-            $order->update_meta_data('_zippy_split_done', 'yes');
-            $order->save();
+        if ($order->get_parent_id() !== 0 || $order->get_created_via() === 'split_order') {
             return;
         }
 
-        $menu_ids = array_keys($groups);
-        $parent_menu_id = array_shift($menu_ids);
-
-        self::log("Splitting Parent #$order_id. Keeping Menu: $parent_menu_id. Moving: " . implode(', ', $menu_ids));
-
-        // 3. Create Sub-orders for remaining groups
-        foreach ($menu_ids as $menu_id) {
-            $data = $groups[$menu_id];
-            
-            $sub_order = wc_create_order([
-                'status'        => $order->get_status(),
-                'customer_id'   => $order->get_customer_id(),
-                'customer_note' => $order->get_customer_note(),
-                'created_via'   => 'split_order',
-                'parent_id'     => $order_id,
-            ]);
-
-            $sub_order->set_address($order->get_address('billing'), 'billing');
-            $sub_order->set_address($order->get_address('shipping'), 'shipping');
-            $sub_order->set_payment_method($order->get_payment_method());
-            $sub_order->set_payment_method_title($order->get_payment_method_title());
-
-            // Move items
-            foreach ($data['items'] as $item) {
-                $new_item = new \WC_Order_Item_Product();
-                $new_item->set_props([
-                    'product_id'   => $item->get_product_id(),
-                    'variation_id' => $item->get_variation_id(),
-                    'quantity'     => $item->get_quantity(),
-                    'subtotal'     => $item->get_subtotal(),
-                    'total'        => $item->get_total(),
-                    'name'         => $item->get_name(),
-                ]);
-                foreach ($item->get_meta_data() as $meta) {
-                    $new_item->add_meta_data($meta->key, $meta->value, true);
-                }
-                $sub_order->add_item($new_item);
-                $order->remove_item($item->get_id());
-            }
-
-            // Move shipping
-            if ($data['shipping']) {
-                $sh = $data['shipping'];
-                $new_sh = new \WC_Order_Item_Shipping();
-                $new_sh->set_props([
-                    'method_title' => $sh->get_method_title(),
-                    'method_id'    => $sh->get_method_id(),
-                    'instance_id'  => $sh->get_instance_id(),
-                    'total'        => $sh->get_total(),
-                ]);
-                $sub_order->add_item($new_sh);
-                $order->remove_item($sh->get_id());
-            }
-
-            self::save_session_to_order($sub_order, $menu_id);
-            $sub_order->set_parent_id($order_id);
-            $sub_order->update_meta_data('_zippy_split_done', 'yes');
-            $sub_order->calculate_totals();
-            $sub_order->save();
-            
-            self::log("Created Sub-Order #" . $sub_order->get_id() . " for Menu: $menu_id");
+        // Avoid re-splitting if already done
+        if ($order->get_meta('_zippy_split_done') === 'yes') {
+            return;
         }
 
-        // 4. Update Parent Order
-        self::save_session_to_order($order, $parent_menu_id);
-        $order->update_meta_data('_zippy_split_done', 'yes');
-        $order->calculate_totals();
-        $order->save();
+        try {
+            self::log("---------- START SPLIT ORDER #$order_id ----------");
+            $items = $order->get_items();
+            $shipping_items = $order->get_items('shipping');
+            $groups = [];
 
-        self::log("Parent Order #$order_id updated.");
+            // 1. Group items by menu_id
+            foreach ($items as $item) {
+                $menu_id = (string)($item->get_meta('_menu_id') ?: 'default');
+                if (!isset($groups[$menu_id])) {
+                    $groups[$menu_id] = ['items' => [], 'shipping' => null];
+                }
+                $groups[$menu_id]['items'][] = $item;
+            }
+
+            // 2. Assign shipping lines to groups
+            foreach ($shipping_items as $sh_item) {
+                $label = $sh_item->get_name();
+                foreach ($groups as $menu_id => &$data) {
+                    $menu_name = self::get_menu_name($menu_id);
+                    if ($menu_name && strpos($label, $menu_name) !== false) {
+                        $data['shipping'] = $sh_item;
+                        break;
+                    }
+                }
+            }
+
+            if (count($groups) <= 1) {
+                self::log("Only one menu group found. No split needed.");
+                $menu_id = array_key_first($groups);
+                self::save_session_to_order($order, $menu_id);
+                $order->update_meta_data('_zippy_split_done', 'yes');
+                $order->save();
+                return;
+            }
+
+            $menu_ids = array_keys($groups);
+            $parent_menu_id = array_shift($menu_ids);
+
+            self::log("Splitting Parent #$order_id. Keeping Menu: $parent_menu_id. Moving: " . implode(', ', $menu_ids));
+
+            // 3. Create Sub-orders for remaining groups
+            foreach ($menu_ids as $menu_id) {
+                $data = $groups[$menu_id];
+
+                $sub_order = wc_create_order([
+                    'status'        => $order->get_status(),
+                    'customer_id'   => $order->get_customer_id(),
+                    'customer_note' => $order->get_customer_note(),
+                    'created_via'   => 'split_order',
+                    'parent_id'     => $order_id,
+                ]);
+
+                $sub_order->set_address($order->get_address('billing'), 'billing');
+                $sub_order->set_address($order->get_address('shipping'), 'shipping');
+                $sub_order->set_payment_method($order->get_payment_method());
+                $sub_order->set_payment_method_title($order->get_payment_method_title());
+
+                // Move items
+                foreach ($data['items'] as $item) {
+                    $new_item = new \WC_Order_Item_Product();
+                    $new_item->set_props([
+                        'product_id'   => $item->get_product_id(),
+                        'variation_id' => $item->get_variation_id(),
+                        'quantity'     => $item->get_quantity(),
+                        'subtotal'     => $item->get_subtotal(),
+                        'total'        => $item->get_total(),
+                        'name'         => $item->get_name(),
+                    ]);
+                    foreach ($item->get_meta_data() as $meta) {
+                        $new_item->add_meta_data($meta->key, $meta->value, true);
+                    }
+                    $sub_order->add_item($new_item);
+                    $order->remove_item($item->get_id());
+                }
+
+                // Move shipping
+                if ($data['shipping']) {
+                    $sh = $data['shipping'];
+                    $new_sh = new \WC_Order_Item_Shipping();
+                    $new_sh->set_props([
+                        'method_title' => $sh->get_method_title(),
+                        'method_id'    => $sh->get_method_id(),
+                        'instance_id'  => $sh->get_instance_id(),
+                        'total'        => $sh->get_total(),
+                    ]);
+                    $sub_order->add_item($new_sh);
+                    $order->remove_item($sh->get_id());
+                }
+
+                self::save_session_to_order($sub_order, $menu_id);
+                $sub_order->set_parent_id($order_id);
+                $sub_order->update_meta_data('_zippy_split_done', 'yes');
+                $sub_order->calculate_totals();
+                $sub_order->save();
+
+                self::log("Created Sub-Order #" . $sub_order->get_id() . " for Menu: $menu_id");
+            }
+
+            // 4. Update Parent Order
+            self::save_session_to_order($order, $parent_menu_id);
+            $order->update_meta_data('_zippy_split_done', 'yes');
+            $order->calculate_totals();
+            $order->save();
+
+            self::log("Parent Order #$order_id updated.");
+
+        } catch (\Exception $e) {
+            self::log("CRITICAL ERROR during split of #$order_id: " . $e->getMessage());
+        }
     }
 
     private static function save_session_to_order($order, $menu_id)
@@ -269,15 +371,13 @@ class SplitOrder
     {
         if (!$order_id || !$order) return;
 
-        // Only proceed if this is a parent order (parent_id is 0)
-        // and it wasn't created via split_order itself.
         if ($order->get_parent_id() !== 0 || $order->get_created_via() === 'split_order') {
             return;
         }
-        
+
         $sub_orders = wc_get_orders([
             'parent' => $order_id,
-            'status' => 'any', // Crucial: find orders even if they are pending-payment
+            'status' => 'any',
             'return' => 'ids',
             'limit'  => -1,
         ]);
@@ -293,6 +393,59 @@ class SplitOrder
             if ($sub_order && $sub_order->get_status() !== $new_status) {
                 $sub_order->update_status($new_status, sprintf(__('Synced status from parent order #%d.', 'ai-zippy'), $order_id));
             }
+        }
+    }
+
+    /**
+     * Clear all custom booking session data after order completion.
+     */
+    public static function clear_all_sessions($order_id)
+    {
+        if (!$order_id) return;
+
+        self::log("Clearing all session data after order #$order_id");
+
+        if (WC()->session) {
+            $session_data = WC()->session->get_session_data();
+
+            // List of known booking-related keys
+            $booking_keys = [
+                'order_mode',
+                'date',
+                'time',
+                'outlet_id',
+                'outlet_name',
+                'outlet_address',
+                'delivery_address',
+                'address_name',
+                'postal',
+                'total_distance',
+                'shipping_fee',
+                'status_popup',
+                'product_id',
+                'menu_id',
+                'blk_no',
+                'road_name',
+                'building',
+                'lat',
+                'lng',
+                'minimum_order_to_freeship',
+                'extra_fee',
+                'comment'
+            ];
+
+            foreach ($session_data as $key => $value) {
+                foreach ($booking_keys as $b_key) {
+                    // Match base key or key with menu_id suffix (e.g., date_2)
+                    if ($key === $b_key || strpos($key, $b_key . '_') === 0) {
+                        WC()->session->set($key, null);
+                        break;
+                    }
+                }
+            }
+
+            // Force save session data
+            WC()->session->save_data();
         }
     }
 }

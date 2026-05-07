@@ -12,9 +12,31 @@ export default function OrderModeInfo() {
 	useEffect(() => {
 		console.log("🚀 OrderModeInfo component mounted");
 		loadCartData();
+
+		// Listen for cart events to refresh data
+		const handleRefresh = () => {
+			console.log("🔄 Cart updated, refreshing OrderModeInfo...");
+			loadCartData();
+		};
+
+		document.body.addEventListener("wc-blocks_added_to_cart", handleRefresh);
+		
+		// Also listen for legacy/jQuery events to catch all add-to-cart variants
+		const $ = window.jQuery;
+		if ($) {
+			$(document.body).on("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
+		}
+
+		return () => {
+			document.body.removeEventListener("wc-blocks_added_to_cart", handleRefresh);
+			if ($) {
+				$(document.body).off("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
+			}
+		};
 	}, []);
 
 	const loadCartData = async () => {
+
 		try {
 			console.log("📡 Fetching grouped cart data...");
 			const result = await getGroupedCart();
@@ -86,8 +108,13 @@ export default function OrderModeInfo() {
 		return "";
 	};
 
+	const totalItems = groups.reduce((acc, group) => {
+		return acc + group.items.reduce((sum, item) => sum + item.quantity, 0);
+	}, 0);
+
 	return (
 		<div className="omi-grouped-container">
+			<h2 className="omi-title">Your cart (items: {totalItems})</h2>
 			{groups.map((group, index) => (
 				<div key={group.menu_id || index} className="omi-group-card">
 					<div className="omi-group-card__header">

@@ -55,6 +55,13 @@ class CheckoutAssets
         }
 
         if (CheckoutSettings::isReact()) {
+            // Dequeue standard WC checkout scripts to prevent double-processing
+            wp_dequeue_script('wc-checkout');
+            wp_dequeue_script('wc-cart');
+            wp_dequeue_script('wc-chosen');
+            wp_dequeue_script('select2');
+            wp_dequeue_script('selectWoo');
+            
             self::enqueueReactCheckout();
         } else {
             self::enqueueWcCheckout();

@@ -496,6 +496,7 @@ export default function CheckoutApp({ cartUrl, shopUrl }) {
 					busyKeys={busyKeys}
 					placeOrderButton={
 						<button
+							type="button"
 							className="zk__btn zk__btn--primary zk__btn--place"
 							onClick={handlePlaceOrder}
 							disabled={placing}
