@@ -60,45 +60,33 @@ document.addEventListener("DOMContentLoaded", function() {
             const li = document.createElement("li");
             li.textContent = loc.ADDRESS;
             li.addEventListener("click", () => {
-                console.log("AZ DEBUG: Address selected:", loc.ADDRESS, loc.POSTAL);
+                // Clean address if it already contains postal code at the end
+                let displayAddress = loc.ADDRESS;
+                if (loc.POSTAL && displayAddress.endsWith(loc.POSTAL)) {
+                    displayAddress = displayAddress.substring(0, displayAddress.length - loc.POSTAL.length).trim();
+                    displayAddress = displayAddress.replace(/,$/, "").trim();
+                }
 
-                // Update Billing Address
-                addressInput.value = loc.ADDRESS;
-                
+                console.log("AZ DEBUG: Address selected (Cleaned):", displayAddress, loc.POSTAL);
+
+                // Update fields
+                addressInput.value = displayAddress;
                 const billingPostcode = document.getElementById("billing_postcode");
-                if (billingPostcode) {
-                    billingPostcode.value = loc.POSTAL;
-                }
-
+                if (billingPostcode) billingPostcode.value = loc.POSTAL;
                 const billingCity = document.getElementById("billing_city");
-                if (billingCity) {
-                    billingCity.value = "Singapore";
-                }
+                if (billingCity) billingCity.value = "Singapore";
 
-                // Update Shipping Address if it exists and is visible
                 const shippingAddress = document.getElementById("shipping_address_1");
-                if (shippingAddress) {
-                    shippingAddress.value = loc.ADDRESS;
-                }
+                if (shippingAddress) shippingAddress.value = displayAddress;
                 const shippingPostcode = document.getElementById("shipping_postcode");
-                if (shippingPostcode) {
-                    shippingPostcode.value = loc.POSTAL;
-                }
-                const shippingCity = document.getElementById("shipping_city");
-                if (shippingCity) {
-                    shippingCity.value = "Singapore";
-                }
+                if (shippingPostcode) shippingPostcode.value = loc.POSTAL;
 
                 list.style.display = "none";
                 
-                // Trigger WooCommerce checkout update
                 const $ = window.jQuery;
                 if ($) {
-                    console.log("AZ DEBUG: Triggering update_checkout...");
-                    // Trigger change on inputs to notify WooCommerce
+                    console.log("AZ DEBUG: Triggering update sequence...");
                     $(addressInput).trigger('change');
-                    if (billingPostcode) $(billingPostcode).trigger('change');
-                    
                     $(document.body).trigger('update_checkout');
                 }
             });

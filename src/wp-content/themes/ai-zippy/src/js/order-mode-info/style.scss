@@ -145,6 +145,34 @@
     color: #1a1a1a;
     margin-bottom: 6px;
     line-height: 1.2;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  &__remove {
+    background: #fdeaea;
+    color: #e54d42;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    margin-top: -2px;
+
+    &:hover {
+      background: #e54d42;
+      color: #fff;
+      transform: scale(1.1);
+    }
   }
 
   &__meta {

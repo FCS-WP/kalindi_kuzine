@@ -44,7 +44,7 @@ class OrderSessionApi
         ]);
 
         register_rest_route(self::NAMESPACE, '/order-session/clear', [
-            'methods'             => 'POST',
+            'methods'             => ['GET', 'POST'],
             'callback'            => [self::class, 'clearSession'],
             'permission_callback' => '__return_true',
         ]);
@@ -185,8 +185,10 @@ class OrderSessionApi
         $menu_id = $request->get_param('menu_id');
         $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
 
-        // Keys to clear
-        $keys = [
+        $session_data = WC()->session->get_session_data();
+
+        // Comprehensive list of booking-related keys from SplitOrder.php
+        $booking_keys = [
             'order_mode',
             'date',
             'time',
@@ -194,15 +196,35 @@ class OrderSessionApi
             'outlet_name',
             'outlet_address',
             'delivery_address',
+            'address_name',
             'postal',
             'total_distance',
             'shipping_fee',
-            'status_popup'
+            'status_popup',
+            'product_id',
+            'menu_id',
+            'blk_no',
+            'road_name',
+            'building',
+            'lat',
+            'lng',
+            'minimum_order_to_freeship',
+            'extra_fee',
+            'comment'
         ];
 
-        foreach ($keys as $key) {
-            WC()->session->set($key . $suffix, null);
+        foreach ($session_data as $key => $value) {
+            foreach ($booking_keys as $b_key) {
+                // Match exact key or key with menu_id suffix (e.g., date_2)
+                if ($key === $b_key || strpos($key, $b_key . '_') === 0) {
+                    WC()->session->set($key, null);
+                    break;
+                }
+            }
         }
+
+        // Force save session data
+        WC()->session->save_data();
 
         // Also remove items from cart with this menu_id
         if (null === WC()->cart) {

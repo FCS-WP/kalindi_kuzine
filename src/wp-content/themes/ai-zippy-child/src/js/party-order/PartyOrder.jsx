@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { addToCart } from '@/js/modules/cart-api';
+import { updateMiniCart, showToast } from '@/js/modules/cart-ui';
 import './style.scss';
 
 // Reuse API base from parent theme
@@ -48,28 +49,41 @@ export default function PartyOrder({ limit, columns }) {
         }
     };
 
-    const handleAddToCart = (product) => {
-        if (sessionActive) {
-            setTargetProduct(product);
-            setShowConfirm(true);
-        } else {
-            executeAddToCart(product);
+    const handleAddToCart = async (product) => {
+        setAdding(product.id);
+        try {
+            // Fetch all grouped cart data to check for any active pre-order session in any menu
+            const response = await fetch(`${BASE}/order-session/grouped-cart`);
+            const groups = response.ok ? await response.json() : [];
+            
+            // Conflict if any group in the cart has an active pre-order session
+            const hasPreOrderSession = groups.some(group => group.session && group.session.order_mode);
+            
+            if (hasPreOrderSession) {
+                setTargetProduct(product);
+                setShowConfirm(true);
+                setAdding(false);
+            } else {
+                await executeAddToCart(product);
+            }
+        } catch (err) {
+            console.error('Error during add to cart conflict check:', err);
+            await executeAddToCart(product);
         }
     };
 
     const executeAddToCart = async (product) => {
         setAdding(product.id);
         try {
-            await addToCart(product.id, 1);
-            // Trigger cart refresh events for other components
-            document.body.dispatchEvent(new CustomEvent('wc-blocks_added_to_cart'));
-            const $ = window.jQuery;
-            if ($) {
-                $(document.body).trigger('added_to_cart', [null, null, null]);
-            }
-            alert('Sản phẩm đã được thêm vào giỏ hàng!');
+            const cart = await addToCart(product.id, 1);
+            
+            // Update UI components via standard theme module
+            updateMiniCart(cart);
+
+            // Show nice toast notification
+            showToast("Product added to cart!", "success");
         } catch (err) {
-            alert('Lỗi khi thêm vào giỏ hàng: ' + err.message);
+            showToast(err.message || 'Error adding to cart', "error");
         } finally {
             setAdding(false);
         }
@@ -78,35 +92,52 @@ export default function PartyOrder({ limit, columns }) {
     const confirmClearAndAdd = async () => {
         setShowConfirm(false);
         setAdding(targetProduct.id);
+        
+        // Get nonce from the specific location used by this theme's Store API
+        const nonce = window.wcBlocksMiddlewareConfig?.storeApiNonce || 
+                      window.zippy_params?.nonce || 
+                      window.wpApiSettings?.nonce || 
+                      "";
+        
         try {
-            // Clear session first
-            const clearRes = await fetch(`${BASE}/order-session/clear`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-WP-Nonce": window.wpApiSettings?.nonce || ""
+            // 1. Clear cart items via Store API
+            await fetch('/wp-json/wc/store/v1/cart/items', { 
+                method: 'DELETE',
+                headers: { 
+                    'X-WC-Store-API-Nonce': nonce,
+                    'Nonce': nonce,
+                    'X-WP-Nonce': nonce
                 }
+            });
+
+            // 2. Clear our custom session using GET to bypass strict nonce checks
+            const clearRes = await fetch(`${BASE}/order-session/clear`, {
+                method: "GET"
             });
             
             if (clearRes.ok) {
                 setSessionActive(false);
                 await executeAddToCart(targetProduct);
+                // Refresh to ensure all UI components sync up
+                window.location.reload();
             } else {
-                throw new Error('Không thể xóa session hiện tại');
+                const errData = await clearRes.json();
+                throw new Error(errData.message || 'Failed to clear current session');
             }
         } catch (err) {
-            alert(err.message);
+            console.error('Clear session error:', err);
+            showToast(err.message, "error");
             setAdding(false);
         }
     };
 
-    if (loading) return <div className="party-order-loading" style={{ padding: '4rem', textAlign: 'center' }}>Đang tải sản phẩm...</div>;
-    if (error) return <div className="party-order-error" style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>Lỗi: {error}</div>;
+    if (loading) return <div className="party-order-loading" style={{ padding: '4rem', textAlign: 'center' }}>Loading products...</div>;
+    if (error) return <div className="party-order-error" style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>Error: {error}</div>;
     if (products.length === 0) {
         return (
             <div className="party-order-empty" style={{ padding: '4rem', textAlign: 'center', background: '#f9f9f9', borderRadius: '12px' }}>
-                <p>Không tìm thấy sản phẩm nào trong danh mục <strong>party-order</strong>.</p>
-                <p style={{ fontSize: '0.9rem', color: '#666' }}>Vui lòng gán category "party-order" cho các sản phẩm bạn muốn hiển thị ở đây.</p>
+                <p>No products found in the <strong>party-order</strong> category.</p>
+                <p style={{ fontSize: '0.9rem', color: '#666' }}>Please assign the "party-order" category to products you want to display here.</p>
             </div>
         );
     }
@@ -136,13 +167,32 @@ export default function PartyOrder({ limit, columns }) {
             ))}
 
             {showConfirm && (
-                <div className="party-order-modal">
-                    <div className="party-order-modal__content">
-                        <h3>Cảnh báo!</h3>
-                        <p>Bạn đang có một phiên đặt hàng Pre-order. Việc thêm sản phẩm Party Order sẽ xóa tất cả thông tin Pre-order hiện tại. Bạn có muốn tiếp tục?</p>
-                        <div className="party-order-modal__actions">
-                            <button className="btn-cancel" onClick={() => setShowConfirm(false)}>Hủy</button>
-                            <button className="btn-confirm" onClick={confirmClearAndAdd}>Đồng ý & Tiếp tục</button>
+                <div className="zippy-lightbox-overlay" style={{ display: 'flex', zIndex: 10001, opacity: 1, backgroundColor: 'rgba(0,0,0,0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="zippy-lightbox-modal" style={{ maxWidth: '420px', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', background: '#fff' }}>
+                        <div className="zippy-lightbox-content" style={{ padding: '32px', textAlign: 'center' }}>
+                            <div style={{ width: '60px', height: '60px', background: '#fff5ed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#df6f22" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            </div>
+                            <h3 style={{ margin: '0 0 12px', color: '#1a1a1a', fontSize: '22px', fontWeight: '700' }}>Cart Conflict</h3>
+                            <p style={{ margin: '0 0 28px', color: '#666', fontSize: '15px', lineHeight: '1.6' }}>
+                                Your cart contains <strong>Pre-order</strong> items. Starting a <strong>Party Order</strong> will clear all current items. Do you want to continue?
+                            </p>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button 
+                                    className="zippy-button"
+                                    onClick={() => setShowConfirm(false)}
+                                    style={{ flex: 1, height: '48px', borderRadius: '12px', background: '#f5f5f5', color: '#444', border: 'none', fontWeight: '600', cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    className="zippy-button"
+                                    onClick={confirmClearAndAdd}
+                                    style={{ flex: 1, height: '48px', borderRadius: '12px', background: '#df6f22', color: '#fff', border: 'none', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(223, 111, 34, 0.3)' }}
+                                >
+                                    Clear & Continue
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

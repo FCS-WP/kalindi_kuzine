@@ -23,6 +23,7 @@ class CheckoutShipping
         add_action('woocommerce_checkout_init', [self::class, 'ensureAddressAndSelection']);
         add_action('woocommerce_checkout_update_order_review', [self::class, 'ensureAddressAndSelection'], 5);
         add_action('woocommerce_checkout_process', [self::class, 'ensureAddressAndSelection']);
+        add_filter('woocommerce_update_order_review_fragments', [self::class, 'updateSidebarFragments'], 10);
     }
 
     /**
@@ -69,9 +70,14 @@ class CheckoutShipping
     /**
      * For Classic Checkout AJAX updates.
      */
-    public static function calculateDistanceClassic($post_data): void
+    public static function calculateDistanceClassic($post_data = null): void
     {
         if (!WC()->session) return;
+
+        // If post_data is not passed directly, try to get it from $_POST
+        if (empty($post_data) && isset($_POST['post_data'])) {
+            $post_data = $_POST['post_data'];
+        }
 
         // If post_data is passed as a string (serialized), parse it
         $parsed_data = [];
@@ -115,6 +121,7 @@ class CheckoutShipping
      */
     private static function calculateCommon($menu_id = 'default', $request = null, $parsed_post_data = []): void
     {
+        error_log("AZ DEBUG: calculateCommon triggered for Menu ID: " . $menu_id);
         if (!WC()->session) return;
 
         $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
@@ -148,6 +155,7 @@ class CheckoutShipping
             $postcode = WC()->customer->get_shipping_postcode() ?: WC()->customer->get_billing_postcode();
         }
 
+        error_log("AZ DEBUG: Address used for calculation: '{$address}', Postcode: '{$postcode}'");
 
         $distance_meters = 0;
 
@@ -166,6 +174,9 @@ class CheckoutShipping
 
             if (!empty($origin)) {
                 $distance_meters = self::getDistanceInMeters($origin, $address . ' ' . $postcode);
+                error_log("AZ DEBUG: Origin: '{$origin}', Distance: {$distance_meters} meters");
+            } else {
+                error_log("AZ DEBUG: Origin (Outlet Address) is empty!");
             }
         }
 
@@ -184,10 +195,12 @@ class CheckoutShipping
                     $fee = \Zippy_Booking\Src\Services\Zippy_Handle_Shipping::get_fee_from_config($rules, $distance_km);
 
                     WC()->session->set('shipping_fee' . $suffix, $fee);
+                    error_log("AZ DEBUG: Calculated Fee: {$fee} for {$distance_km}km");
                     update_option('debug_test', $fee);
-                    error_log("AZ DEBUG: Distance: {$distance_km}km. Found Fee: $fee");
                 }
             }
+        } else {
+            error_log("AZ DEBUG: Distance calculation resulted in 0.");
         }
     }
 
@@ -213,6 +226,11 @@ class CheckoutShipping
     public static function addDistanceToLabels($rates, $package): array
     {
         if (!WC()->session) return $rates;
+
+        // Force recalculation during AJAX update to ensure we use the latest address from the form
+        if (wp_doing_ajax() && isset($_POST['post_data'])) {
+            self::calculateDistanceClassic($_POST['post_data']);
+        }
 
         $menu_id = $package['menu_id'] ?? 'default';
         $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
@@ -389,5 +407,125 @@ class CheckoutShipping
         if ($updated) {
             WC()->session->set('chosen_shipping_methods', $chosen_methods);
         }
+    }
+
+    public static function updateSidebarFragments($fragments): array
+    {
+        ob_start();
+        ?>
+        <div class="omi-grouped-container">
+            <?php
+            $grouped_items = [];
+            foreach (WC()->cart->get_cart() as $key => $item) {
+                $menu_id = $item['menu_id'] ?? 'default';
+                if (!isset($grouped_items[$menu_id])) {
+                    $grouped_items[$menu_id] = [];
+                }
+                $grouped_items[$menu_id][$key] = $item;
+            }
+
+            foreach ($grouped_items as $menu_id => $items) :
+                $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
+                $g_order_mode = WC()->session->get('order_mode' . $suffix);
+                $g_outlet_name = WC()->session->get('outlet_name' . $suffix);
+                $g_date = WC()->session->get('date' . $suffix);
+                $g_time = WC()->session->get('time' . $suffix);
+                $g_shipping_fee = (float) WC()->session->get('shipping_fee' . $suffix);
+
+                $g_formatted_date = ! empty($g_date) ? date('D, M d, Y', strtotime($g_date)) : '-';
+                $g_formatted_time = '-';
+                if (! empty($g_time)) {
+                    $g_time_data = is_string($g_time) ? json_decode($g_time, true) : $g_time;
+                    $g_formatted_time = (is_array($g_time_data) && isset($g_time_data['from'])) ? "{$g_time_data['from']} - {$g_time_data['to']}" : (string)$g_time;
+                }
+            ?>
+                <div class="omi-group-card">
+                    <div class="omi-group-card__header">
+                        <div class="omi-group-card__info">
+                            <div>
+                                <span class="omi-label">MODE:</span>
+                                <span class="omi-value"><?php echo esc_html($g_order_mode === 'takeaway' ? 'Takeaway' : 'Delivery'); ?></span>
+                            </div>
+                            <div>
+                                <span class="omi-label">OUTLET:</span>
+                                <span class="omi-value"><?php echo esc_html($g_outlet_name ?: '-'); ?></span>
+                            </div>
+                            <div>
+                                <span class="omi-label">TIME:</span>
+                                <span class="omi-value"><?php echo esc_html($g_formatted_date); ?> (<?php echo esc_html($g_formatted_time); ?>)</span>
+                            </div>
+                        </div>
+                        <button type="button" class="omi-group-card__reset az-checkout__group-reset" data-menu-id="<?php echo esc_attr($menu_id); ?>">RESET</button>
+                    </div>
+                    <div class="omi-group-card__items">
+                        <?php foreach ($items as $key => $item) :
+                            $_product = apply_filters('woocommerce_cart_item_product', $item['data'], $item, $key);
+                            if ($_product && $_product->exists() && $item['quantity'] > 0) :
+                        ?>
+                                <div class="az-checkout__item omi-item" data-cart-key="<?php echo esc_attr($key); ?>">
+                                    <div class="az-checkout__item-img omi-item__image"><?php echo $_product->get_image(); ?></div>
+                                    <div class="az-checkout__item-detail omi-item__content">
+                                        <div class="az-checkout__item-top">
+                                            <span class="az-checkout__item-name omi-item__name"><?php echo $_product->get_name(); ?></span>
+                                        </div>
+                                        <div class="az-checkout__item-bottom omi-item__meta">
+                                            <span class="az-checkout__item-meta">Qty: <?php echo $item['quantity']; ?></span>
+                                            <span class="az-checkout__item-total"><?php echo WC()->cart->get_product_subtotal($_product, $item['quantity']); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                        <?php endif;
+                        endforeach; ?>
+
+                        <!-- GROUP SHIPPING FEE -->
+                        <div class="omi-group-shipping">
+                            <span class="omi-label">SHIPPING:</span>
+                            <span class="omi-value">
+                                <?php if ($g_order_mode === 'takeaway') : ?>
+                                    <strong>Free</strong>
+                                <?php else : ?>
+                                    <strong><?php echo wc_price($g_shipping_fee); ?></strong>
+                                <?php endif; ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="az-checkout__totals">
+            <div class="az-checkout__totals-row">
+                <span>Subtotal</span>
+                <span><?php wc_cart_totals_subtotal_html(); ?></span>
+            </div>
+
+            <!-- TOTAL SHIPPING -->
+            <div class="az-checkout__totals-row">
+                <span>Shipping Total</span>
+                <span><?php echo WC()->cart->get_cart_shipping_total(); ?></span>
+            </div>
+
+            <?php foreach (WC()->cart->get_fees() as $fee) : ?>
+                <div class="az-checkout__totals-row">
+                    <span><?php echo esc_html($fee->name); ?></span>
+                    <span><?php wc_cart_totals_fee_html($fee); ?></span>
+                </div>
+            <?php endforeach; ?>
+
+            <div class="az-checkout__totals-row az-checkout__totals-row--total">
+                <span>Total</span>
+                <span><?php wc_cart_totals_order_total_html(); ?></span>
+            </div>
+        </div>
+
+        <div id="order_review" class="woocommerce-checkout-review-order">
+            <?php do_action('woocommerce_checkout_order_review'); ?>
+        </div>
+        <?php
+        $html = ob_get_clean();
+
+        $fragments['#az-checkout-sidebar-fragments'] = '<div class="az-checkout__card-body" id="az-checkout-sidebar-fragments">' . $html . '</div>';
+
+        return $fragments;
     }
 }

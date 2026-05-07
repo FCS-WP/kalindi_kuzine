@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getGroupedCart, clearSession } from "./api.js";
+import { removeCartItem } from "@/js/modules/cart-api";
+import { updateMiniCart } from "@/js/modules/cart-ui";
 import "./style.scss";
 
 export default function OrderModeInfo() {
@@ -20,7 +22,7 @@ export default function OrderModeInfo() {
 		};
 
 		document.body.addEventListener("wc-blocks_added_to_cart", handleRefresh);
-		
+
 		// Also listen for legacy/jQuery events to catch all add-to-cart variants
 		const $ = window.jQuery;
 		if ($) {
@@ -66,22 +68,38 @@ export default function OrderModeInfo() {
 		}
 	};
 
+	const handleRemoveItem = async (itemKey) => {
+		try {
+			setLoading(true);
+			const cart = await removeCartItem(itemKey);
+			// Update the mini cart icon
+			updateMiniCart(cart);
+			// Refresh our local grouped view
+			await loadCartData();
+		} catch (err) {
+			console.error("Error removing item:", err);
+			alert("Failed to remove item: " + err.message);
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const triggerConfirm = (menuId) => {
 		setTargetMenuId(menuId);
 		setShowConfirm(true);
 	};
 
 	if (loading) {
-		return <div className="omi-loading" style={{padding: '20px', textAlign: 'center', background: '#f5f5f5'}}>⏳ Loading cart groups...</div>;
+		return <div className="omi-loading" style={{ padding: '20px', textAlign: 'center', background: '#f5f5f5' }}>⏳ Loading cart groups...</div>;
 	}
 
 	if (error) {
-		return <div className="omi-error" style={{color: 'red', padding: '20px'}}>❌ Error: {error}</div>;
+		return <div className="omi-error" style={{ color: 'red', padding: '20px' }}>❌ Error: {error}</div>;
 	}
 
 	if (groups.length === 0) {
 		console.log("ℹ️ Cart is empty, rendering nothing");
-		return <div className="omi-empty" style={{padding: '20px', color: '#999'}}>Your cart is currently empty or has no groupings.</div>;
+		return <div className="omi-empty" style={{ padding: '20px', color: '#999' }}>Your cart is currently empty or has no groupings.</div>;
 	}
 
 	const formatDate = (dateStr) => {
@@ -114,16 +132,15 @@ export default function OrderModeInfo() {
 
 	return (
 		<div className="omi-grouped-container">
-			<h2 className="omi-title">Your cart (items: {totalItems})</h2>
 			{groups.map((group, index) => (
 				<div key={group.menu_id || index} className="omi-group-card">
-					{!group.is_party_order && (
+					{group.session && group.session.order_mode && (
 						<div className="omi-group-card__header">
 							<div className="omi-group-card__info">
 								<div className="omi-group-card__mode">
 									<span className="omi-label">Mode:</span>
 									<span className="omi-value">
-										{group.session.order_mode 
+										{group.session.order_mode
 											? (group.session.order_mode === "takeaway" ? "Takeaway" : "Delivery")
 											: "Not set"}
 									</span>
@@ -135,13 +152,13 @@ export default function OrderModeInfo() {
 								<div className="omi-group-card__time">
 									<span className="omi-label">Time:</span>
 									<span className="omi-value">
-										{group.session.date 
+										{group.session.date
 											? `${formatDate(group.session.date)} ${group.session.time ? `(${formatTime(group.session.time)})` : ""}`
 											: "Date/Time not set"}
 									</span>
 								</div>
 							</div>
-							
+
 							<button
 								className="omi-group-card__reset"
 								onClick={() => triggerConfirm(group.menu_id)}
@@ -159,7 +176,16 @@ export default function OrderModeInfo() {
 									<img src={item.image} alt={item.name} />
 								</div>
 								<div className="omi-item__content">
-									<div className="omi-item__name">{item.name}</div>
+									<div className="omi-item__name">
+										{item.name}
+										<button
+											className="omi-item__remove"
+											onClick={() => handleRemoveItem(item.key)}
+											title="Remove item"
+										>
+											&times;
+										</button>
+									</div>
 									<div className="omi-item__meta">
 										<span>Qty: {item.quantity}</span>
 										<span>${(item.price).toFixed(2)}</span>
