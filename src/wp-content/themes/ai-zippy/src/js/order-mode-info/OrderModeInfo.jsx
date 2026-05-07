@@ -117,38 +117,40 @@ export default function OrderModeInfo() {
 			<h2 className="omi-title">Your cart (items: {totalItems})</h2>
 			{groups.map((group, index) => (
 				<div key={group.menu_id || index} className="omi-group-card">
-					<div className="omi-group-card__header">
-						<div className="omi-group-card__info">
-							<div className="omi-group-card__mode">
-								<span className="omi-label">Mode:</span>
-								<span className="omi-value">
-									{group.session.order_mode 
-										? (group.session.order_mode === "takeaway" ? "Takeaway" : "Delivery")
-										: "Not set"}
-								</span>
+					{!group.is_party_order && (
+						<div className="omi-group-card__header">
+							<div className="omi-group-card__info">
+								<div className="omi-group-card__mode">
+									<span className="omi-label">Mode:</span>
+									<span className="omi-value">
+										{group.session.order_mode 
+											? (group.session.order_mode === "takeaway" ? "Takeaway" : "Delivery")
+											: "Not set"}
+									</span>
+								</div>
+								<div className="omi-group-card__outlet">
+									<span className="omi-label">Outlet:</span>
+									<span className="omi-value">{group.session.outlet_name || "Not selected"}</span>
+								</div>
+								<div className="omi-group-card__time">
+									<span className="omi-label">Time:</span>
+									<span className="omi-value">
+										{group.session.date 
+											? `${formatDate(group.session.date)} ${group.session.time ? `(${formatTime(group.session.time)})` : ""}`
+											: "Date/Time not set"}
+									</span>
+								</div>
 							</div>
-							<div className="omi-group-card__outlet">
-								<span className="omi-label">Outlet:</span>
-								<span className="omi-value">{group.session.outlet_name || "Not selected"}</span>
-							</div>
-							<div className="omi-group-card__time">
-								<span className="omi-label">Time:</span>
-								<span className="omi-value">
-									{group.session.date 
-										? `${formatDate(group.session.date)} ${group.session.time ? `(${formatTime(group.session.time)})` : ""}`
-										: "Date/Time not set"}
-								</span>
-							</div>
+							
+							<button
+								className="omi-group-card__reset"
+								onClick={() => triggerConfirm(group.menu_id)}
+								title="Clear this group"
+							>
+								Reset
+							</button>
 						</div>
-						
-						<button
-							className="omi-group-card__reset"
-							onClick={() => triggerConfirm(group.menu_id)}
-							title="Clear this group"
-						>
-							Reset
-						</button>
-					</div>
+					)}
 
 					<div className="omi-group-card__items">
 						{group.items.map((item) => (

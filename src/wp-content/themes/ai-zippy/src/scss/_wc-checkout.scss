@@ -111,6 +111,7 @@
     padding: 0 !important;
     float: none !important;
     width: 100% !important;
+    display: block;
 
     &.form-row-first,
     &.form-row-last {
@@ -493,7 +494,7 @@
         // &:has(input:checked) {
         //   border-color: $c-primary !important;
         //   background: rgba(26, 26, 26, 0.02) !important;
-        // }
+        //   }
 
         label {
           font-size: 0.8rem !important;
@@ -687,4 +688,51 @@
     padding: 0.85rem 1rem !important;
     font-size: 0.875rem !important;
   }
+}
+
+// ---- AUTOCOMPLETE ----
+.az-autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.az-autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid $c-border;
+  border-top: none;
+  border-radius: 0 0 $border-radius $border-radius;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  animation: azFadeIn 0.2s ease-out;
+
+  li {
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background 0.2s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: #f0f0f2;
+      color: $c-primary;
+    }
+  }
+}
+
+@keyframes azFadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

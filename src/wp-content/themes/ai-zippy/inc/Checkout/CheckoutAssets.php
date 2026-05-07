@@ -95,6 +95,16 @@ class CheckoutAssets
             'ai-zippy-wc-checkout',
             'src/wp-content/themes/ai-zippy/src/scss/wc-checkout-entry.scss'
         );
+
+        // Enqueue classic checkout JS for autocomplete
+        \AiZippy\Core\ViteAssets::enqueue(
+            'ai-zippy-checkout-classic',
+            'src/wp-content/themes/ai-zippy/src/js/checkout/checkout-classic.js'
+        );
+
+        wp_localize_script('ai-zippy-checkout-classic', 'azClassicCheckout', [
+            'nonce' => wp_create_nonce('wp_rest'),
+        ]);
     }
 
     /**

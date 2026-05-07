@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { fetchMostOrdered, fetchCategories, fetchProductsByMenu, fetchSessionInfo } from "./api";
+import { fetchMostOrdered, fetchCategories, fetchProductsByMenu, fetchSessionInfo, fetchCategoriesByMenu } from "./api";
 import "./style.scss";
 
 export default function MostOrdered({ limit: propLimit, menuUrl }) {
@@ -12,6 +12,8 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 	const [page, setPage] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
 	const [sessionData, setSessionData] = useState({ date: null, order_mode: null });
+	const [productCategories, setProductCategories] = useState([]);
+	const [activeCategory, setActiveCategory] = useState(null);
 	const searchTimeout = useRef(null);
 	const PER_PAGE = propLimit || 4;
 
@@ -21,11 +23,21 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 		loadSession();
 	}, []);
 
-	// Reload products when active tab changes
+	// Reload products and categories when active tab changes
+	useEffect(() => {
+		if (activeTab) {
+			setPage(1);
+			setActiveCategory(null);
+			loadProductCategories(activeTab);
+			loadProducts(1, true, searchQuery, null);
+		}
+	}, [activeTab]);
+
+	// Reload products when active category changes
 	useEffect(() => {
 		setPage(1);
-		loadProducts(1, true, searchQuery);
-	}, [activeTab]);
+		loadProducts(1, true, searchQuery, activeCategory);
+	}, [activeCategory]);
 
 	// Debounced search
 	useEffect(() => {
@@ -59,11 +71,25 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 		}
 	};
 
-	const loadProducts = async (pageNum, isInitial = false, search = "") => {
+	const loadProductCategories = async (menuId) => {
+		try {
+			const data = await fetchCategoriesByMenu(menuId);
+			setProductCategories(data || []);
+		} catch (err) {
+			console.error("Error loading product categories:", err);
+		}
+	};
+
+	const loadProducts = async (pageNum, isInitial = false, search = "", category = activeCategory) => {
 		try {
 			setLoading(true);
 			let data = [];
-			const params = { page: pageNum, per_page: PER_PAGE, search };
+			const params = { 
+				page: pageNum, 
+				per_page: PER_PAGE, 
+				search,
+				category: category
+			};
 
 			if (!activeTab) return;
 			data = await fetchProductsByMenu(activeTab, params);
@@ -166,6 +192,27 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 							The most commonly ordered items and dishes from the store
 						</p>
 					</div>
+
+					{/* Product Category Filter */}
+					{productCategories.length > 0 && (
+						<div className="most-ordered-browser__cat-filter">
+							<button 
+								className={`most-ordered-browser__cat-item ${activeCategory === null ? 'is-active' : ''}`}
+								onClick={() => setActiveCategory(null)}
+							>
+								All
+							</button>
+							{productCategories.map(cat => (
+								<button 
+									key={cat.id}
+									className={`most-ordered-browser__cat-item ${activeCategory === cat.id ? 'is-active' : ''}`}
+									onClick={() => setActiveCategory(cat.id)}
+								>
+									{cat.name}
+								</button>
+							))}
+						</div>
+					)}
 				</div>
 
 				{/* Products Content */}

@@ -149,3 +149,10 @@ export function getPaymentGateways() {
   const gateways = window.aiZippyCheckout?.paymentGateways || [];
   return Promise.resolve(gateways);
 }
+
+/**
+ * Search location using OneMap API via zippy-addons.
+ */
+export function searchLocation(keyword) {
+  return fetch(`/wp-json/zippy-addons/v1/location?keyword=${encodeURIComponent(keyword)}`).then((res) => res.json());
+}

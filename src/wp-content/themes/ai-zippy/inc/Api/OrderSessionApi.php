@@ -31,6 +31,12 @@ class OrderSessionApi
             'permission_callback' => '__return_true',
         ]);
 
+        register_rest_route(self::NAMESPACE, '/location-proxy', [
+            'methods'             => 'GET',
+            'callback'            => [self::class, 'locationProxy'],
+            'permission_callback' => '__return_true',
+        ]);
+
         register_rest_route(self::NAMESPACE, '/order-session/grouped-cart', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'getGroupedCart'],
@@ -66,12 +72,17 @@ class OrderSessionApi
 
         foreach ($cart as $item_key => $item) {
             $menu_id = isset($item['menu_id']) ? $item['menu_id'] : 'default';
+            $product_id = $item['product_id'];
             
+            // Check if this item is a party order (including subcategories)
+            $is_item_party = self::isPartyOrder($product_id);
+
             if (!isset($grouped[$menu_id])) {
                 $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
                 
                 $grouped[$menu_id] = [
                     'menu_id' => $menu_id,
+                    'is_party_order' => false,
                     'session' => [
                         'order_mode'     => WC()->session->get('order_mode' . $suffix) ?: null,
                         'date'           => WC()->session->get('date' . $suffix) ?: null,
@@ -83,18 +94,36 @@ class OrderSessionApi
                 ];
             }
 
+            if ($is_item_party) {
+                $grouped[$menu_id]['is_party_order'] = true;
+            }
+
             $product = $item['data'];
             $grouped[$menu_id]['items'][] = [
                 'key'      => $item_key,
                 'id'       => $item['product_id'],
                 'name'     => $product->get_name(),
                 'quantity' => $item['quantity'],
-                'price'    => $item['line_total'],
+                'price'    => (float) $item['line_total'],
                 'image'    => wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'),
             ];
         }
 
         return new WP_REST_Response(array_values($grouped), 200);
+    }
+
+    /**
+     * Check if a product belongs to 'party-order' or its subcategories.
+     */
+    private static function isPartyOrder(int $product_id): bool
+    {
+        $term = get_term_by('slug', 'party-order', 'product_cat');
+        if (!$term) return false;
+
+        $child_ids = get_term_children($term->term_id, 'product_cat');
+        $all_ids = array_merge([$term->term_id], $child_ids);
+
+        return has_term($all_ids, 'product_cat', $product_id);
     }
 
     /**
@@ -197,5 +226,28 @@ class OrderSessionApi
             'message' => 'Session and cart items cleared',
             'menu_id' => $menu_id
         ], 200);
+    }
+
+    /**
+     * Proxy for location search to avoid REST permission issues.
+     */
+    public static function locationProxy(WP_REST_Request $request): WP_REST_Response
+    {
+        $keyword = $request->get_param('keyword');
+        if (empty($keyword)) {
+            return new WP_REST_Response(['status' => 'error', 'message' => 'Missing keyword'], 400);
+        }
+
+        // Use OneMap API directly via the service
+        $res = \Zippy_Booking\Src\Services\One_Map_Api::get('/api/common/elastic/search', [
+            'searchVal' => $keyword,
+            'returnGeom' => 'Y',
+            'getAddrDetails' => 'Y'
+        ]);
+
+        return new WP_REST_Response([
+            'status' => 'success',
+            'data'   => $res
+        ]);
     }
 }

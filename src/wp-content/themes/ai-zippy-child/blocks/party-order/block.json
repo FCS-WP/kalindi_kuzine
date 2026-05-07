@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "ai-zippy-child/party-order",
+  "version": "0.1.0",
+  "title": "Party Order",
+  "category": "design",
+  "icon": "cart",
+  "description": "Display products from party-order category with special checkout logic.",
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "limit": {
+      "type": "number",
+      "default": 8
+    },
+    "columns": {
+      "type": "number",
+      "default": 3
+    }
+  },
+  "textdomain": "ai-zippy",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./style-index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}
