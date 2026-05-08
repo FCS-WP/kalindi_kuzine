@@ -319,10 +319,34 @@ class CheckoutShipping
      */
     public static function removeAddressFields($fields): array
     {
-        if (self::hasPartyOrderInCart()) {
+        if (!WC()->session) {
             return $fields;
         }
 
+        // Check if ANY menu group has an active order mode session
+        $has_order_mode = false;
+        
+        // Check default session
+        if (WC()->session->get('order_mode')) {
+            $has_order_mode = true;
+        } else {
+            // Check all menu IDs in cart
+            foreach (WC()->cart->get_cart() as $item) {
+                $menu_id = $item['menu_id'] ?? 'default';
+                $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
+                if (WC()->session->get('order_mode' . $suffix)) {
+                    $has_order_mode = true;
+                    break;
+                }
+            }
+        }
+
+        // If no pre-order session is active, we show fields (especially for Party Orders)
+        if (!$has_order_mode) {
+            return $fields;
+        }
+
+        // We have a pre-order session, so hide redundant address fields
         $address_fields = [
             'country',
             'address_1',
