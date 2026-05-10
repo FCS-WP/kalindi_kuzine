@@ -162,7 +162,8 @@ class MostOrderedApi
 		$products = [];
 		foreach ($results as $product) {
 			$wc_product = wc_get_product($product->ID);
-			if (!$wc_product) continue;
+			if (!$wc_product)
+				continue;
 
 			$products[] = [
 				'id' => (int) $product->ID,
@@ -226,7 +227,6 @@ class MostOrderedApi
 		$per_page = (int) $request->get_param('per_page') ?: $limit;
 		$offset = ($page - 1) * $per_page;
 		$search = $request->get_param('search');
-
 		// Calculate the target delivery date for this menu
 		$menu = $wpdb->get_row($wpdb->prepare("SELECT days_of_week FROM {$wpdb->prefix}zippy_menus WHERE id = %d", $menu_id));
 		$target_date = current_time('Y-m-d');
@@ -256,8 +256,8 @@ class MostOrderedApi
 			AND p.post_status = 'publish'
 			AND zmp.id_menu = %d
 			AND zmp.status = 1
-			AND (zmp.from_date IS NULL OR zmp.from_date <= %s)
-			AND (zmp.to_date IS NULL OR zmp.to_date >= %s)
+			AND zmp.from_date IS NOT NULL AND zmp.from_date <= %s
+			AND zmp.to_date IS NOT NULL AND zmp.to_date >= %s
 		";
 
 		$params = [$menu_id, $target_date, $target_date];
@@ -295,6 +295,8 @@ class MostOrderedApi
 		$params[] = $per_page;
 		$params[] = $offset;
 
+
+
 		$results = $wpdb->get_results($wpdb->prepare($query, ...$params));
 
 		if (empty($results)) {
@@ -304,7 +306,8 @@ class MostOrderedApi
 		$products = [];
 		foreach ($results as $product) {
 			$wc_product = wc_get_product($product->ID);
-			if (!$wc_product) continue;
+			if (!$wc_product)
+				continue;
 
 			$products[] = [
 				'id' => (int) $product->ID,
@@ -327,7 +330,6 @@ class MostOrderedApi
 		global $wpdb;
 
 		$menu_id = (int) $request->get_param('menu_id');
-
 		// Calculate the target delivery date for this menu
 		$menu = $wpdb->get_row($wpdb->prepare("SELECT days_of_week FROM {$wpdb->prefix}zippy_menus WHERE id = %d", $menu_id));
 		$target_date = current_time('Y-m-d');
@@ -356,8 +358,8 @@ class MostOrderedApi
 			AND p.post_status = 'publish'
 			AND zmp.id_menu = %d
 			AND zmp.status = 1
-			AND (zmp.from_date IS NULL OR zmp.from_date <= %s)
-			AND (zmp.to_date IS NULL OR zmp.to_date >= %s)
+			AND zmp.from_date IS NOT NULL AND zmp.from_date <= %s
+			AND zmp.to_date IS NOT NULL AND zmp.to_date >= %s
 			",
 			$menu_id,
 			$target_date,
