@@ -55,6 +55,21 @@ class CheckoutShipping
         return false;
     }
 
+    /**
+     * Check if the current cart has ONLY party order products.
+     */
+    public static function isOnlyPartyOrderInCart(): bool
+    {
+        if (!WC()->cart || WC()->cart->is_empty()) return false;
+
+        foreach (WC()->cart->get_cart() as $item) {
+            if (!self::isPartyOrderProduct($item['product_id'])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static function extendCartResponse($response, $cart): array
     {
         $distance_meters = WC()->session ? (float) WC()->session->get('total_distance') : 0;
@@ -128,8 +143,11 @@ class CheckoutShipping
         $order_mode = WC()->session->get('order_mode' . $suffix);
 
         $has_party_order = self::hasPartyOrderInCart();
+        $is_pure_party_order = self::isOnlyPartyOrderInCart();
 
-        if (!$order_mode && $has_party_order) {
+        // Fallback for mixed orders or regular products. 
+        // Skip auto-setting for pure party order carts to avoid showing Preorder UI.
+        if (!$order_mode && $has_party_order && !$is_pure_party_order) {
             $order_mode = 'delivery';
             WC()->session->set('order_mode' . $suffix, 'delivery');
         }

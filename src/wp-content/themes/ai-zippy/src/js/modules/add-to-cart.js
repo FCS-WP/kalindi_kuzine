@@ -18,6 +18,12 @@ export function initAddToCart() {
 }
 
 async function initMiniCart() {
+  // Don't run mini-cart init on the cart page itself
+  // to avoid conflicts with CartApp and prevent infinite reload loops
+  if (window.location.pathname.includes("/cart")) {
+    return;
+  }
+
   try {
     const cart = await getCart();
     updateMiniCart(cart);
