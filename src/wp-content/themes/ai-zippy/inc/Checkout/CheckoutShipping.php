@@ -2,6 +2,8 @@
 
 namespace AiZippy\Checkout;
 
+use Zippy_Booking\Src\Services\Zippy_Handle_Shipping;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -24,6 +26,10 @@ class CheckoutShipping
         add_action('woocommerce_checkout_update_order_review', [self::class, 'ensureAddressAndSelection'], 5);
         add_action('woocommerce_checkout_process', [self::class, 'ensureAddressAndSelection']);
         add_filter('woocommerce_update_order_review_fragments', [self::class, 'updateSidebarFragments'], 10);
+
+        // Minimum Delivery Order Validation
+        add_action('woocommerce_checkout_process', [self::class, 'validateMinimumDeliveryOrder']);
+        add_action('woocommerce_check_cart_items', [self::class, 'validateMinimumDeliveryOrder']);
     }
 
     /**
@@ -127,99 +133,161 @@ class CheckoutShipping
         }
 
         foreach ($menu_ids as $menu_id) {
-            self::calculateCommon($menu_id, $request, $parsed_post_data);
+            self::calculateGroupShipping($menu_id, $request, $parsed_post_data);
         }
     }
 
     /**
-     * Shared logic for distance calculation for a specific menu group.
+     * Coordinator method to compute and persist shipping parameters for a specific menu group.
      */
-    private static function calculateCommon($menu_id = 'default', $request = null, $parsed_post_data = []): void
+    private static function calculateGroupShipping($menu_id = 'default', $request = null, $parsed_post_data = []): void
     {
-        error_log("AZ DEBUG: calculateCommon triggered for Menu ID: " . $menu_id);
         if (!WC()->session) return;
 
         $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
-        $order_mode = WC()->session->get('order_mode' . $suffix);
 
-        $has_party_order = self::hasPartyOrderInCart();
-        $is_pure_party_order = self::isOnlyPartyOrderInCart();
-
-        // Fallback for mixed orders or regular products. 
-        // Skip auto-setting for pure party order carts to avoid showing Preorder UI.
-        if (!$order_mode && $has_party_order && !$is_pure_party_order) {
-            $order_mode = 'delivery';
-            WC()->session->set('order_mode' . $suffix, 'delivery');
-        }
-
-        if ($order_mode === 'takeaway') {
-            WC()->session->set('zippy_checkout_distance' . $suffix, 0);
-            WC()->session->set('zippy_checkout_distance_meters' . $suffix, 0);
-            WC()->session->set('shipping_fee' . $suffix, 0);
+        // Case 1: Delivery Method is Takeaway -> Free Shipping
+        if (WC()->session->get('order_mode' . $suffix) === 'takeaway') {
+            self::saveShippingSessionData($suffix, 0.0, 0.0, 0.0);
             return;
         }
 
+        // Case 2: Resolve customer's physical destination details
+        list($address, $postcode) = self::resolveCustomerAddressAndPostcode($request, $parsed_post_data);
+
+        // Case 3: Measure driving distance between outlet origin and destination
+        $distance_meters = self::calculateDistanceMeters($address, $postcode, $suffix);
+        $distance_km = round($distance_meters / 1000, 2);
+
+        // Case 4: Calculate fee based on either postal overrides or distance tiers
+        $fee = self::calculateBaseShippingFee($distance_km, $distance_meters, $postcode);
+
+        // Case 5: Evaluate eligibility for the Free Shipping threshold
+        $fee = self::applyFreeShippingThreshold($fee, $distance_km);
+
+        // Case 6: Save the computed parameters to checkout session if resolved
+        if ($fee !== null) {
+            self::saveShippingSessionData($suffix, $distance_km, $distance_meters, $fee);
+        }
+    }
+
+    /**
+     * Resolve the customer's destination address and postcode from current checkout payloads or user session.
+     */
+    private static function resolveCustomerAddressAndPostcode($request, $parsed_post_data): array
+    {
         $address = '';
         $postcode = '';
 
         if ($request && isset($request['shipping_address'])) {
-            $address = $request['shipping_address']['address_1'] ?? '';
+            $address  = $request['shipping_address']['address_1'] ?? '';
             $postcode = $request['shipping_address']['postcode'] ?? '';
         } elseif (!empty($parsed_post_data)) {
-            $address = !empty($parsed_post_data['shipping_address_1']) ? $parsed_post_data['shipping_address_1'] : ($parsed_post_data['billing_address_1'] ?? '');
+            $address  = !empty($parsed_post_data['shipping_address_1']) ? $parsed_post_data['shipping_address_1'] : ($parsed_post_data['billing_address_1'] ?? '');
             $postcode = !empty($parsed_post_data['shipping_postcode']) ? $parsed_post_data['shipping_postcode'] : ($parsed_post_data['billing_postcode'] ?? '');
         } elseif (WC()->customer) {
-            $address = WC()->customer->get_shipping_address_1() ?: WC()->customer->get_billing_address_1();
+            $address  = WC()->customer->get_shipping_address_1() ?: WC()->customer->get_billing_address_1();
             $postcode = WC()->customer->get_shipping_postcode() ?: WC()->customer->get_billing_postcode();
         }
 
-        error_log("AZ DEBUG: Address used for calculation: '{$address}', Postcode: '{$postcode}'");
+        return [$address, $postcode];
+    }
 
-        $distance_meters = 0;
+    /**
+     * Calculate driving distance in meters from the matching outlet (origin) to the customer address (destination).
+     */
+    private static function calculateDistanceMeters(string $address, string $postcode, string $suffix): float
+    {
+        $has_party_order = self::hasPartyOrderInCart();
+        $is_pure_party_order = self::isOnlyPartyOrderInCart();
+        $order_mode = WC()->session->get('order_mode' . $suffix);
 
-        // Always recalculate distance if address is provided for Party Order
-        if ($has_party_order && (!empty($address) || !empty($postcode))) {
-            $origin = WC()->session->get('outlet_address' . $suffix);
-            if (empty($origin)) {
-                global $wpdb;
-                $table = OUTLET_CONFIG_TABLE_NAME;
-                $first_outlet = $wpdb->get_row("SELECT * FROM {$table} LIMIT 1");
-                if ($first_outlet) {
-                    $outlet_data = maybe_unserialize($first_outlet->outlet_address);
-                    $origin = $outlet_data['address'] ?? '';
-                }
-            }
+        // Fallback for mixed orders or regular products
+        if (!$order_mode && $has_party_order && !$is_pure_party_order) {
+            WC()->session->set('order_mode' . $suffix, 'delivery');
+        }
 
-            if (!empty($origin)) {
-                $distance_meters = self::getDistanceInMeters($origin, $address . ' ' . $postcode);
-                error_log("AZ DEBUG: Origin: '{$origin}', Distance: {$distance_meters} meters");
-            } else {
-                error_log("AZ DEBUG: Origin (Outlet Address) is empty!");
+        if (!$has_party_order || (empty($address) && empty($postcode))) {
+            return 0.0;
+        }
+
+        $origin = WC()->session->get('outlet_address' . $suffix);
+        if (empty($origin)) {
+            global $wpdb;
+            $table = OUTLET_CONFIG_TABLE_NAME;
+            $first_outlet = $wpdb->get_row("SELECT * FROM {$table} LIMIT 1");
+            if ($first_outlet) {
+                $outlet_data = maybe_unserialize($first_outlet->outlet_address);
+                $origin = $outlet_data['address'] ?? '';
             }
         }
 
-        if ($distance_meters > 0) {
-            $distance_km = round($distance_meters / 1000, 2);
-            WC()->session->set('zippy_checkout_distance' . $suffix, $distance_km);
-            WC()->session->set('zippy_checkout_distance_meters' . $suffix, $distance_meters);
-            WC()->session->set('total_distance' . $suffix, $distance_meters);
-            WC()->session->set('billing_distance' . $suffix, $distance_km);
-
-            // Calculate shipping fee based on distance
-            if (class_exists('\Zippy_Booking\Src\Services\Zippy_Handle_Shipping')) {
-                $shipping_config = \Zippy_Booking\Src\Services\Zippy_Handle_Shipping::query_shipping();
-                if ($shipping_config) {
-                    $rules = maybe_unserialize($shipping_config->minimum_order_to_delivery);
-                    $fee = \Zippy_Booking\Src\Services\Zippy_Handle_Shipping::get_fee_from_config($rules, $distance_km);
-
-                    WC()->session->set('shipping_fee' . $suffix, $fee);
-                    error_log("AZ DEBUG: Calculated Fee: {$fee} for {$distance_km}km");
-                    update_option('debug_test', $fee);
-                }
-            }
-        } else {
-            error_log("AZ DEBUG: Distance calculation resulted in 0.");
+        if (empty($origin)) {
+            return 0.0;
         }
+
+        return self::getDistanceInMeters($origin, $address . ' ' . $postcode);
+    }
+
+    /**
+     * Calculate base shipping fee by looking up postal code overrides first, and then distance-based pricing tiers.
+     */
+    private static function calculateBaseShippingFee(float $distance_km, float $distance_meters, string $postcode): ?float
+    {
+        // 1. Check for Postal Code overrides (tab "Delivery Extra Fee")
+        if (class_exists(Zippy_Handle_Shipping::class)) {
+            $override_fee = Zippy_Handle_Shipping::get_postal_code_override_fee($postcode);
+            if ($override_fee !== null) {
+                return (float)$override_fee;
+            }
+        }
+
+        // 2. Check for Distance-based tiers (tab "Delivery Fee")
+        if ($distance_meters > 0 && class_exists(Zippy_Handle_Shipping::class)) {
+            $shipping_config = Zippy_Handle_Shipping::query_shipping();
+            if ($shipping_config) {
+                $rules = maybe_unserialize($shipping_config->minimum_order_to_delivery);
+                return (float)Zippy_Handle_Shipping::get_fee_from_config($rules, $distance_km);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Apply free shipping waiver if order subtotal is greater than or equal to the minimum threshold for their distance range.
+     */
+    private static function applyFreeShippingThreshold(?float $fee, float $distance_km): ?float
+    {
+        if ($fee === null || !class_exists(Zippy_Handle_Shipping::class)) {
+            return $fee;
+        }
+
+        $shipping_config = Zippy_Handle_Shipping::query_shipping();
+        if ($shipping_config) {
+            $freeship_rules = maybe_unserialize($shipping_config->minimum_order_to_freeship);
+            $freeship_threshold = Zippy_Handle_Shipping::get_fee_from_config($freeship_rules, $distance_km);
+
+            $cart_subtotal = WC()->cart ? WC()->cart->get_subtotal() : 0.0;
+            if ($freeship_threshold > 0 && $cart_subtotal >= $freeship_threshold) {
+                return 0.0; // Meets or exceeds threshold for Free Shipping
+            }
+        }
+
+        return $fee;
+    }
+
+    /**
+     * Write calculated shipping rates and distances into the WooCommerce checkout session variables.
+     */
+    private static function saveShippingSessionData(string $suffix, float $distance_km, float $distance_meters, float $fee): void
+    {
+        WC()->session->set('zippy_checkout_distance' . $suffix, $distance_km);
+        WC()->session->set('zippy_checkout_distance_meters' . $suffix, $distance_meters);
+        WC()->session->set('total_distance' . $suffix, $distance_meters);
+        WC()->session->set('billing_distance' . $suffix, $distance_km);
+        WC()->session->set('shipping_fee' . $suffix, $fee);
+        update_option('debug_test', $fee);
     }
 
     private static function getDistanceInMeters($from, $to): float
@@ -343,7 +411,7 @@ class CheckoutShipping
 
         // Check if ANY menu group has an active order mode session
         $has_order_mode = false;
-        
+
         // Check default session
         if (WC()->session->get('order_mode')) {
             $has_order_mode = true;
@@ -451,10 +519,52 @@ class CheckoutShipping
         }
     }
 
+    /**
+     * Validate that each menu group designated for delivery meets the minimum delivery purchase limit.
+     */
+    public static function validateMinimumDeliveryOrder(): void
+    {
+        if (!WC()->session || !WC()->cart) return;
+
+        $min_delivery_order = (float) get_option('minimum_order', 0);
+        if ($min_delivery_order <= 0) return;
+
+        // 1. Group cart line subtotals by menu_id
+        $group_subtotals = [];
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            $menu_id = $cart_item['menu_id'] ?? 'default';
+            if (!isset($group_subtotals[$menu_id])) {
+                $group_subtotals[$menu_id] = 0.0;
+            }
+            $group_subtotals[$menu_id] += (float) $cart_item['line_subtotal'];
+        }
+
+        // 2. Validate each group independently against the minimum limit
+        foreach ($group_subtotals as $menu_id => $subtotal) {
+            $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
+            $order_mode = WC()->session->get('order_mode' . $suffix);
+
+            if ($order_mode === 'delivery') {
+                if ($subtotal < $min_delivery_order) {
+                    $menu_name = self::get_menu_name($menu_id) ?: __('Default Menu', 'ai-zippy');
+                    $shortage = $min_delivery_order - $subtotal;
+
+                    $message = sprintf(
+                        __('The minimum order amount for delivery of "%s" is %s. You need to add %s more of these items or switch this menu to Takeaway to proceed.', 'ai-zippy'),
+                        $menu_name,
+                        wc_price($min_delivery_order),
+                        wc_price($shortage)
+                    );
+                    wc_add_notice($message, 'error');
+                }
+            }
+        }
+    }
+
     public static function updateSidebarFragments($fragments): array
     {
         ob_start();
-        ?>
+?>
         <div class="omi-grouped-container">
             <?php
             $grouped_items = [];
@@ -563,7 +673,7 @@ class CheckoutShipping
         <div id="order_review" class="woocommerce-checkout-review-order">
             <?php do_action('woocommerce_checkout_order_review'); ?>
         </div>
-        <?php
+<?php
         $html = ob_get_clean();
 
         $fragments['#az-checkout-sidebar-fragments'] = '<div class="az-checkout__card-body" id="az-checkout-sidebar-fragments">' . $html . '</div>';
