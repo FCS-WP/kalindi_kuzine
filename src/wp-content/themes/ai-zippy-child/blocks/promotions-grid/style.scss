@@ -10,6 +10,7 @@ $promo-subtitle-font-size: clamp(0.7rem, 0.8vw, 0.8rem);
 $promo-transition: 0.3s ease;
 
 .wp-block-ai-zippy-child-promotions-grid {
+  position: relative;
   padding: 30px max(16px, calc((100% - 1200px) / 2));
   background-color: #f5f4f3;
   margin-block-start: 0 !important;
@@ -158,7 +159,35 @@ $promo-transition: 0.3s ease;
   &.promotions-grid--slider {
     .promotions-grid__swiper {
       padding-bottom: 50px;
-      overflow: visible; // Show overflow for partial slides if needed
+      overflow: hidden; // Hide overflow to crop slides outside the arrows
+
+      // Fallback styling before Swiper JS/CSS initializes to prevent layout shifting (FOUC)
+      &:not(.swiper-initialized) {
+        overflow: hidden;
+
+        .swiper-wrapper {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 10px;
+          overflow: hidden;
+        }
+
+        .swiper-slide {
+          flex: 0 0 calc((100% - 10px * 0.2) / 1.2); // Matching mobile default (slidesPerView: 1.2)
+          box-sizing: border-box;
+
+          @media (min-width: 480px) {
+            flex: 0 0 calc((100% - 15px) / 2); // 2 slides
+          }
+          @media (min-width: 768px) {
+            flex: 0 0 calc((100% - 20px * 2) / 3); // 3 slides
+          }
+          @media (min-width: 1024px) {
+            flex: 0 0 calc((100% - 20px * 2) / 3); // 3 slides (updated from 4)
+          }
+        }
+      }
     }
 
     .promotions-grid__pagination {

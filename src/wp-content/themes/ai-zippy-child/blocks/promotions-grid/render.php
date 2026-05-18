@@ -101,13 +101,13 @@ $swiper_config = wp_json_encode([
 				</div>
 			<?php endforeach; ?>
 		<?php if ($is_slider) : ?></div><?php endif; ?>
-		
-		<?php if ($is_slider) : ?>
-			<div class="promotions-grid__pagination swiper-pagination"></div>
-			<div class="promotions-grid__nav">
-				<div class="promotions-grid__nav-prev swiper-button-prev"></div>
-				<div class="promotions-grid__nav-next swiper-button-next"></div>
-			</div>
-		<?php endif; ?>
 	</div>
+	
+	<?php if ($is_slider) : ?>
+		<div class="promotions-grid__pagination swiper-pagination"></div>
+		<div class="promotions-grid__nav">
+			<div class="promotions-grid__nav-prev swiper-button-prev"></div>
+			<div class="promotions-grid__nav-next swiper-button-next"></div>
+		</div>
+	<?php endif; ?>
 </div>
