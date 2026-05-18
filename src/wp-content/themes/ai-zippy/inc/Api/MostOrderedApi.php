@@ -57,12 +57,14 @@ class MostOrderedApi
 			'permission_callback' => '__return_true',
 		]);
 
-		// Get session info
-		register_rest_route('ai-zippy/v1', '/session-info', [
+		// Get sub-categories
+		register_rest_route('ai-zippy/v1', '/categories/sub/(?P<parent_slug>[a-zA-Z0-9-_]+)', [
 			'methods' => 'GET',
-			'callback' => [self::class, 'getSessionInfo'],
+			'callback' => [self::class, 'getSubCategories'],
 			'permission_callback' => '__return_true',
 		]);
+
+		// Get session info
 	}
 
 	/**
@@ -197,7 +199,7 @@ class MostOrderedApi
 	{
 		global $wpdb;
 
-		$menus = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}zippy_menus ORDER BY id ASC");
+		$menus = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}zippy_menus WHERE status = 1 ORDER BY id ASC");
 
 		if (empty($menus)) {
 			return new \WP_REST_Response([], 200);
@@ -233,6 +235,17 @@ class MostOrderedApi
 
 		if ($menu && !empty($menu->days_of_week)) {
 			$days = json_decode($menu->days_of_week, true);
+
+			// If the menu is marked as not available, return empty products
+			if (!empty($days) && isset($days[0]['is_available']) && (int)$days[0]['is_available'] === 0) {
+				return new \WP_REST_Response([
+					'products' => [],
+					'total' => 0,
+					'pages' => 0,
+					'message' => 'Menu is currently unavailable'
+				], 200);
+			}
+
 			if (!empty($days) && isset($days[0]['weekday'])) {
 				$menu_weekday = (int) $days[0]['weekday']; // 1 (Mon) - 7 (Sun)
 				$current_weekday = (int) current_time('N');
@@ -416,6 +429,40 @@ class MostOrderedApi
 		}
 
 		return array_unique(array_map('intval', $term_ids));
+	}
+
+	public static function getSubCategories(\WP_REST_Request $request)
+	{
+		$parent_slug = $request->get_param('parent_slug');
+		if (empty($parent_slug)) {
+			return new \WP_REST_Response([], 200);
+		}
+
+		$parent_term = get_term_by('slug', $parent_slug, 'product_cat');
+		if (!$parent_term) {
+			return new \WP_REST_Response([], 200);
+		}
+
+		$children = get_terms([
+			'taxonomy' => 'product_cat',
+			'parent' => $parent_term->term_id,
+			'hide_empty' => false,
+		]);
+
+		if (is_wp_error($children) || empty($children)) {
+			return new \WP_REST_Response([], 200);
+		}
+
+		$categories = array_map(function ($cat) {
+			return [
+				'id' => (int) $cat->term_id,
+				'name' => sanitize_text_field($cat->name),
+				'slug' => $cat->slug,
+				'image' => self::getCategoryImage($cat->term_id),
+			];
+		}, $children);
+
+		return new \WP_REST_Response($categories, 200);
 	}
 
 	/**

@@ -183,11 +183,10 @@ class OrderSessionApi
         }
 
         $menu_id = $request->get_param('menu_id');
-        $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
 
         $session_data = WC()->session->get_session_data();
 
-        // Comprehensive list of booking-related keys from SplitOrder.php
+        // Comprehensive list of booking and shipping related keys
         $booking_keys = [
             'order_mode',
             'date',
@@ -210,15 +209,35 @@ class OrderSessionApi
             'lng',
             'minimum_order_to_freeship',
             'extra_fee',
-            'comment'
+            'comment',
+            'zippy_checkout_distance',
+            'zippy_checkout_distance_meters',
+            'billing_distance'
         ];
 
         foreach ($session_data as $key => $value) {
             foreach ($booking_keys as $b_key) {
-                // Match exact key or key with menu_id suffix (e.g., date_2)
-                if ($key === $b_key || strpos($key, $b_key . '_') === 0) {
-                    WC()->session->set($key, null);
-                    break;
+                if ($menu_id !== null) {
+                    $suffix = ($menu_id && $menu_id !== 'default') ? '_' . $menu_id : '';
+                    if ($suffix !== '') {
+                        // Suffix exists (e.g. '_2'). Exact match for targeted group key only
+                        if ($key === $b_key . $suffix) {
+                            WC()->session->set($key, null);
+                            break;
+                        }
+                    } else {
+                        // Suffix is empty (default menu). Target key must be exact match without suffix
+                        if ($key === $b_key) {
+                            WC()->session->set($key, null);
+                            break;
+                        }
+                    }
+                } else {
+                    // No specific menu_id is targeted. Clear all matching booking keys globally across all groups
+                    if ($key === $b_key || strpos($key, $b_key . '_') === 0) {
+                        WC()->session->set($key, null);
+                        break;
+                    }
                 }
             }
         }

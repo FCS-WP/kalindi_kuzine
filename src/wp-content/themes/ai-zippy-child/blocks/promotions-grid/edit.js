@@ -45,6 +45,20 @@ export default function Edit({ attributes, setAttributes }) {
   return (
     <>
       <InspectorControls>
+        <PanelBody title={__("Slider Settings", "ai-zippy")}>
+          <ToggleControl
+            label={__("Enable Slider Mode", "ai-zippy")}
+            checked={attributes.isSlider}
+            onChange={(val) => setAttributes({ isSlider: val })}
+          />
+          {attributes.isSlider && (
+            <ToggleControl
+              label={__("Enable Autoplay", "ai-zippy")}
+              checked={attributes.autoplay}
+              onChange={(val) => setAttributes({ autoplay: val })}
+            />
+          )}
+        </PanelBody>
         <PanelBody title={__("Visibility Settings", "ai-zippy")}>
           <ToggleControl
             label={__("Hide Block on Frontend", "ai-zippy")}
@@ -77,73 +91,31 @@ export default function Edit({ attributes, setAttributes }) {
           />
         </h2>
 
-        <div className="promotions-grid__grid">
-          {promotions.map((promo, index) => (
-            <div key={promo.id} className="promotions-grid__card">
-              <MediaUploadCheck>
-                <MediaUpload
-                  onSelect={(media) => {
-                    updatePromotion(index, "imageId", media.id);
-                    updatePromotion(index, "imageUrl", media.url);
-                  }}
-                  allowedTypes={["image"]}
-                  value={promo.imageId}
-                  render={({ open }) => (
-                    <div
-                      className="promotions-grid__card-image"
-                      style={
-                        promo.imageUrl
-                          ? { backgroundImage: `url(${promo.imageUrl})` }
-                          : {}
-                      }
-                      onClick={open}
-                      role="button"
-                      tabIndex={0}
-                    />
-                  )}
-                />
-              </MediaUploadCheck>
-
-              <div className="promotions-grid__card-overlay">
-                <div className="promotions-grid__card-content">
-                  <h3 className="promotions-grid__card-title">
-                    <RichText
-                      tagName="span"
-                      value={promo.title}
-                      onChange={(val) => updatePromotion(index, "title", val)}
-                      placeholder={__("FREE DELIVERY", "ai-zippy")}
-                    />
-                  </h3>
-                  <p className="promotions-grid__card-subtitle">
-                    <RichText
-                      tagName="span"
-                      value={promo.subtitle}
-                      onChange={(val) =>
-                        updatePromotion(index, "subtitle", val)
-                      }
-                      placeholder={__("Minimum order of $XX", "ai-zippy")}
-                    />
-                  </p>
-                </div>
-              </div>
-
-              {promotions.length > 1 && (
-                <Button
-                  onClick={() => removePromotion(index)}
-                  variant="link"
-                  isDestructive
-                  size="small"
-                >
-                  {__("Remove", "ai-zippy")}
-                </Button>
+        <div className="promotions-db-notice">
+          <div className="promotions-db-notice__icon">⭐</div>
+          <div className="promotions-db-notice__text">
+            <h4>{__("Fetching from Database", "ai-zippy")}</h4>
+            <p>
+              {__(
+                "This block is now configured to pull content automatically from the 'Promotions' section in your WordPress sidebar.",
+                "ai-zippy",
               )}
-            </div>
-          ))}
+            </p>
+            <a href="/wp-admin/edit.php?post_type=promotion" target="_blank" rel="noreferrer">
+              {__("Manage Promotions in Admin →", "ai-zippy")}
+            </a>
+          </div>
         </div>
 
-        <Button onClick={addPromotion} variant="primary">
-          {__("+ Add Promotion", "ai-zippy")}
-        </Button>
+        {attributes.isSlider ? (
+          <div className="promotions-grid-preview slider-preview">
+             <p><em>{__("Slider Mode Enabled (Preview not available in editor)", "ai-zippy")}</em></p>
+          </div>
+        ) : (
+          <div className="promotions-grid-preview grid-preview">
+             <p><em>{__("Grid Mode Enabled (Preview not available in editor)", "ai-zippy")}</em></p>
+          </div>
+        )}
       </div>
     </>
   );

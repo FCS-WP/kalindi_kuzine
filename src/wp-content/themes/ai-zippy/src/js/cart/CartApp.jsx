@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getCart, updateItemQty, removeItem, applyCoupon, removeCoupon, clearCart } from "./api.js";
 import CartSteps from "./components/CartSteps.jsx";
 import CartItems from "./components/CartItems.jsx";
@@ -11,37 +11,70 @@ export default function CartApp({ checkoutUrl, shopUrl }) {
 	const [busyKeys, setBusyKeys] = useState(new Set());
 	const [error, setError] = useState(null);
 
-	// Load cart
-	useEffect(() => {
-		const loadData = () => {
-			getCart()
-				.then(setCart)
-				.catch(() => setError("Failed to load cart"))
-				.finally(() => setLoading(false));
-		};
+	const isFetching = useRef(false);
 
+	// Load cart
+	const loadData = useCallback(async (isAutoRefresh = false) => {
+		if (isFetching.current) return;
+		
+		isFetching.current = true;
+		if (!isAutoRefresh) setLoading(true);
+
+		try {
+			const data = await getCart();
+			setCart(data);
+		} catch (err) {
+			console.error("Failed to load cart:", err);
+			setError("Failed to load cart");
+		} finally {
+			setLoading(false);
+			// Small timeout to prevent immediate re-triggering from events
+			setTimeout(() => {
+				isFetching.current = false;
+			}, 500);
+		}
+	}, []);
+
+	useEffect(() => {
 		loadData();
 
-		// Listen for cart events to refresh data
-		const handleRefresh = () => {
-			console.log("🔄 Cart updated externally, refreshing CartApp...");
-			loadData();
+		// On the cart page, we don't want to listen to external refreshes
+		// because the CartApp itself is the one changing the cart.
+		// This prevents infinite loops with WooCommerce's fragment refresh.
+		const isCartPage = window.location.pathname.includes("/cart");
+		if (isCartPage) {
+			console.log("🚫 Cart page detected, disabling external refresh listeners to prevent loops.");
+			return;
+		}
+
+		// Listen for cart events to refresh data (only on non-cart pages like Shop)
+		let refreshTimer;
+		const handleRefresh = (e) => {
+			if (isFetching.current) return;
+			
+			clearTimeout(refreshTimer);
+			refreshTimer = setTimeout(() => {
+				const eventName = e?.type || (e instanceof CustomEvent ? e.type : "unknown");
+				console.log(`🔄 Cart updated externally via [${eventName}], refreshing CartApp...`);
+				loadData(true);
+			}, 300); // Debounce refresh
 		};
 
 		document.body.addEventListener("wc-blocks_added_to_cart", handleRefresh);
 		
 		const $ = window.jQuery;
 		if ($) {
-			$(document.body).on("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
+			$(document.body).on("added_to_cart removed_from_cart updated_cart_totals", handleRefresh);
 		}
 
 		return () => {
+			clearTimeout(refreshTimer);
 			document.body.removeEventListener("wc-blocks_added_to_cart", handleRefresh);
 			if ($) {
-				$(document.body).off("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
+				$(document.body).off("added_to_cart removed_from_cart updated_cart_totals", handleRefresh);
 			}
 		};
-	}, []);
+	}, [loadData]);
 
 	const markBusy = useCallback((key, busy) => {
 		setBusyKeys((prev) => {

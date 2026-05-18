@@ -12,10 +12,12 @@ defined('ABSPATH') || exit;
 // Include child theme classes
 require_once get_stylesheet_directory() . '/inc/BlockRegistration.php';
 require_once get_stylesheet_directory() . '/inc/SplitOrder.php';
+require_once get_stylesheet_directory() . '/inc/PromotionsCPT.php';
 
 // Register child theme blocks
 \AiZippyChild\BlockRegistration::register();
 \AiZippyChild\Inc\SplitOrder::init();
+\AiZippyChild\Inc\PromotionsCPT::init();
 
 /**
  * Enqueue child theme styles after parent.

@@ -228,14 +228,25 @@ export default function MostOrdered({ limit: propLimit, menuUrl }) {
 					) : (
 						<>
 							<div className="most-ordered-browser__grid">
-								{products.map((product) => (
-									<ProductCard key={product.id} product={product} menuId={activeTab} />
-								))}
+								{/* Show skeletons when loading initial data or switching tabs */}
+								{loading && products.length === 0 ? (
+									Array.from({ length: PER_PAGE }).map((_, i) => (
+										<ProductSkeleton key={`skeleton-${i}`} />
+									))
+								) : (
+									<>
+										{products.map((product) => (
+											<ProductCard key={product.id} product={product} menuId={activeTab} />
+										))}
+										{/* Show additional skeletons when loading more */}
+										{loading && (
+											Array.from({ length: 4 }).map((_, i) => (
+												<ProductSkeleton key={`loading-more-${i}`} />
+											))
+										)}
+									</>
+								)}
 							</div>
-
-							{loading && (
-								<div className="most-ordered-browser__loading">Loading...</div>
-							)}
 
 							{hasMore && !loading && (
 								<div className="most-ordered-browser__pagination">
@@ -287,6 +298,22 @@ function ProductCard({ product, menuId }) {
 				>
 					<span>+</span>
 				</a>
+			</div>
+		</div>
+	);
+}
+
+function ProductSkeleton() {
+	return (
+		<div className="most-ordered-browser__product most-ordered-browser__skeleton">
+			<div className="skeleton-box skeleton-image"></div>
+			<div className="most-ordered-browser__product-content">
+				<div className="most-ordered-browser__product-info">
+					<div className="skeleton-box skeleton-text"></div>
+					<div className="skeleton-box skeleton-text" style={{ width: '60%' }}></div>
+					<div className="skeleton-box skeleton-price"></div>
+				</div>
+				<div className="skeleton-box" style={{ width: '44px', height: '44px', borderRadius: '50%' }}></div>
 			</div>
 		</div>
 	);

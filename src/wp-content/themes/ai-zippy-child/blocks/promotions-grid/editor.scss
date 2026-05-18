@@ -82,4 +82,49 @@
     margin-bottom: 15px;
     border-radius: 4px;
   }
+
+  .promotions-db-notice {
+    display: flex;
+    gap: 1.5rem;
+    background: #fff;
+    border: 2px solid #cc5d33;
+    padding: 2rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    align-items: center;
+
+    &__icon {
+      font-size: 3rem;
+    }
+
+    &__text {
+      h4 {
+        margin: 0 0 0.5rem;
+        color: #cc5d33;
+        font-size: 1.25rem;
+      }
+      p {
+        margin: 0 0 1rem;
+        color: #666;
+        font-size: 0.95rem;
+      }
+      a {
+        color: #cc5d33;
+        font-weight: 600;
+        text-decoration: underline;
+        
+        &:hover {
+          color: #b04d2a;
+        }
+      }
+    }
+  }
+
+  .promotions-grid-preview {
+    text-align: center;
+    padding: 2rem;
+    background: #f9f9f9;
+    border: 1px dashed #ccc;
+    color: #999;
+  }
 }

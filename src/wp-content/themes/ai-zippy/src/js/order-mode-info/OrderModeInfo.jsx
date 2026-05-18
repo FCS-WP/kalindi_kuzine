@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getGroupedCart, clearSession } from "./api.js";
 import { removeCartItem } from "@/js/modules/cart-api";
 import { updateMiniCart } from "@/js/modules/cart-ui";
@@ -11,33 +11,13 @@ export default function OrderModeInfo() {
 	const [showConfirm, setShowConfirm] = useState(false);
 	const [clearing, setClearing] = useState(false);
 
-	useEffect(() => {
-		console.log("🚀 OrderModeInfo component mounted");
-		loadCartData();
+	const isFetching = useRef(false);
 
-		// Listen for cart events to refresh data
-		const handleRefresh = () => {
-			console.log("🔄 Cart updated, refreshing OrderModeInfo...");
-			loadCartData();
-		};
-
-		document.body.addEventListener("wc-blocks_added_to_cart", handleRefresh);
-
-		// Also listen for legacy/jQuery events to catch all add-to-cart variants
-		const $ = window.jQuery;
-		if ($) {
-			$(document.body).on("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
-		}
-
-		return () => {
-			document.body.removeEventListener("wc-blocks_added_to_cart", handleRefresh);
-			if ($) {
-				$(document.body).off("added_to_cart removed_from_cart updated_cart_totals wc_fragments_refreshed wc_fragments_loaded", handleRefresh);
-			}
-		};
-	}, []);
-
-	const loadCartData = async () => {
+	const loadCartData = useCallback(async (isAutoRefresh = false) => {
+		if (isFetching.current) return;
+		
+		isFetching.current = true;
+		if (!isAutoRefresh) setLoading(true);
 
 		try {
 			console.log("📡 Fetching grouped cart data...");
@@ -49,8 +29,54 @@ export default function OrderModeInfo() {
 			setError(err.message);
 		} finally {
 			setLoading(false);
+			// Small timeout to prevent immediate re-triggering from events
+			setTimeout(() => {
+				isFetching.current = false;
+			}, 500);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		console.log("🚀 OrderModeInfo component mounted");
+		loadCartData();
+
+		// On the cart page, we don't want to listen to external refreshes
+		// because the CartApp itself is the one changing the cart.
+		const isCartPage = window.location.pathname.includes("/cart");
+		if (isCartPage) {
+			console.log("🚫 Cart page detected, disabling external refresh listeners in OrderModeInfo.");
+			return;
+		}
+
+		// Listen for cart events to refresh data
+		let refreshTimer;
+		const handleRefresh = (e) => {
+			if (isFetching.current) return;
+
+			clearTimeout(refreshTimer);
+			refreshTimer = setTimeout(() => {
+				const eventName = e?.type || "unknown";
+				console.log(`🔄 Cart updated via [${eventName}], refreshing OrderModeInfo...`);
+				loadCartData(true);
+			}, 300); // Debounce refresh
+		};
+
+		document.body.addEventListener("wc-blocks_added_to_cart", handleRefresh);
+		
+		// Also listen for legacy/jQuery events to catch all add-to-cart variants
+		const $ = window.jQuery;
+		if ($) {
+			$(document.body).on("added_to_cart removed_from_cart updated_cart_totals", handleRefresh);
+		}
+
+		return () => {
+			clearTimeout(refreshTimer);
+			document.body.removeEventListener("wc-blocks_added_to_cart", handleRefresh);
+			if ($) {
+				$(document.body).off("added_to_cart removed_from_cart updated_cart_totals", handleRefresh);
+			}
+		};
+	}, [loadCartData]);
 
 	const [targetMenuId, setTargetMenuId] = useState(null);
 

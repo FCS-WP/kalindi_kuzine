@@ -18,13 +18,17 @@ class CartAssets
     }
 
     /**
-     * Enqueue cart assets.
+     * Enqueue cart assets and disable core cart fragments to prevent loops.
      */
     public static function enqueue(): void
     {
         if (!is_cart() && !is_page('cart')) {
             return;
         }
+
+        // Disable WC core cart fragments on our custom cart page
+        // to prevent it from triggering full page reloads via {"reload": true}
+        wp_dequeue_script('wc-cart-fragments');
 
         \AiZippy\Core\ViteAssets::enqueue(
             'ai-zippy-cart',

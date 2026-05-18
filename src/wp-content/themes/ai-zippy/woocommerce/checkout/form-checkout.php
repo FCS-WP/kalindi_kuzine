@@ -250,10 +250,13 @@ do_action('woocommerce_before_checkout_form', $checkout);
 			$.ajax({
 				url: '/wp-json/ai-zippy/v1/order-session/clear',
 				method: 'POST',
+				headers: {
+					'X-WP-Nonce': '<?php echo wp_create_nonce("wp_rest"); ?>'
+				},
 				data: { menu_id: menuId },
 				success: function(response) {
 					if (response.success) {
-						location.reload();
+						window.location.href = '<?php echo esc_url(home_url("/")); ?>';
 					} else {
 						alert('Failed to reset: ' + (response.message || 'Unknown error'));
 						$btn.prop('disabled', false).text('RESET');

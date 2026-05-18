@@ -431,7 +431,10 @@ class SplitOrder
                 'lng',
                 'minimum_order_to_freeship',
                 'extra_fee',
-                'comment'
+                'comment',
+                'zippy_checkout_distance',
+                'zippy_checkout_distance_meters',
+                'billing_distance'
             ];
 
             foreach ($session_data as $key => $value) {

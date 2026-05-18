@@ -8,6 +8,8 @@ const BASE = "/wp-json/ai-zippy/v1";
 
 export default function PartyOrder({ limit, columns }) {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [activeCategory, setActiveCategory] = useState('party-order');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -16,14 +18,31 @@ export default function PartyOrder({ limit, columns }) {
     const [sessionActive, setSessionActive] = useState(false);
 
     useEffect(() => {
-        loadProducts();
+        loadCategories();
         checkSession();
     }, []);
 
-    const loadProducts = async () => {
+    useEffect(() => {
+        loadProducts();
+    }, [activeCategory]);
+
+    const loadCategories = async () => {
         try {
-            // Fetch products specifically for party-order category
-            const response = await fetch(`${BASE}/most-ordered?category=party-order&per_page=${limit}`);
+            const response = await fetch(`${BASE}/categories/sub/party-order`);
+            if (response.ok) {
+                const data = await response.json();
+                setCategories(data || []);
+            }
+        } catch (err) {
+            console.error('Error loading categories:', err);
+        }
+    };
+
+    const loadProducts = async () => {
+        setLoading(true);
+        try {
+            // Fetch products specifically for active category
+            const response = await fetch(`${BASE}/most-ordered?category=${activeCategory}&per_page=${limit}`);
             if (!response.ok) throw new Error('Failed to fetch products');
             const data = await response.json();
             setProducts(data || []);
@@ -131,40 +150,68 @@ export default function PartyOrder({ limit, columns }) {
         }
     };
 
-    if (loading) return <div className="party-order-loading" style={{ padding: '4rem', textAlign: 'center' }}>Loading products...</div>;
-    if (error) return <div className="party-order-error" style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>Error: {error}</div>;
-    if (products.length === 0) {
-        return (
-            <div className="party-order-empty" style={{ padding: '4rem', textAlign: 'center', background: '#f9f9f9', borderRadius: '12px' }}>
-                <p>No products found in the <strong>party-order</strong> category.</p>
-                <p style={{ fontSize: '0.9rem', color: '#666' }}>Please assign the "party-order" category to products you want to display here.</p>
-            </div>
-        );
+    if (error && products.length === 0) return <div className="party-order-error" style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>Error: {error}</div>;
+    
+    if (products.length === 0 && loading && categories.length === 0) {
+        return <div className="party-order-loading" style={{ padding: '4rem', textAlign: 'center' }}>Loading...</div>;
     }
 
     return (
-        <div className={`party-order-grid columns-${columns}`}>
-            {products.map(product => (
-                <div key={product.id} className="party-order-card">
-                    <div className="party-order-card__image">
-                        <img src={product.image} alt={product.name} />
-                    </div>
-                    <div className="party-order-card__content">
-                        <h3 className="party-order-card__title">{product.name}</h3>
-                        <p className="party-order-card__desc">Sản phẩm Party Order chất lượng cao</p>
-                        <div className="party-order-card__footer">
-                            <span className="party-order-card__price">${product.price.toFixed(2)}</span>
-                            <button 
-                                className="party-order-card__add"
-                                onClick={() => handleAddToCart(product)}
-                                disabled={adding === product.id}
-                            >
-                                {adding === product.id ? '...' : '+'}
-                            </button>
-                        </div>
-                    </div>
+        <div className="party-order-container">
+            {categories.length > 0 && (
+                <div className="party-order-filter">
+                    <button 
+                        className={`party-order-filter__item ${activeCategory === 'party-order' ? 'is-active' : ''}`}
+                        onClick={() => setActiveCategory('party-order')}
+                    >
+                        Tất cả
+                    </button>
+                    {categories.map(cat => (
+                        <button 
+                            key={cat.id}
+                            className={`party-order-filter__item ${activeCategory === cat.slug ? 'is-active' : ''}`}
+                            onClick={() => setActiveCategory(cat.slug)}
+                        >
+                            {cat.name}
+                        </button>
+                    ))}
                 </div>
-            ))}
+            )}
+
+            <div className={`party-order-grid columns-${columns} ${loading ? 'is-loading' : ''}`}>
+                {loading && (
+                    <div className="party-order-grid-overlay">
+                         <div className="spinner"></div>
+                    </div>
+                )}
+                {products.length === 0 && !loading ? (
+                    <div className="party-order-empty" style={{ gridColumn: '1 / -1', padding: '4rem', textAlign: 'center', background: '#f9f9f9', borderRadius: '12px' }}>
+                        <p>No products found in this category.</p>
+                    </div>
+                ) : (
+                    products.map(product => (
+                        <div key={product.id} className="party-order-card">
+                            <div className="party-order-card__image">
+                                <img src={product.image} alt={product.name} />
+                            </div>
+                            <div className="party-order-card__content">
+                                <h3 className="party-order-card__title">{product.name}</h3>
+                                <p className="party-order-card__desc">Sản phẩm Party Order chất lượng cao</p>
+                                <div className="party-order-card__footer">
+                                    <span className="party-order-card__price">${product.price.toFixed(2)}</span>
+                                    <button 
+                                        className="party-order-card__add"
+                                        onClick={() => handleAddToCart(product)}
+                                        disabled={adding === product.id}
+                                    >
+                                        {adding === product.id ? '...' : '+'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
 
             {showConfirm && (
                 <div className="zippy-lightbox-overlay" style={{ display: 'flex', zIndex: 10001, opacity: 1, backgroundColor: 'rgba(0,0,0,0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
